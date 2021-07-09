@@ -1,5 +1,5 @@
 # Base image
-FROM hackolade/studio:0.0.1
+FROM hackolade/studio:0.0.2
 
 # Environment variables
 ENV USERNAME=hackolade
@@ -29,6 +29,16 @@ RUN curl $HACKOLADE_URL -o $HOME/hackolade.zip -s \
 RUN init.sh
 
 USER $USERNAME
+
+#
+# Plugin installation
+#
+# To find more plugins please check the plugin registry:
+# https://github.com/hackolade/plugins/blob/master/pluginRegistry.json
+#
+# RUN installPlugin.sh Cassandra
+# RUN installPlugin.sh Avro
+#
 
 ENTRYPOINT ["startup.sh"]
 CMD ["hackolade"]
