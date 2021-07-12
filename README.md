@@ -22,7 +22,7 @@ The example uses an [image](https://hub.docker.com/layers/156675526/hackolade/st
 
 with a tag “hackolade:latest”:
 
-`docker build -f Dockerfile.app -t hackolade:latest .`
+`docker build --no-cache -f Dockerfile.app -t hackolade:latest .`
 
 #### Create 3 directories
 
