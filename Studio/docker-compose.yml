@@ -4,7 +4,7 @@ services:
    image: hackolade:latest
    privileged: true
    volumes:
-     - ./logs:/home/hackolade/Documents/HackoladeLogs/
-     - ./data:/home/hackolade/Documents/data/
      - ./appData:/home/hackolade/.config/Hackolade
+     - ./data:/home/hackolade/Documents/data/
+     - ./logs:/home/hackolade/Documents/HackoladeLogs/
      - ./options:/home/hackolade/.hackolade/options

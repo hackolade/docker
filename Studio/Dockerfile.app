@@ -5,6 +5,7 @@ FROM hackolade/studio:0.0.2
 ENV USERNAME=hackolade
 ENV UID=1000
 ENV GID=1000
+# the latest version of Hackolade will be downloaded.  If you need a specific version, replace /current/ with /previous/v5.0.8/ for example or whatever version number you require
 ENV HACKOLADE_URL "https://s3-eu-west-1.amazonaws.com/hackolade/current/Hackolade-linux-x64.zip"
 #required
 ENV DISPLAY ":99" 
