@@ -14,11 +14,11 @@ To ensure proper behavior of the Hackolade Studio CLI in a Docker container, mak
 This repository contains files and instructions for running [Hackolade](https://hackolade.com) applications published on [Docker Hub](https://hub.docker.com/r/hackolade/studio):
 
 - [Dockerfile.app](Dockerfile.app): ready-to-use example of a full installation of Hackolade Studio, including the possibility to install selected target plugins
-- [Dockerfile.plugins](Dockerfile.app): example of a how to install additional target plugins
+- [Dockerfile.plugins](Dockerfile.plugins): example of a how to install additional target plugins
 - [Dockerfile.update](Dockerfile.update): example of how to update image with the latest application and plugin versions
-- [docker-compose.yml](Dockerfile.app): example of how to configure the launch of containers of the Hackolade CLI
-- [docker-help.bat](Dockerfile.app): example of how to verify the proper running of the CLI by displaying the CLI help in a container (Windows).  This example will work without a validated license key.
-- [docker-validateKey.bat](Dockerfile.app): example of how to validate a license key (Windows)
+- [docker-compose.yml](docker-compose.yml): example of how to configure the launch of containers of the Hackolade CLI
+- [docker-help.bat](docker-help.bat): example of how to verify the proper running of the CLI by displaying the CLI help in a container (Windows).  This example will work without a validated license key.
+- [docker-validateKey.bat](docker-validateKey.bat): example of how to validate a license key (Windows)
 - [docker-genDoc.bat](docker-genDoc.bat): example of how to run the CLI for the genDoc command (Windows).  This command requires a validated license key.
 
 
