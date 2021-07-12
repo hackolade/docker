@@ -1,5 +1,5 @@
 # Base image
-FROM hackolade/studio:0.0.2
+FROM hackolade/studio:latest
 
 # Environment variables
 ENV USERNAME=hackolade
@@ -37,7 +37,7 @@ USER $USERNAME
 # To find more plugins please check the plugin registry:
 # https://github.com/hackolade/plugins/blob/master/pluginRegistry.json
 #
-# Uncomment lines below to select plugins to install in image
+# Uncomment lines below to select plugins to install in the image
 #
 # RUN installPlugin.sh Avro
 # RUN installPlugin.sh Cassandra

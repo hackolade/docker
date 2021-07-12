@@ -29,9 +29,9 @@ This repository contains files and instructions for running [Hackolade](https://
 
 with a tag “hackolade:latest”:
 
-`docker build --no-cache -f Dockerfile.app -t hackolade:latest .`
+`docker build --no-cache --pull -f Dockerfile.app -t hackolade:latest .`
 
-The example uses a [Dockerfile.app](Dockerfile.app) which references a base [image](https://hub.docker.com/repository/docker/hackolade/studio) with all prerequisites needed to run Hackolade.  The latest version of Hackolade will automatically be downloaded.  The image has a pre-created user “hackolade” with UID 1000 and GID 1000, which may be needed to synchronize permissions between container and host system.  
+The example uses a [Dockerfile.app](Dockerfile.app) which references the latest base [image](https://hub.docker.com/r/hackolade/studio) with all prerequisites needed to run Hackolade.  The latest version of Hackolade will automatically be downloaded.  The image has a pre-created user “hackolade” with UID 1000 and GID 1000, which may be needed to synchronize permissions between container and host system.  
 
 
 
@@ -119,7 +119,7 @@ Assuming that a valid Hackolade model file called *`model.json`* is placed in th
 
 The easiest way to update plugins and the application is to rebuild images from previous sections:
 
-`docker build --no-cache -f Dockerfile.app -t hackolade:latest .`
+`docker build --no-cache --pull -f Dockerfile.app -t hackolade:latest .`
 
 You may also wish to update your existing image with the latest application and plugin versions.  You may do so by using this [Dockerfile.update](Dockerfile.update) file, possibly after editing it for your specific needs, then running:
 
