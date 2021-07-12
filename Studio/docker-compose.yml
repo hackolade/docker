@@ -1,6 +1,6 @@
 version: "3"
 services:
- hackolade:
+ hackoladeStudioCLI:
    image: hackolade:latest
    privileged: true
    volumes:
