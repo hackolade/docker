@@ -13,12 +13,13 @@ To ensure proper behavior of the Hackolade Studio CLI in a Docker container, mak
 
 This repository contains files and instructions for running [Hackolade](https://hackolade.com) applications published on [Docker Hub](https://hub.docker.com/r/hackolade/studio):
 
-- [Dockerfile.app](Studio/Dockerfile.app): ready-to-use example of a full installation of Hackolade Studio, including the possibility to install selected target plugins
-- [Dockerfile.plugins](Studio/Dockerfile.app): example of a how to install additional target plugins
-- [docker-compose.yml](Studio/Dockerfile.app): example of how to configure the launch of containers of the Hackolade CLI
-- [docker-help.bat](Studio/Dockerfile.app): example of how to verify the proper running of the CLI by displaying the CLI help in a container (Windows).  This example will work without a validated license key.
-- [docker-validateKey.bat](Studio/Dockerfile.app): example of how to validate a license key (Windows)
-- [docker-genDoc.bat](): example of how to run the CLI for the genDoc command (Windows).  This command requires a validated license key.
+- [Dockerfile.app](Dockerfile.app): ready-to-use example of a full installation of Hackolade Studio, including the possibility to install selected target plugins
+- [Dockerfile.plugins](Dockerfile.app): example of a how to install additional target plugins
+- [Dockerfile.update](Dockerfile.update): example of how to update image with the latest application and plugin versions
+- [docker-compose.yml](Dockerfile.app): example of how to configure the launch of containers of the Hackolade CLI
+- [docker-help.bat](Dockerfile.app): example of how to verify the proper running of the CLI by displaying the CLI help in a container (Windows).  This example will work without a validated license key.
+- [docker-validateKey.bat](Dockerfile.app): example of how to validate a license key (Windows)
+- [docker-genDoc.bat](docker-genDoc.bat): example of how to run the CLI for the genDoc command (Windows).  This command requires a validated license key.
 
 
 
@@ -77,7 +78,7 @@ Description of required subfolders:
 
 #### Display CLI help in a container
 
-All commands must be executed in the parent folder of the subfolders described above.  It is suggested to run commands using the [docker-compose.yml](SDockerfile.app) file, possibly after editing it for your specific needs. 
+All commands must be executed in the parent folder of the subfolders described above.  It is suggested to run commands using the [docker-compose.yml](docker-compose.yml) file, possibly after editing it for your specific needs. 
 
 A typical command will look like this:
 
@@ -106,7 +107,7 @@ All commands must be executed in the parent folder of the subfolders described a
 
 #### Generate documentation for a model
 
-All commands must be executed in the parent folder of the subfolders described above.  It is suggested to run commands using the [docker-compose.yml](Dockerfile.app) file, possibly after editing it for your specific needs. 
+All commands must be executed in the parent folder of the subfolders described above.  It is suggested to run commands using the [docker-compose.yml](docker-compose.yml) file, possibly after editing it for your specific needs. 
 
 Assuming that a valid Hackolade model file called *`model.json`* is placed in the *`data`* subfolder of the location where the container is being run:
 
@@ -130,7 +131,7 @@ You may also wish to update your existing image with the latest application and 
 
 You may have customized the behavior of the application GUI, and wish to use them during CLI processing.  
 
-If the containers will be running on a machine with no Hackolade Studio GUI, you use in the [docker-compose.yml](Dockerfile.app) file the default subfolder of the location where the containers will be running:
+If the containers will be running on a machine with no Hackolade Studio GUI, you use in the [docker-compose.yml](docker-compose.yml) file the default subfolder of the location where the containers will be running:
 
          - ./options:/home/hackolade/.hackolade/options
 
