@@ -15,7 +15,6 @@ This repository contains files and instructions for running [Hackolade](https://
 
 - [Dockerfile.app](Dockerfile.app): ready-to-use example of a full installation of Hackolade Studio, including the possibility to install selected target plugins
 - [Dockerfile.plugins](Dockerfile.plugins): example of a how to install additional target plugins
-- [Dockerfile.update](Dockerfile.update): example of how to update image with the latest application and plugin versions
 - [docker-compose.yml](docker-compose.yml): example of how to configure the launch of containers of the Hackolade CLI
 - [docker-help.bat](docker-help.bat): example of how to verify the proper running of the CLI by displaying the CLI help in a container (Windows).  This example will work without a validated license key.
 - [docker-validateKey.bat](docker-validateKey.bat): example of how to validate a license key (Windows)
@@ -112,18 +111,6 @@ All commands must be executed in the parent folder of the subfolders described a
 Assuming that a valid Hackolade model file called *`model.json`* is placed in the *`data`* subfolder of the location where the container is being run:
 
 `docker-compose run --rm hackoladeStudioCLI hackolade genDoc --model=/home/hackolade/Documents/data/model.json --format=html --doc=/home/hackolade/Documents/data/doc.html`
-
-
-
-### Update to the latest application and plugin versions
-
-The easiest way to update plugins and the application is to rebuild images from previous sections:
-
-`docker build --no-cache --pull -f Dockerfile.app -t hackolade:latest .`
-
-You may also wish to update your existing image with the latest application and plugin versions.  You may do so by using this [Dockerfile.update](Dockerfile.update) file, possibly after editing it for your specific needs, then running:
-
-`docker build --no-cache -f Dockerfile.update -t hackolade:latest .`
 
 
 
