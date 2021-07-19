@@ -1,5 +1,5 @@
 # Base image
-FROM hackolade/studio:latest
+FROM hackolade/studio:latest@sha256:18d108198dd8e1dca59174fc4fc29dcdeb127e0c8342a3c95c82a72fe0d29301
 
 # Environment variables
 ENV USERNAME=hackolade
