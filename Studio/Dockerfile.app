@@ -5,7 +5,9 @@ FROM hackolade/studio:latest@sha256:18d108198dd8e1dca59174fc4fc29dcdeb127e0c8342
 ENV USERNAME=hackolade
 ENV UID=1000
 ENV GID=1000
-# the latest version of Hackolade will be downloaded.  If you need a specific version, replace /current/ with /previous/v5.0.8/ for example or whatever version number you require
+# the latest version of Hackolade will be downloaded.  If you need a specific version, 
+# replace /current/ with /previous/v5.1.0/ for example or whatever version number you require
+# Note that the application is onky certified to run in Docker for version 5.1.0 (and above) when adjustments were made for this purpose.
 ENV HACKOLADE_URL "https://s3-eu-west-1.amazonaws.com/hackolade/current/Hackolade-linux-x64.zip"
 #required
 ENV DISPLAY ":99" 

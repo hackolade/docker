@@ -16,9 +16,10 @@ This repository contains files and instructions for running [Hackolade](https://
 - [Dockerfile.app](Dockerfile.app): ready-to-use example of a full installation of Hackolade Studio, including the possibility to install selected target plugins
 - [Dockerfile.plugins](Dockerfile.plugins): example of a how to install additional target plugins
 - [docker-compose.yml](docker-compose.yml): example of how to configure the launch of containers of the Hackolade CLI
-- [docker-help.bat](docker-help.bat): example of how to verify the proper running of the CLI by displaying the CLI help in a container (Windows).  This example will work without a validated license key.
-- [docker-validateKey.bat](docker-validateKey.bat): example of how to validate a license key (Windows)
-- [docker-genDoc.bat](docker-genDoc.bat): example of how to run the CLI for the genDoc command (Windows).  This command requires a validated license key.
+- batch files examples when running on Windows:
+  - [docker-help.bat](docker-help.bat): verify the proper running of the CLI by displaying the CLI help in a container.  Will work without a validated license key.
+  - [docker-validateKey.bat](docker-validateKey.bat): validate a license key
+  - [docker-genDoc.bat](docker-genDoc.bat): run the CLI for the genDoc command.  Requires a validated license key.
 
 
 
@@ -65,7 +66,7 @@ It is suggested to run commands using the [docker-compose.yml](Dockerfile.app) f
          - ./logs:/home/hackolade/Documents/HackoladeLogs/
          - ./options:/home/hackolade/.hackolade/options
 
-The user inside the container must have enough permissions to write and read from these folders.   If you don't use docker-compose, you must create them manually for proper operations.
+The user inside the container must have enough permissions to write and read from these folders.   If you don't use docker-compose, you must create them manually for proper operations.  You may also use absolute path with $PWD.
 
 Description of required subfolders:
 
@@ -122,7 +123,7 @@ If the containers will be running on a machine with no Hackolade Studio GUI, you
 
          - ./options:/home/hackolade/.hackolade/options
 
-Or you may reference an absolute path to the location of these files, if you're also running the Hackolade Studio GUI on the same machine:
+Or you may reference an absolute path to the location of these files, if you're also running the Hackolade Studio GUI on the same Windows machine:
 
 ```Windows
      - C:/Users/%username%/.hackolade/options:/home/hackolade/.hackolade/options
