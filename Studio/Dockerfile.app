@@ -1,5 +1,5 @@
 # Base image
-FROM hackolade/studio:latest@sha256:18d108198dd8e1dca59174fc4fc29dcdeb127e0c8342a3c95c82a72fe0d29301
+FROM hackolade/studio:latest@sha256:8029f483e8e107fa7284ff9c49ed1da1ec6874e288c31f1557d81006fa5c5af9
 
 # Environment variables
 ENV USERNAME=hackolade
@@ -71,6 +71,17 @@ USER $USERNAME
 # RUN installPlugin.sh Swagger
 # RUN installPlugin.sh Synapse
 # RUN installPlugin.sh TinkerPop
+#
+
+#
+# Some programs needed for installation the application and plugins are not required at the runtime.
+# To remove them please uncomment lines below:
+#
+# Notice: if you don't use JKS certificates you can also remove "openjdk-8-jdk"
+
+# USER root
+# RUN apt-get remove curl unzip zip nodejs -y
+# USER $USERNAME
 #
 
 ENTRYPOINT ["startup.sh"]

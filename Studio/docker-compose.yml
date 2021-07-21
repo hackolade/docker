@@ -1,7 +1,9 @@
+version: "3"
 services:
  hackoladeStudioCLI:
    image: hackolade:latest
-   privileged: true
+   security_opt:
+     - seccomp:securityPolicies.json
    volumes:
      - ./appData:/home/hackolade/.config/Hackolade
      - ./data:/home/hackolade/Documents/data/
