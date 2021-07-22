@@ -1,6 +1,13 @@
 FROM hackolade:latest
  
 #
+# If you removed dependencies needed for plugin installation please uncomment lines below:
+#
+# USER root
+# RUN apt-get install curl unzip zip -y
+# USER $USERNAME
+
+#
 # Plugin installation
 #
 # To find more plugins please check the plugin registry:
@@ -40,3 +47,11 @@ FROM hackolade:latest
 # RUN installPlugin.sh TinkerPop
 #
 
+#
+# If you don't want to have programs required for installation in the runtime,
+# please, remove them by uncommenting the lines below:
+#
+# USER root
+# RUN apt-get remove curl unzip zip -y
+# USER $USERNAME
+#

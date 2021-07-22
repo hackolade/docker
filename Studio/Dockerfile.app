@@ -1,5 +1,5 @@
 # Base image
-FROM hackolade/studio:latest@sha256:8029f483e8e107fa7284ff9c49ed1da1ec6874e288c31f1557d81006fa5c5af9
+FROM hackolade/studio:latest@sha256:11134360f01482bb2a2345cde7d64b5b6e59ad0bc3128ef71b1d1af451090def
 
 # Environment variables
 ENV USERNAME=hackolade
@@ -80,7 +80,7 @@ USER $USERNAME
 # Notice: if you don't use JKS certificates you can also remove "openjdk-8-jdk"
 
 # USER root
-# RUN apt-get remove curl unzip zip nodejs -y
+# RUN apt-get remove curl unzip zip -y
 # USER $USERNAME
 #
 
