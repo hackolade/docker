@@ -1,4 +1,5 @@
-# Base image
+# Base image with OS and dependencies
+# The base image does NOT include the Hackolade Studio application, which instead gets downloaded as part of the operations below
 FROM hackolade/studio:latest@sha256:11134360f01482bb2a2345cde7d64b5b6e59ad0bc3128ef71b1d1af451090def
 
 # Environment variables
@@ -74,15 +75,14 @@ USER $USERNAME
 #
 
 #
-# Some programs needed for installation the application and plugins are not required at the runtime.
-# To remove them please uncomment lines below:
+# Some programs needed for installation application and plugins are not required at runtime, and are removed from the image
+# Note: if you don't use JKS certificates you may also remove "openjdk-8-jdk"
 #
-# Notice: if you don't use JKS certificates you can also remove "openjdk-8-jdk"
 
-# USER root
-# RUN apt-get remove curl unzip zip -y
-# USER $USERNAME
-#
+USER root
+RUN apt-get remove curl unzip zip -y
+RUN apt-get remove openjdk-8-jdk -y
+USER $USERNAME
 
 ENTRYPOINT ["startup.sh"]
 CMD ["hackolade"]

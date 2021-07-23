@@ -1,11 +1,11 @@
 FROM hackolade:latest
  
 #
-# If you removed dependencies needed for plugin installation please uncomment lines below:
+# Reinstall dependencies needed for plugin installation
 #
-# USER root
-# RUN apt-get install curl unzip zip -y
-# USER $USERNAME
+USER root
+RUN apt-get install curl unzip zip -y
+USER $USERNAME
 
 #
 # Plugin installation
@@ -48,10 +48,9 @@ FROM hackolade:latest
 #
 
 #
-# If you don't want to have programs required for installation in the runtime,
-# please, remove them by uncommenting the lines below:
+# Some programs needed for installation application and plugins are not required at runtime, and are removed from the image
 #
-# USER root
-# RUN apt-get remove curl unzip zip -y
-# USER $USERNAME
-#
+USER root
+RUN apt-get remove curl unzip zip -y
+USER $USERNAME
+
