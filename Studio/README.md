@@ -44,7 +44,7 @@ If you need target plugins, they can be installed using one of the following met
 - afterwards, by making your selection in the [Dockerfile.plugins](Dockerfile.plugins) file, then running the following command:
   `docker build --no-cache -f Dockerfile.plugins -t hackolade:latest .`
 
-If a plugin you need exists but is somehow not listed in your Dockerfile.plugins file, you can find the exhaustive list in the [plugin registry](https://github.com/hackolade/plugins/blob/master/pluginRegistry.json).  Then you may add a line (without the # comment): `RUN installPlugin.sh <plugin name>` You may activate multiple lines to install plugins at the same time.
+If a plugin you need exists but is somehow not listed in your Dockerfile.plugins file, you can find the exhaustive list in the [plugin registry](https://github.com/hackolade/plugins/blob/master/pluginRegistry.json).  Then you may add a line (without the # comment): `RUN installPlugin.sh <plugin name> <plugin version>` You may activate multiple lines to install plugins at the same time. Plugin version is optional parameter, if it is omitted, the latest plugin will be downloaded.
 
 
 
