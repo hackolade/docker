@@ -1,6 +1,13 @@
 FROM hackolade:latest
  
 #
+# Reinstall dependencies needed for plugin installation
+#
+USER root
+RUN apt-get install curl unzip zip -y
+USER $USERNAME
+
+#
 # Plugin installation
 #
 # To find more plugins please check the plugin registry:
@@ -39,4 +46,11 @@ FROM hackolade:latest
 # RUN installPlugin.sh Synapse
 # RUN installPlugin.sh TinkerPop
 #
+
+#
+# Some programs needed for installation application and plugins are not required at runtime, and are removed from the image
+#
+USER root
+RUN apt-get remove curl unzip zip -y
+USER $USERNAME
 
