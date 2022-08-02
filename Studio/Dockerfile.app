@@ -1,6 +1,6 @@
 # Base image with OS and dependencies
 # The base image does NOT include the Hackolade Studio application, which instead gets downloaded as part of the operations below
-FROM hackolade/studio:latest@sha256:3faf1ca123a731a39bf1f630968bd43e919b9b43775de6558aaa85ebeb8c2d50
+FROM hackolade/studio:latest@sha256:315852dd7ecdaa1fe0d8bec9aa026020bda578ae50b2bc5e43fc1cb2c334f1a5
 
 # Environment variables
 ENV USERNAME=hackolade
@@ -81,8 +81,7 @@ USER $USERNAME
 
 USER root
 RUN apt-get remove curl unzip zip -y
-RUN apt-get remove openjdk-8-jdk -y
 USER $USERNAME
 
 ENTRYPOINT ["startup.sh"]
-CMD ["hackolade"]
+CMD ["hackolade", "--disable-gpu"]
