@@ -76,7 +76,6 @@ USER $USERNAME
 
 #
 # Some programs needed for installation application and plugins are not required at runtime, and are removed from the image
-# Note: if you don't use JKS certificates you may also remove "openjdk-8-jdk"
 #
 
 USER root
