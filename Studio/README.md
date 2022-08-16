@@ -62,16 +62,20 @@ To view the version number of a plugin in your image:
 
 ### Run CLI commands in a container
 
-It is suggested to run commands using the [docker-compose.yml](Dockerfile.app) file, possibly after editing it for your specific needs.  The docker-compose file will ensure the presence of 4 required subfolders, and if not, will create them:
+It is suggested to run commands using the [docker-compose.yml](Dockerfile.app) file, possibly after editing it for your specific needs.  The docker-compose file will ensure the presence of 4 required subfolders shared from the host, and if not, will create them,
 
          - ./appData:/home/hackolade/.config/Hackolade
          - ./data:/home/hackolade/Documents/data/
          - ./logs:/home/hackolade/Documents/HackoladeLogs/
          - ./options:/home/hackolade/.hackolade/options
 
-The user inside the container must have enough permissions to write and read from these folders.   If you don't use docker-compose, you must create them manually for proper operations.  You may also use absolute path with $PWD.
+where:
 
-Description of required subfolders:
+​			`- <host location>:<container location>`
+
+The user inside the container must have enough permissions to write and read from these host folders.   If you don't use docker-compose, you must create them manually for proper operations.  You may also use absolute path with $PWD.
+
+Description of required host subfolders:
 
 - *data*: this folder is used to share files with containers.  It may contain models, documentation, sources for reverse-engineering, artefacts out of forward-engineering, etc...  Instead of a relative path to the location where the container is run, you may reference an absolute path to the location of these files.
 - *options*; this folder is used to store custom properties for plugins, naming convention configuration, and Excel export options.  Instead of a relative path to the location where the container is run, you may reference an absolute path to the location of these files.
@@ -129,13 +133,19 @@ If your build server has no Internet connection, it is necessary to do an offlin
 
   A file LicenseFile.xml will be generated and downloaded by your browser. Do NOT edit or alter the content of the file as it contains integrity validation to prevent abuse.
 
-3. copy the LicenseFile.xml to your build server
+3. copy the LicenseFile.xml to your build server in the *data* subfolder on the host:
+
+   `./data`
+
+   assuming the docker-compose.yml has been configured as:
+
+   `./data:/home/hackolade/Documents/data/`
 
 4. Validate the license key the command
 
-   `docker-compose run --rm hackoladeStudioCLI hackolade validatekey --key=<concurrent-license-key> --file=LicenseFile.xml`
+   `docker-compose run --rm hackoladeStudioCLI hackolade validatekey --key=<concurrent-license-key> --file=/home/hackolade/Documents/data/LicenseFile.xml`
 
-
+**Important:** If your docker-compose.yml subfolder volumes configuration is different than the example above, please make sure to adjust the path accordingly, as the --file argument is a path inside the container.
 
 **Note:** The entire above process must be repeated for each new Docker image as the UUID changes with each creation.
 
