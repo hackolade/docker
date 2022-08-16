@@ -1,6 +1,6 @@
 # Base image with OS and dependencies
 # The base image does NOT include the Hackolade Studio application, which instead gets downloaded as part of the operations below
-FROM hackolade/studio:latest@sha256:315852dd7ecdaa1fe0d8bec9aa026020bda578ae50b2bc5e43fc1cb2c334f1a5
+FROM hackolade/studio:latest@sha256:d9fe12f2278636fa7ab0cd552e2ecdeeae7cc9d2122be421ac1110e313c08036
 
 # Environment variables
 ENV USERNAME=hackolade
@@ -19,7 +19,7 @@ WORKDIR $HOME
 USER root
 
 # Installation of application
-RUN curl $HACKOLADE_URL -o $HOME/hackolade.zip -s \
+RUN curl $HACKOLADE_URL -o $HOME/hackolade.zip \
 	&& unzip $HOME/hackolade.zip \
 	&& rm -f $HOME/hackolade.zip \
 	&& chown $UID:$GID -R $HOME/Hackolade-linux-x64 \
