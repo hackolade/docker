@@ -1,6 +1,6 @@
 # Base image with OS and dependencies
 # The base image does NOT include the Hackolade Studio application, which instead gets downloaded as part of the operations below
-FROM hackolade/studio:latest@sha256:d9fe12f2278636fa7ab0cd552e2ecdeeae7cc9d2122be421ac1110e313c08036
+FROM hackolade/studio:latest@sha256:3cb36e40af27de16ea7350807d448866bca300dd815c0a8955e03286564c43e3
 
 # Environment variables
 ENV USERNAME=hackolade
