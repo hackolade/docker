@@ -29,7 +29,7 @@ WORKDIR $HOME
 USER root
 
 # Installation of application
-RUN curl $HACKOLADE_URL -o $HOME/hackolade.zip -s \
+RUN curl $HACKOLADE_URL -o $HOME/hackolade.zip \
 	&& unzip $HOME/hackolade.zip \
 	&& rm -f $HOME/hackolade.zip \
 	&& chown $UID:$GID -R $HOME/Hackolade-linux-x64 \
@@ -86,15 +86,12 @@ USER $USERNAME
 #
 
 #
-# Some programs needed for installation the application and plugins are not required at the runtime.
-# To remove them please uncomment lines below:
+# Some programs needed for installation application and plugins are not required at runtime, and are removed from the image
 #
-# Notice: if you don't use JKS certificates you can also remove "openjdk-8-jdk"
 
-# USER root
-# RUN apt-get remove curl unzip zip nodejs -y
-# USER $USERNAME
-#
+USER root
+RUN apt-get remove curl unzip zip -y
+USER $USERNAME
 
 ENTRYPOINT ["startup.sh"]
-CMD ["hackolade"]
+CMD ["hackolade", "--disable-gpu"]
