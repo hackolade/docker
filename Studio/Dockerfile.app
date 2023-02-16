@@ -1,6 +1,6 @@
 # Base image with OS and dependencies
 # The base image does NOT include the Hackolade Studio application, which instead gets downloaded as part of the operations below
-FROM hackolade/studio:latest@sha256:145c50f67e5a10cf9c5f6f7b9207a4dad16305528535bebcdd3019f4e1821b6d
+FROM hackolade/studio:latest@sha256:4651941350bfb16200e1069a507bb09a79d09c994e07f0495d099d2f596bd63e
 
 # Arguments
 # User and group ID
@@ -32,13 +32,13 @@ USER root
 RUN curl $HACKOLADE_URL -o $HOME/hackolade.zip \
 	&& unzip $HOME/hackolade.zip \
 	&& rm -f $HOME/hackolade.zip \
+	&& env UID=$UID GID=$GID XDG_RUNTIME_DIR=$XDG_RUNTIME_DIR initialize-user.sh \
 	&& chown $UID:$GID -R $HOME/Hackolade-linux-x64 \
 	&& chown root:root $HOME/Hackolade-linux-x64/chrome-sandbox \
 	&& chmod 4755 $HOME/Hackolade-linux-x64/chrome-sandbox \
 	&& ln -s $HOME/Hackolade-linux-x64/Hackolade /usr/bin/hackolade \
 	&& mkdir $HOME/Documents \
-	&& chown $UID:$GID $HOME/Documents \
-	&& env UID=$UID GID=$GID XDG_RUNTIME_DIR=$XDG_RUNTIME_DIR initialize-user.sh
+	&& chown $UID:$GID $HOME/Documents
 
 # initiate image in order to be able to validate license
 RUN init.sh
