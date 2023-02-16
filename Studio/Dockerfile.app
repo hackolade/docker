@@ -1,6 +1,6 @@
 # Base image with OS and dependencies
 # The base image does NOT include the Hackolade Studio application, which instead gets downloaded as part of the operations below
-FROM hackolade/studio:latest@145c50f67e5a10cf9c5f6f7b9207a4dad16305528535bebcdd3019f4e1821b6d
+FROM hackolade/studio:latest@sha256:145c50f67e5a10cf9c5f6f7b9207a4dad16305528535bebcdd3019f4e1821b6d
 
 # Arguments
 # User and group ID
