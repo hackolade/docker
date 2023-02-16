@@ -1,10 +1,21 @@
-# Base image
-FROM hackolade/studio:latest@sha256:8029f483e8e107fa7284ff9c49ed1da1ec6874e288c31f1557d81006fa5c5af9
+# Base image with OS and dependencies
+# The base image does NOT include the Hackolade Studio application, which instead gets downloaded as part of the operations below
+FROM hackolade/studio:latest@145c50f67e5a10cf9c5f6f7b9207a4dad16305528535bebcdd3019f4e1821b6d
+
+# Arguments
+# User and group ID
+ARG UID=1000
+ARG GID=1000
 
 # Environment variables
 ENV USERNAME=hackolade
-ENV UID=1000
-ENV GID=1000
+ENV UID $UID
+ENV GID $GID
+
+# dbus variables
+ENV XDG_RUNTIME_DIR=/run/user/${UID}
+ENV DBUS_SESSION_BUS_ADDRESS=unix:path=${XDG_RUNTIME_DIR}/bus
+
 # the latest version of Hackolade will be downloaded.  If you need a specific version, 
 # replace /current/ with /previous/v5.1.0/ for example or whatever version number you require
 # Note that the application is onky certified to run in Docker for version 5.1.0 (and above) when adjustments were made for this purpose.
@@ -26,7 +37,8 @@ RUN curl $HACKOLADE_URL -o $HOME/hackolade.zip -s \
 	&& chmod 4755 $HOME/Hackolade-linux-x64/chrome-sandbox \
 	&& ln -s $HOME/Hackolade-linux-x64/Hackolade /usr/bin/hackolade \
 	&& mkdir $HOME/Documents \
-	&& chown $UID:$GID $HOME/Documents
+	&& chown $UID:$GID $HOME/Documents \
+	&& env UID=$UID GID=$GID XDG_RUNTIME_DIR=$XDG_RUNTIME_DIR initialize-user.sh
 
 # initiate image in order to be able to validate license
 RUN init.sh
