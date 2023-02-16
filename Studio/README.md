@@ -32,8 +32,19 @@ with a tag “hackolade:latest”:
 
 `docker build --no-cache --pull -f Dockerfile.app -t hackolade:latest .`
 
-The example uses a [Dockerfile.app](Dockerfile.app) which references the latest base [image](https://hub.docker.com/r/hackolade/studio) with all prerequisites needed to run Hackolade.  We chose to not include the Hackolade Studio application in the base image so it would remain stable, while the Dockefile.app instructions download the latest version.  The image has a pre-created user “hackolade” with UID 1000 and GID 1000, which may be needed to synchronize permissions between container and host system.  
+The example uses a [Dockerfile.app](Dockerfile.app) which references the latest base [image](https://hub.docker.com/r/hackolade/studio) with all prerequisites needed to run Hackolade.  We chose to not include the Hackolade Studio application in the base image so it would remain stable, while the Dockefile.app instructions download the latest version.  
 
+#### Build the image with custom user id
+
+The image has a pre-created user “hackolade” with UID 1000 and GID 1000, which may be needed to synchronize permissions between container and host system. But there is a possibility to create a user with another id, to do this you should pass arguments UID and GID when building the image.
+
+For example:
+
+`docker build --build-arg UID=2000 --build-arg GID=2000 --no-cache --pull -f Dockerfile.app -t hackolade:latest .`
+
+The name of the user will be the same "hackolade", but id and its group id will be changed to specified by arguments.
+
+Please notice, you cannot use one image for several users. If you need to run containers for different users the easiest would be to build another image, otherwise you may face warnings related to dbus. 
 
 
 #### Plugins
