@@ -1,11 +1,21 @@
 # Base image with OS and dependencies
 # The base image does NOT include the Hackolade Studio application, which instead gets downloaded as part of the operations below
-FROM hackolade/studio:latest@sha256:3cb36e40af27de16ea7350807d448866bca300dd815c0a8955e03286564c43e3
+FROM hackolade/studio:latest@sha256:4651941350bfb16200e1069a507bb09a79d09c994e07f0495d099d2f596bd63e
+
+# Arguments
+# User and group ID
+ARG UID=1000
+ARG GID=1000
 
 # Environment variables
 ENV USERNAME=hackolade
-ENV UID=1000
-ENV GID=1000
+ENV UID $UID
+ENV GID $GID
+
+# dbus variables
+ENV XDG_RUNTIME_DIR=/run/user/${UID}
+ENV DBUS_SESSION_BUS_ADDRESS=unix:path=${XDG_RUNTIME_DIR}/bus
+
 # the latest version of Hackolade will be downloaded.  If you need a specific version, 
 # replace /current/ with /previous/v5.1.0/ for example or whatever version number you require
 # Note that the application is onky certified to run in Docker for version 5.1.0 (and above) when adjustments were made for this purpose.
@@ -22,6 +32,7 @@ USER root
 RUN curl $HACKOLADE_URL -o $HOME/hackolade.zip \
 	&& unzip $HOME/hackolade.zip \
 	&& rm -f $HOME/hackolade.zip \
+	&& env UID=$UID GID=$GID XDG_RUNTIME_DIR=$XDG_RUNTIME_DIR initialize-user.sh \
 	&& chown $UID:$GID -R $HOME/Hackolade-linux-x64 \
 	&& chown root:root $HOME/Hackolade-linux-x64/chrome-sandbox \
 	&& chmod 4755 $HOME/Hackolade-linux-x64/chrome-sandbox \
