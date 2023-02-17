@@ -44,7 +44,9 @@ For example:
 
 The name of the user will be the same "hackolade", but id and its group id will be changed to specified by arguments.
 
-Please notice, you cannot use one image for several users. If you need to run containers for different users the easiest would be to build another image, otherwise you may face warnings related to dbus. 
+Please notice, you cannot use one image for several users. If you need to run containers for different users the easiest would be to build another image, otherwise you may face warnings related to dbus.
+
+Notice that user inside a container should have access to mounted folders as well as host user to avoid permission issues: appData, data, logs, options.
 
 
 #### Plugins
