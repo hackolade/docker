@@ -20,7 +20,7 @@ FROM bigorn0/studio:latest
 #
 # Uncomment lines below to select plugins to install in the image
 #
-RUN installPlugin.sh Avro
+# RUN installPlugin.sh Avro
 # RUN installPlugin.sh Cassandra
 # RUN installPlugin.sh CosmosDB-with-SQL-API
 # RUN installPlugin.sh CosmosDB-with-Mongo-API
