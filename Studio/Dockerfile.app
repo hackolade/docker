@@ -1,6 +1,6 @@
 # Base image with OS and dependencies
 # The base image does NOT include the Hackolade Studio application, which instead gets downloaded as part of the operations below
-FROM bigorn0/studio:latest
+FROM hackolade/studio:0.0.12
 
 # Only for documentation purpose as these two env variables are defined in the parent image and default to 1000:1000
 # if not overriden at runtime with for example docker run -i --rm -e UID=1234 -e GID=0 ...
@@ -10,7 +10,7 @@ FROM bigorn0/studio:latest
 # the latest version of Hackolade will be downloaded.  If you need a specific version, 
 # replace /current/ with /previous/v5.1.0/ for example or whatever version number you require
 # Note that the application is onky certified to run in Docker for version 5.1.0 (and above) when adjustments were made for this purpose.
-# ENV HACKOLADE_URL="https://s3-eu-west-1.amazonaws.com/hackolade/current/Hackolade-linux-x64.zip"
+ENV HACKOLADE_URL="https://s3-eu-west-1.amazonaws.com/hackolade/current/Hackolade-linux-x64.zip"
 
 #
 # Plugin installation

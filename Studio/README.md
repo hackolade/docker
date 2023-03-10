@@ -34,19 +34,9 @@ with a tag “hackolade:latest”:
 
 The example uses a [Dockerfile.app](Dockerfile.app) which references the latest base [image](https://hub.docker.com/r/hackolade/studio) with all prerequisites needed to run Hackolade.  We chose to not include the Hackolade Studio application in the base image so it would remain stable, while the Dockefile.app instructions download the latest version.  
 
-#### Build the image with custom user id
+The image has a pre-created user “hackolade” with UID 1000 and GID 1000, which may be needed to synchronize permissions between container and host system. 
 
-The image has a pre-created user “hackolade” with UID 1000 and GID 1000, which may be needed to synchronize permissions between container and host system. But there is a possibility to create a user with another id, to do this you should pass arguments UID and GID when building the image.
-
-For example:
-
-`docker build --build-arg UID=2000 --build-arg GID=2000 --no-cache --pull -f Dockerfile.app -t hackolade:latest .`
-
-The name of the user will be the same "hackolade", but id and its group id will be changed to specified by arguments.
-
-Please notice, you cannot use one image for several users. If you need to run containers for different users the easiest would be to build another image, otherwise you may face warnings related to dbus.
-
-Notice that user inside a container should have access to mounted folders as well as host user to avoid permission issues: appData, data, logs, options.
+Notice that user inside a container should have access to mounted folders as well as host user to avoid permission issues: appData, data, logs, options.  This is why user UID/GIG mapping is necessary between the host and the container.
 
 
 #### Plugins
@@ -65,11 +55,11 @@ If a plugin you need exists but is somehow not listed in your Dockerfile.plugins
 
 To list existing plugins in your image:
 
-`docker run --rm hackolade:latest ls .hackolade/plugins/`
+`docker run --rm --entrypoint ls hackolade:latest .hackolade/plugins/`
 
 To view the version number of a plugin in your image:
 
-`docker run --rm hackolade:latest cat .hackolade/plugins/<plugin name>/package.json`
+`docker run --rm --entrypoint cat hackolade:latest .hackolade/plugins/<plugin name>/package.json`
 
 
 
@@ -94,15 +84,13 @@ Description of required host subfolders:
 - *options*; this folder is used to store custom properties for plugins, naming convention configuration, and Excel export options.  Instead of a relative path to the location where the container is run, you may reference an absolute path to the location of these files.
 - *logs* and *appData*: these folders are necessary for the proper operation of the application in containers.
 
-
-
 #### Display CLI help in a container
 
 All commands must be executed in the parent folder of the subfolders described above.  It is suggested to run commands using the [docker-compose.yml](docker-compose.yml) file, possibly after editing it for your specific needs. 
 
 A typical command will look like this:
 
-`docker-compose run --rm hackoladeStudioCLI hackolade command [--arguments]`
+`docker-compose run --rm hackoladeStudioCLI command [--arguments]`
 
 where:
 
@@ -115,7 +103,13 @@ Example: `docker-compose run --rm hackoladeStudioCLI hackolade help`
 
 You may consult our [online documentation](https://hackolade.com/help/CommandLineInterface.html) for the full description of commands and their respective arguments.
 
+#### Run the container with a different UID
 
+The image has a bootstrap script that allows mapping the user running inside the container with specific UID or GID.  For example, imagine the user that owns the files inside the four volumes mounted inside the container is having UID=2023 and GID=0, we then need to configure our container as follows:
+
+```bash
+docker-compose run --rm -e UID=2023 -e GID=0 hackoladeStudioCLI command [--arguments]`
+```
 
 #### Validate license key for the image
 
@@ -123,7 +117,7 @@ You may consult our [online documentation](https://hackolade.com/help/CommandLin
 
 All commands must be executed in the parent folder of the subfolders described above.  It is suggested to run commands using the [docker-compose.yml](Dockerfile.app) file, possibly after editing it for your specific needs. 
 
-`docker-compose run --rm hackoladeStudioCLI hackolade validatekey --key=<concurrent-license-key> --identifier=<a-unique-license-user-identifier>`
+`docker-compose run --rm hackoladeStudioCLI validatekey --key=<concurrent-license-key> --identifier=<a-unique-license-user-identifier>`
 
 **Note:** The license key validation must be repeated for each new Docker image.
 
@@ -133,7 +127,7 @@ All commands must be executed in the parent folder of the subfolders described a
 
 If your build server has no Internet connection, it is necessary to do an offline validation of your license key.  The process is as follows:
 
-1. Fetch the UUID of the image: `docker run --rm hackolade:latest show-computer-id.sh`
+1. Fetch the UUID of the image: `docker run --rm --entrypoint show-computer-id.sh hackolade:latest`
 2. From the browser of a computer with Internet access, go to this page: https://quicklicensemanager.com/hackolade/QlmCustomerSite/
 
  <img src="lib/Offline_license_activation.png" style="zoom:50%;" />
@@ -156,7 +150,7 @@ If your build server has no Internet connection, it is necessary to do an offlin
 
 4. Validate the license key the command
 
-   `docker-compose run --rm hackoladeStudioCLI hackolade validatekey --key=<concurrent-license-key> --file=/home/hackolade/Documents/data/LicenseFile.xml`
+   `docker-compose run --rm hackoladeStudioCLI validatekey --key=<concurrent-license-key> --file=/home/hackolade/Documents/data/LicenseFile.xml`
 
 **Important:** If your docker-compose.yml subfolder volumes configuration is different than the example above, please make sure to adjust the path accordingly, as the --file argument is a path inside the container.
 
@@ -170,7 +164,7 @@ All commands must be executed in the parent folder of the subfolders described a
 
 Assuming that a valid Hackolade model file called *`model.json`* is placed in the *`data`* subfolder of the location where the container is being run:
 
-`docker-compose run --rm hackoladeStudioCLI hackolade genDoc --model=/home/hackolade/Documents/data/model.json --format=html --doc=/home/hackolade/Documents/data/doc.html`
+`docker-compose run --rm hackoladeStudioCLI genDoc --model=/home/hackolade/Documents/data/model.json --format=html --doc=/home/hackolade/Documents/data/doc.html`
 
 This example can be adjusted to run any CLI command, as documented [here](https://hackolade.com/help/CommandLineInterface.html).
 
@@ -189,4 +183,3 @@ Or you may reference an absolute path to the location of these files, if you're 
 ```Windows
      - C:/Users/%username%/.hackolade/options:/home/hackolade/.hackolade/options
 ```
-
