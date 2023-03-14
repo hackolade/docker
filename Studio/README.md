@@ -10,13 +10,12 @@ To purchase a concurrent license, perpetual or subscription, please send an emai
 To ensure proper behavior of the Hackolade Studio CLI in a Docker container, make sure to run version v5.1.1 or above.
 
 
-
 This repository contains files and instructions for running [Hackolade](https://hackolade.com) applications published on [Docker Hub](https://hub.docker.com/r/hackolade/studio):
 
 - [Dockerfile.app](Dockerfile.app): ready-to-use example of a full installation of Hackolade Studio, including the possibility to install selected target plugins
 - [Dockerfile.plugins](Dockerfile.plugins): example of a how to install additional target plugins
 - [docker-compose.yml](docker-compose.yml): example of how to configure the launch of containers of the Hackolade CLI
-- [securityPolicies.json](securityPolicies.json) - the list of required system call operations to be able to run Hackolade inside a container ([more details](https://docs.docker.com/engine/security/seccomp/))
+- [securityPolicies.json](securityPolicies.json) - the list of required system call operations to be able to run Hackolade with Chrome sandboxing inside a container ([more details](https://docs.docker.com/engine/security/seccomp/))
 - batch files examples when running on Windows:
   - [docker-help.bat](docker-help.bat): verify the proper running of the CLI by displaying the CLI help in a container.  Will work without a validated license key.
   - [docker-validateKey.bat](docker-validateKey.bat): validate a license key
@@ -26,7 +25,7 @@ This repository contains files and instructions for running [Hackolade](https://
 
 ## Usage
 
-### Build the image
+### Build the image with defaults
 
 with a tag “hackolade:latest”:
 
@@ -34,10 +33,26 @@ with a tag “hackolade:latest”:
 
 The example uses a [Dockerfile.app](Dockerfile.app) which references the latest base [image](https://hub.docker.com/r/hackolade/studio) with all prerequisites needed to run Hackolade.  We chose to not include the Hackolade Studio application in the base image so it would remain stable, while the Dockefile.app instructions download the latest version.  
 
-The image has a pre-created user “hackolade” with UID 1000 and GID 1000, which may be needed to synchronize permissions between container and host system. 
+The image has a pre-created user “hackolade” with UID 1000 and GID 0, which may be needed to synchronize permissions between container and host system. This group GID is particularly important in the case 
 
-Notice that user inside a container should have access to mounted folders as well as host user to avoid permission issues: appData, data, logs, options.  This is why user UID/GIG mapping is necessary between the host and the container.
+Notice that user / group inside a container should have access to mounted folders as well as host user to avoid permission issues: appData, data, logs, options.  This is why user UID/GIG mapping is necessary between the host and the container.
+All necessary folder are setup at build time to be read/writable by any user part of the GID group defined at build time.
 
+#### Build the image with a custom GID
+
+If you container orchestrator runs containers with a specific group different from root group (0) inside containers then you will need to adapt the build argument to your need.  For example Openshift default to users with arbitrary uids but with the 0 root group.
+
+```bash
+docker build --no-cache --pull -f Dockerfile.app -t hackolade:latest --build-arg=GID=12345 .
+```
+
+#### Build the image with a specific Hackolade version / url
+
+
+```bash
+docker build --no-cache --pull -f Dockerfile.app -t hackolade:latest --build-arg=HACKOLADE_URL="<url to specific version zip path>" .
+```
+Note: make sure you are using an official Hackolade published version!  Don't trust other sources.
 
 #### Plugins
 
@@ -55,11 +70,11 @@ If a plugin you need exists but is somehow not listed in your Dockerfile.plugins
 
 To list existing plugins in your image:
 
-`docker run --rm --entrypoint ls hackolade:latest .hackolade/plugins/`
+`docker run --rm --entrypoint ls hackolade:latest /home/hackolade/.hackolade/plugins/`
 
 To view the version number of a plugin in your image:
 
-`docker run --rm --entrypoint cat hackolade:latest .hackolade/plugins/<plugin name>/package.json`
+`docker run --rm --entrypoint cat hackolade:latest /home/hackolade/.hackolade/plugins/<plugin name>/package.json`
 
 
 
@@ -83,6 +98,9 @@ Description of required host subfolders:
 - *data*: this folder is used to share files with containers.  It may contain models, documentation, sources for reverse-engineering, artefacts out of forward-engineering, etc...  Instead of a relative path to the location where the container is run, you may reference an absolute path to the location of these files.
 - *options*; this folder is used to store custom properties for plugins, naming convention configuration, and Excel export options.  Instead of a relative path to the location where the container is run, you may reference an absolute path to the location of these files.
 - *logs* and *appData*: these folders are necessary for the proper operation of the application in containers.
+
+
+Note that you can also use named volumes but then you have to ensure to provide the expected license files expected by the application.
 
 #### Display CLI help in a container
 
@@ -108,7 +126,7 @@ You may consult our [online documentation](https://hackolade.com/help/CommandLin
 The image has a bootstrap script that allows mapping the user running inside the container with specific UID or GID.  For example, imagine the user that owns the files inside the four volumes mounted inside the container is having UID=2023 and GID=0, we then need to configure our container as follows:
 
 ```bash
-docker-compose run --rm -e UID=2023 -e GID=0 hackoladeStudioCLI command [--arguments]`
+docker-compose run --rm hackoladeStudioCLI command [--arguments]`
 ```
 
 #### Validate license key for the image
