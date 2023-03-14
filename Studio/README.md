@@ -108,7 +108,10 @@ All commands must be executed in the parent folder of the subfolders described a
 
 A typical command will look like this:
 
-`docker-compose run --rm hackoladeStudioCLI command [--arguments]`
+```bash
+docker compose run --rm hackoladeStudioCLI command [--arguments]
+```
+
 
 where:
 
@@ -117,7 +120,10 @@ where:
 - `command` is the CLI command
 - `--arguments` is for optional arguments
 
-Example: `docker-compose run --rm hackoladeStudioCLI hackolade help`
+Example:
+```bash
+docker compose run --rm hackoladeStudioCLI hackolade help
+```
 
 You may consult our [online documentation](https://hackolade.com/help/CommandLineInterface.html) for the full description of commands and their respective arguments.
 
@@ -126,7 +132,7 @@ You may consult our [online documentation](https://hackolade.com/help/CommandLin
 The image has a bootstrap script that allows mapping the user running inside the container with specific UID or GID.  For example, imagine the user that owns the files inside the four volumes mounted inside the container is having UID=2023 and GID=0, we then need to configure our container as follows:
 
 ```bash
-docker-compose run --rm hackoladeStudioCLI command [--arguments]`
+docker compose run --rm -u 2023 hackoladeStudioCLI command [--arguments]
 ```
 
 #### Validate license key for the image
@@ -135,7 +141,9 @@ docker-compose run --rm hackoladeStudioCLI command [--arguments]`
 
 All commands must be executed in the parent folder of the subfolders described above.  It is suggested to run commands using the [docker-compose.yml](Dockerfile.app) file, possibly after editing it for your specific needs. 
 
-`docker-compose run --rm hackoladeStudioCLI validatekey --key=<concurrent-license-key> --identifier=<a-unique-license-user-identifier>`
+```bash
+docker compose run --rm hackoladeStudioCLI validatekey --key=<concurrent-license-key> --identifier=<a-unique-license-user-identifier>
+```
 
 **Note:** The license key validation must be repeated for each new Docker image.
 
@@ -168,7 +176,7 @@ If your build server has no Internet connection, it is necessary to do an offlin
 
 4. Validate the license key the command
 
-   `docker-compose run --rm hackoladeStudioCLI validatekey --key=<concurrent-license-key> --file=/home/hackolade/Documents/data/LicenseFile.xml`
+   `docker compose run --rm hackoladeStudioCLI validatekey --key=<concurrent-license-key> --file=/home/hackolade/Documents/data/LicenseFile.xml`
 
 **Important:** If your docker-compose.yml subfolder volumes configuration is different than the example above, please make sure to adjust the path accordingly, as the --file argument is a path inside the container.
 
@@ -182,7 +190,7 @@ All commands must be executed in the parent folder of the subfolders described a
 
 Assuming that a valid Hackolade model file called *`model.json`* is placed in the *`data`* subfolder of the location where the container is being run:
 
-`docker-compose run --rm hackoladeStudioCLI genDoc --model=/home/hackolade/Documents/data/model.json --format=html --doc=/home/hackolade/Documents/data/doc.html`
+`docker compose run --rm hackoladeStudioCLI genDoc --model=/home/hackolade/Documents/data/model.json --format=html --doc=/home/hackolade/Documents/data/doc.html`
 
 This example can be adjusted to run any CLI command, as documented [here](https://hackolade.com/help/CommandLineInterface.html).
 
@@ -201,3 +209,9 @@ Or you may reference an absolute path to the location of these files, if you're 
 ```Windows
      - C:/Users/%username%/.hackolade/options:/home/hackolade/.hackolade/options
 ```
+
+### Running with root user downgrading to unprivileged hackolade user to adapt dynamically bind mounted volumes content
+
+In some cases it is difficult to control the ownership of the four volumes used by Hackolade.  The image supports running as root during the initial container bootstrap to adapt files ownership automatically to the target user passed as `-e UID=<target uid>` and then run the Hackolade CLI using this unprivileged user as the main container process.  This mode is automatically turned on if the entrypoint detects the running user is root.
+
+If you want to leverage that mode then you need to define `USER root` as the latest instruction of your Dockerfile.app or use the Docker run `-u root` parameter to set the running user as being root.
