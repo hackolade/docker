@@ -122,7 +122,7 @@ where:
 
 Example:
 ```bash
-docker compose run --rm hackoladeStudioCLI hackolade help
+docker compose run --rm hackoladeStudioCLI help
 ```
 
 You may consult our [online documentation](https://hackolade.com/help/CommandLineInterface.html) for the full description of commands and their respective arguments.
@@ -215,3 +215,15 @@ Or you may reference an absolute path to the location of these files, if you're 
 In some cases it is difficult to control the ownership of the four volumes used by Hackolade.  The image supports running as root during the initial container bootstrap to adapt files ownership automatically to the target user passed as `-e UID=<target uid>` and then run the Hackolade CLI using this unprivileged user as the main container process.  This mode is automatically turned on if the entrypoint detects the running user is root.
 
 If you want to leverage that mode then you need to define `USER root` as the latest instruction of your Dockerfile.app or use the Docker run `-u root` parameter to set the running user as being root.
+
+
+### Running with Electron Chrome sandboxing enabled
+
+For simplicity and because of the security offered by containers and orchestrators we leverage the `--no-sandbox` Chrome flag.  This is also possible because we don't load any external site url/content but only local application code. 
+Doing so allows us to remove the need for providing the **securityPolicies.json** file as a seccomp profile as we used to do when running hackolade cli docker image.  Having to use this security profile can be problematic in some security contexts.
+
+If you prefer to still enableChrome sandboxing you can do like following and make sure you are using the **securityPolicies.json** file security profile.
+
+```bash
+docker compose run --rm -e WITH_SANDBOXING=true hackoladeStudioCLI command
+```
