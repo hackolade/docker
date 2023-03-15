@@ -15,7 +15,7 @@ This repository contains files and instructions for running [Hackolade](https://
 - [Dockerfile.app](Dockerfile.app): ready-to-use example of a full installation of Hackolade Studio, including the possibility to install selected target plugins
 - [Dockerfile.plugins](Dockerfile.plugins): example of a how to install additional target plugins
 - [docker-compose.yml](docker-compose.yml): example of how to configure the launch of containers of the Hackolade CLI
-- [securityPolicies.json](securityPolicies.json) - the list of required system call operations to be able to run Hackolade with Chrome sandboxing inside a container ([more details](https://docs.docker.com/engine/security/seccomp/))
+- [securityPolicies.json](securityPolicies.json) - [optional] the list of required system call operations to be able to run Hackolade with Chrome sandboxing (disabled by default) inside a container ([more details](https://docs.docker.com/engine/security/seccomp/))
 - batch files examples when running on Windows:
   - [docker-help.bat](docker-help.bat): verify the proper running of the CLI by displaying the CLI help in a container.  Will work without a validated license key.
   - [docker-validateKey.bat](docker-validateKey.bat): validate a license key
