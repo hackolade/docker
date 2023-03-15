@@ -10,13 +10,12 @@ To purchase a concurrent license, perpetual or subscription, please send an emai
 To ensure proper behavior of the Hackolade Studio CLI in a Docker container, make sure to run version v5.1.1 or above.
 
 
-
 This repository contains files and instructions for running [Hackolade](https://hackolade.com) applications published on [Docker Hub](https://hub.docker.com/r/hackolade/studio):
 
 - [Dockerfile.app](Dockerfile.app): ready-to-use example of a full installation of Hackolade Studio, including the possibility to install selected target plugins
 - [Dockerfile.plugins](Dockerfile.plugins): example of a how to install additional target plugins
 - [docker-compose.yml](docker-compose.yml): example of how to configure the launch of containers of the Hackolade CLI
-- [securityPolicies.json](securityPolicies.json) - the list of required system call operations to be able to run Hackolade inside a container ([more details](https://docs.docker.com/engine/security/seccomp/))
+- [securityPolicies.json](securityPolicies.json) - [optional] the list of required system call operations to be able to run Hackolade with Chrome sandboxing (disabled by default) inside a container ([more details](https://docs.docker.com/engine/security/seccomp/))
 - batch files examples when running on Windows:
   - [docker-help.bat](docker-help.bat): verify the proper running of the CLI by displaying the CLI help in a container.  Will work without a validated license key.
   - [docker-validateKey.bat](docker-validateKey.bat): validate a license key
@@ -26,7 +25,7 @@ This repository contains files and instructions for running [Hackolade](https://
 
 ## Usage
 
-### Build the image
+### Build the image with defaults
 
 with a tag “hackolade:latest”:
 
@@ -34,20 +33,26 @@ with a tag “hackolade:latest”:
 
 The example uses a [Dockerfile.app](Dockerfile.app) which references the latest base [image](https://hub.docker.com/r/hackolade/studio) with all prerequisites needed to run Hackolade.  We chose to not include the Hackolade Studio application in the base image so it would remain stable, while the Dockefile.app instructions download the latest version.  
 
-#### Build the image with custom user id
+The image has a pre-created user “hackolade” with UID 1000 and GID 0, which may be needed to synchronize permissions between container and host system. This group GID is particularly important in the case 
 
-The image has a pre-created user “hackolade” with UID 1000 and GID 1000, which may be needed to synchronize permissions between container and host system. But there is a possibility to create a user with another id, to do this you should pass arguments UID and GID when building the image.
+Notice that user / group inside a container should have access to mounted folders as well as host user to avoid permission issues: appData, data, logs, options.  This is why user UID/GIG mapping is necessary between the host and the container.
+All necessary folder are setup at build time to be read/writable by any user part of the GID group defined at build time.
 
-For example:
+#### Build the image with a custom GID
 
-`docker build --build-arg UID=2000 --build-arg GID=2000 --no-cache --pull -f Dockerfile.app -t hackolade:latest .`
+If you container orchestrator runs containers with a specific group different from root group (0) inside containers then you will need to adapt the build argument to your need.  For example Openshift default to users with arbitrary uids but with the 0 root group.
 
-The name of the user will be the same "hackolade", but id and its group id will be changed to specified by arguments.
+```bash
+docker build --no-cache --pull -f Dockerfile.app -t hackolade:latest --build-arg=GID=12345 .
+```
 
-Please notice, you cannot use one image for several users. If you need to run containers for different users the easiest would be to build another image, otherwise you may face warnings related to dbus.
+#### Build the image with a specific Hackolade version / url
 
-Notice that user inside a container should have access to mounted folders as well as host user to avoid permission issues: appData, data, logs, options.
 
+```bash
+docker build --no-cache --pull -f Dockerfile.app -t hackolade:latest --build-arg=HACKOLADE_URL="<url to specific version zip path>" .
+```
+Note: make sure you are using an official Hackolade published version!  Don't trust other sources.
 
 #### Plugins
 
@@ -65,11 +70,11 @@ If a plugin you need exists but is somehow not listed in your Dockerfile.plugins
 
 To list existing plugins in your image:
 
-`docker run --rm hackolade:latest ls .hackolade/plugins/`
+`docker run --rm --entrypoint ls hackolade:latest /home/hackolade/.hackolade/plugins/`
 
 To view the version number of a plugin in your image:
 
-`docker run --rm hackolade:latest cat .hackolade/plugins/<plugin name>/package.json`
+`docker run --rm --entrypoint cat hackolade:latest /home/hackolade/.hackolade/plugins/<plugin name>/package.json`
 
 
 
@@ -95,6 +100,7 @@ Description of required host subfolders:
 - *logs* and *appData*: these folders are necessary for the proper operation of the application in containers.
 
 
+Note that you can also use named volumes but then you have to ensure to provide the expected license files expected by the application.
 
 #### Display CLI help in a container
 
@@ -102,7 +108,10 @@ All commands must be executed in the parent folder of the subfolders described a
 
 A typical command will look like this:
 
-`docker-compose run --rm hackoladeStudioCLI hackolade command [--arguments]`
+```bash
+docker compose run --rm hackoladeStudioCLI command [--arguments]
+```
+
 
 where:
 
@@ -111,11 +120,20 @@ where:
 - `command` is the CLI command
 - `--arguments` is for optional arguments
 
-Example: `docker-compose run --rm hackoladeStudioCLI hackolade help`
+Example:
+```bash
+docker compose run --rm hackoladeStudioCLI help
+```
 
 You may consult our [online documentation](https://hackolade.com/help/CommandLineInterface.html) for the full description of commands and their respective arguments.
 
+#### Run the container with a different UID
 
+The image has a bootstrap script that allows mapping the user running inside the container with specific UID or GID.  For example, imagine the user that owns the files inside the four volumes mounted inside the container is having UID=2023 and GID=0, we then need to configure our container as follows:
+
+```bash
+docker compose run --rm -u 2023 hackoladeStudioCLI command [--arguments]
+```
 
 #### Validate license key for the image
 
@@ -123,7 +141,9 @@ You may consult our [online documentation](https://hackolade.com/help/CommandLin
 
 All commands must be executed in the parent folder of the subfolders described above.  It is suggested to run commands using the [docker-compose.yml](Dockerfile.app) file, possibly after editing it for your specific needs. 
 
-`docker-compose run --rm hackoladeStudioCLI hackolade validatekey --key=<concurrent-license-key> --identifier=<a-unique-license-user-identifier>`
+```bash
+docker compose run --rm hackoladeStudioCLI validatekey --key=<concurrent-license-key> --identifier=<a-unique-license-user-identifier>
+```
 
 **Note:** The license key validation must be repeated for each new Docker image.
 
@@ -133,7 +153,7 @@ All commands must be executed in the parent folder of the subfolders described a
 
 If your build server has no Internet connection, it is necessary to do an offline validation of your license key.  The process is as follows:
 
-1. Fetch the UUID of the image: `docker run --rm hackolade:latest show-computer-id.sh`
+1. Fetch the UUID of the image: `docker run --rm --entrypoint show-computer-id.sh hackolade:latest`
 2. From the browser of a computer with Internet access, go to this page: https://quicklicensemanager.com/hackolade/QlmCustomerSite/
 
  <img src="lib/Offline_license_activation.png" style="zoom:50%;" />
@@ -156,7 +176,7 @@ If your build server has no Internet connection, it is necessary to do an offlin
 
 4. Validate the license key the command
 
-   `docker-compose run --rm hackoladeStudioCLI hackolade validatekey --key=<concurrent-license-key> --file=/home/hackolade/Documents/data/LicenseFile.xml`
+   `docker compose run --rm hackoladeStudioCLI validatekey --key=<concurrent-license-key> --file=/home/hackolade/Documents/data/LicenseFile.xml`
 
 **Important:** If your docker-compose.yml subfolder volumes configuration is different than the example above, please make sure to adjust the path accordingly, as the --file argument is a path inside the container.
 
@@ -170,7 +190,7 @@ All commands must be executed in the parent folder of the subfolders described a
 
 Assuming that a valid Hackolade model file called *`model.json`* is placed in the *`data`* subfolder of the location where the container is being run:
 
-`docker-compose run --rm hackoladeStudioCLI hackolade genDoc --model=/home/hackolade/Documents/data/model.json --format=html --doc=/home/hackolade/Documents/data/doc.html`
+`docker compose run --rm hackoladeStudioCLI genDoc --model=/home/hackolade/Documents/data/model.json --format=html --doc=/home/hackolade/Documents/data/doc.html`
 
 This example can be adjusted to run any CLI command, as documented [here](https://hackolade.com/help/CommandLineInterface.html).
 
@@ -190,3 +210,20 @@ Or you may reference an absolute path to the location of these files, if you're 
      - C:/Users/%username%/.hackolade/options:/home/hackolade/.hackolade/options
 ```
 
+### Running with root user downgrading to unprivileged hackolade user to adapt dynamically bind mounted volumes content
+
+In some cases it is difficult to control the ownership of the four volumes used by Hackolade.  The image supports running as root during the initial container bootstrap to adapt files ownership automatically to the target user passed as `-e UID=<target uid>` and then run the Hackolade CLI using this unprivileged user as the main container process.  This mode is automatically turned on if the entrypoint detects the running user is root.
+
+If you want to leverage that mode then you need to define `USER root` as the latest instruction of your Dockerfile.app or use the Docker run `-u root` parameter to set the running user as being root.
+
+
+### Running with Electron Chrome sandboxing enabled
+
+For simplicity and because of the security offered by containers and orchestrators we leverage the `--no-sandbox` Chrome flag.  This is also possible because we don't load any external site url/content but only local application code. 
+Doing so allows us to remove the need for providing the **securityPolicies.json** file as a seccomp profile as we used to do when running hackolade cli docker image.  Having to use this security profile can be problematic in some security contexts.
+
+If you prefer to still enableChrome sandboxing you can do like following and make sure you are using the **securityPolicies.json** file security profile.
+
+```bash
+docker compose run --rm -e WITH_SANDBOXING=true hackoladeStudioCLI command
+```
