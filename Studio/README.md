@@ -25,7 +25,9 @@ This repository contains files and instructions for running [Hackolade](https://
 
 ## Usage
 
-### Build the image with defaults
+### Build the image
+
+#### Build the image with defaults
 
 with a tag “hackolade:latest”:
 
@@ -35,24 +37,33 @@ The example uses a [Dockerfile.app](Dockerfile.app) which references the latest 
 
 The image has a pre-created user “hackolade” with UID 1000 and GID 0, which may be needed to synchronize permissions between container and host system. This group GID is particularly important in the case 
 
-Notice that user / group inside a container should have access to mounted folders as well as host user to avoid permission issues: appData, data, logs, options.  This is why user UID/GIG mapping is necessary between the host and the container.
+Note that user / group inside a container should have access to mounted folders as well as host user to avoid permission issues: appData, data, logs, options.  This is why user UID/GIG mapping is necessary between the host and the container.
+
 All necessary folder are setup at build time to be read/writable by any user part of the GID group defined at build time.
+
+
 
 #### Build the image with a custom GID
 
-If you container orchestrator runs containers with a specific group different from root group (0) inside containers then you will need to adapt the build argument to your need.  For example Openshift default to users with arbitrary uids but with the 0 root group.
+If your container orchestrator runs containers with a specific group different from root group (0) inside containers then you need to adapt the build argument to your need.  For example, OpenShift defaults to users with arbitrary uids but with the 0 root group.
 
 ```bash
 docker build --no-cache --pull -f Dockerfile.app -t hackolade:latest --build-arg=GID=12345 .
 ```
 
-#### Build the image with a specific Hackolade version / url
+
+
+#### Build the image with a specific Hackolade Studio Desktop version / url
+
+You may find previous versions of Hackolade Studio Desktop by replacing in the following URL v6.9.6 with v<version of your choice>, for example https://s3-eu-west-1.amazonaws.com/hackolade/previous/v6.9.6/Hackolade-linux-x64.zip
 
 
 ```bash
 docker build --no-cache --pull -f Dockerfile.app -t hackolade:latest --build-arg=HACKOLADE_URL="<url to specific version zip path>" .
 ```
 Note: make sure you are using an official Hackolade published version!  Don't trust other sources.
+
+
 
 #### Plugins
 
@@ -99,8 +110,9 @@ Description of required host subfolders:
 - *options*; this folder is used to store custom properties for plugins, naming convention configuration, and Excel export options.  Instead of a relative path to the location where the container is run, you may reference an absolute path to the location of these files.
 - *logs* and *appData*: these folders are necessary for the proper operation of the application in containers.
 
-
 Note that you can also use named volumes but then you have to ensure to provide the expected license files expected by the application.
+
+
 
 #### Display CLI help in a container
 
@@ -127,6 +139,8 @@ docker compose run --rm hackoladeStudioCLI help
 
 You may consult our [online documentation](https://hackolade.com/help/CommandLineInterface.html) for the full description of commands and their respective arguments.
 
+
+
 #### Run the container with a different UID
 
 The image has a bootstrap script that allows mapping the user running inside the container with specific UID or GID.  For example, imagine the user that owns the files inside the four volumes mounted inside the container is having UID=2023 and GID=0, we then need to configure our container as follows:
@@ -134,6 +148,8 @@ The image has a bootstrap script that allows mapping the user running inside the
 ```bash
 docker compose run --rm -u 2023 hackoladeStudioCLI command [--arguments]
 ```
+
+
 
 #### Validate license key for the image
 
@@ -210,6 +226,8 @@ Or you may reference an absolute path to the location of these files, if you're 
      - C:/Users/%username%/.hackolade/options:/home/hackolade/.hackolade/options
 ```
 
+
+
 ### Running with root user downgrading to unprivileged hackolade user to adapt dynamically bind mounted volumes content
 
 In some cases it is difficult to control the ownership of the four volumes used by Hackolade.  The image supports running as root during the initial container bootstrap to adapt files ownership automatically to the target user passed as `-e UID=<target uid>` and then run the Hackolade CLI using this unprivileged user as the main container process.  This mode is automatically turned on if the entrypoint detects the running user is root.
@@ -217,10 +235,13 @@ In some cases it is difficult to control the ownership of the four volumes used 
 If you want to leverage that mode then you need to define `USER root` as the latest instruction of your Dockerfile.app or use the Docker run `-u root` parameter to set the running user as being root.
 
 
+
+
 ### Running with Electron Chrome sandboxing enabled
 
 For simplicity and because of the security offered by containers and orchestrators we leverage the `--no-sandbox` Chrome flag.  This is also possible because we don't load any external site url/content but only local application code. 
-Doing so allows us to remove the need for providing the **securityPolicies.json** file as a seccomp profile as we used to do when running hackolade cli docker image.  Having to use this security profile can be problematic in some security contexts.
+
+Doing so allows us to remove the need for providing the **securityPolicies.json** file as a seccomp profile, as we used to do previously when running hackolade cli docker image.  Having to use this security profile may have been problematic in some security contexts.
 
 If you prefer to still enableChrome sandboxing you can do like following and make sure you are using the **securityPolicies.json** file security profile.
 
