@@ -1,5 +1,7 @@
 # Running Hackolade Studio CLI in Docker 
 
+![Docker Image Version (latest by date)](https://img.shields.io/docker/v/hackolade/studio)
+
 The instructions below assume that you have Docker [installed](https://www.docker.com/get-started) and running.
 
 The purpose of running Hackolade Studio in a Docker container is to operate the Command-Line Interface ("CLI"), typically in a the context of integration with CI/CD pipelines.  It is **not** to run the application GUI, a use case which has not been tested.
