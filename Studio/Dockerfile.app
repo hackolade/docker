@@ -1,6 +1,6 @@
 # Base image with OS and dependencies
 # The base image does NOT include the Hackolade Studio application, which instead gets downloaded as part of the operations below
-FROM hackolade/studio:0.0.12
+FROM hackolade/studio:0.0.13
 
 # the latest version of Hackolade will be downloaded.  If you need a specific version, 
 # replace /current/ with /previous/v5.1.0/ for example or whatever version number you require
