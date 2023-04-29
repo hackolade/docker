@@ -1,16 +1,16 @@
 # Base image with OS and dependencies
 # The base image does NOT include the Hackolade Studio application, which instead gets downloaded as part of the operations below
+# Note that the application is only certified to run in Docker for version 5.1.0 (and above) when adjustments were made for this purpose.
 FROM hackolade/studio:0.0.13
 
-# the latest version of Hackolade will be downloaded.  If you need a specific version, 
-# replace /current/ with /previous/v5.1.0/ for example or whatever version number you require
-# Note that the application is onky certified to run in Docker for version 5.1.0 (and above) when adjustments were made for this purpose.
-# This ARG is defined as an ONBUILD HOOK and leveraged in /usr/bin/install-hackolade.sh at build time.
-ARG HACKOLADE_URL="https://s3-eu-west-1.amazonaws.com/hackolade/current/Hackolade-linux-x64.zip"
+# The latest version of Hackolade will be downloaded and installed
+# This ARG HACKOLADE_URL is defined ***in the parent image*** as an ONBUILD ARG hook and leveraged in /usr/bin/install-hackolade.sh at build time.
+# If you need a specific version you need to invoke the build with `docker build --build-arg HACKOLADE_URL=... ` or equivalent of your build command
+# and replace /current/ with /previous/v5.1.0/ in the URL for example or whatever version number you require
 
 # Only for documentation purpose as these two env variables are defined in the parent image and default to 1000:0
 # if not overriden at runtime with for example docker run -i --rm -e UID=1234 ...
-#ENV UID=${$UID} 
+# ENV UID=${$UID} 
 
 #
 # Plugin installation
