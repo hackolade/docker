@@ -4,9 +4,10 @@
 FROM hackolade/studio:0.0.13
 
 # The latest version of Hackolade will be automatically downloaded and installed by default.
-# A build arument ARG HACKOLADE_URL is defined ***in the parent image*** as an ONBUILD ARG hook and leveraged in /usr/bin/install-hackolade.sh at build time.
-# If you need a specific version you need to invoke the build with `docker build --build-arg HACKOLADE_URL=... ` or with an equivalent of your build command
-# and replace /current/ with /previous/v5.1.0/ in the URL, for example or whatever version number you require
+# A build argument HACKOLADE_URL is defined ***in the parent image*** as an ONBUILD ARG hook and leveraged in /usr/bin/install-hackolade.sh at build time.
+# If you need a specific version, you need to invoke the build with `docker build --build-arg HACKOLADE_URL=... ` or with an equivalent of your build command
+# and replace /current/ with /previous/v5.1.0/ in the URL, for example or whatever version number you require.
+# Defining this ARG in the final Dockerfile WON'T work.
 
 # Only for documentation purpose as these two env variables are defined in the parent image and default to 1000:0
 # if not overriden at runtime with for example docker run -i --rm -e UID=1234 ...
