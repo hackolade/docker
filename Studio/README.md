@@ -185,7 +185,7 @@ If your build server has no Internet connection, it is necessary to do an offlin
   - make sure to check the options "Generate a license file" and "I consent to the Privacy Policy"
   - click the Activate button
 
-  A file LicenseFile.xml will be generated and downloaded by your browser. Do NOT edit or alter the content of the file as it contains integrity validation to prevent abuse.
+A file LicenseFile.xml will be generated and downloaded by your browser.  Do NOT edit or alter the content of the file as it contains integrity validation to prevent abuse.  
 
 3. copy the LicenseFile.xml to your build server in the *data* subfolder on the host:
 
@@ -195,9 +195,11 @@ If your build server has no Internet connection, it is necessary to do an offlin
 
    `./data:/home/hackolade/Documents/data/`
 
-4. Validate the license key the command
+4. Validate the license key the command in the SAME image as was used in step 1:
 
    `docker compose run --rm hackoladeStudioCLI validatekey --key=<concurrent-license-key> --file=/home/hackolade/Documents/data/LicenseFile.xml`
+
+If you get the error message `Your computer ID does not match the activation key information on our license server`, it means that you failed to use the same image in steps 1 and 4, resulting in unmatched UUID's.
 
 **Important:** If your docker-compose.yml subfolder volumes configuration is different than the example above, please make sure to adjust the path accordingly, as the --file argument is a path inside the container.
 
