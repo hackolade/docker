@@ -157,10 +157,13 @@ docker compose run --rm -u 2023 hackoladeStudioCLI command [--arguments]
 
 ##### With Internet connection
 
-All commands must be executed in the parent folder of the subfolders described above.  It is suggested to run commands using the [docker-compose.yml](Dockerfile.app) file, possibly after editing it for your specific needs. 
+All commands must be executed in the parent folder of the subfolders described above.  It is suggested to run commands using the [docker-compose.yml](Dockerfile.app) file, possibly after editing it for your specific needs.  The process is as follows:
+
+1. Fetch the UUID of the image: `docker run --rm --entrypoint show-computer-id.sh hackolade:latest`   
+2. Run the command:
 
 ```bash
-docker compose run --rm hackoladeStudioCLI validatekey --key=<concurrent-license-key> --identifier=<a-unique-license-user-identifier>
+docker compose run --rm hackoladeStudioCLI validatekey --key=<concurrent-license-key> --identifier=<UUID-fetched-in-step-1>
 ```
 
 **Note:** The license key validation must be repeated for each new Docker image.
