@@ -4,9 +4,10 @@
 
 The instructions below assume that you have Docker [installed](https://www.docker.com/get-started) and running.
 
-The purpose of running Hackolade Studio in a Docker container is to operate the Command-Line Interface ("CLI"), typically in a the context of integration with CI/CD pipelines.  It is **not** to run the application GUI, a use case which has not been tested.
+The purpose of running Hackolade Studio in a Docker container is to operate the Command-Line Interface ("CLI"), typically in a the context of integration with CI/CD pipelines.  It is **not** to run the application GUI, a use case which has not been tested.  
 
-**Important note:**  the CLI requires a **concurrent** license key with an available seat.  An individual workstation license of Hackolade is **not** sufficient.  To ensure that your CI/CD pipeline jobs always have an available seat, you may want to get a concurrent license key dedicated to this purpose.  On a single machine, you may run multiple containers of the same image in parallel with a concurrent license key.  
+**Important note:**  the Docker CLI requires a **concurrent** license key with an available seat.   If the seat gets validated offline, it remains dedicated to the Docker CLI and is not sharable with other users.  To ensure that your CI/CD pipeline jobs always have an available seat, you may want to get a concurrent license key dedicated to this purpose.  On a single machine, you may run multiple containers of the same image in parallel with a concurrent license key.    An individual workstation license of Hackolade is **not** sufficient.  If you just need to run the CLI from an OS command prompt or terminal, you may do so with your regular Professional or Workgroup edition license.
+
 To purchase a concurrent license, perpetual or subscription, please send an email to support@hackolade.com. 
 
 To ensure proper behavior of the Hackolade Studio CLI in a Docker container, make sure to run version v5.1.1 or above.
@@ -37,11 +38,11 @@ with a tag “hackolade:latest”:
 
 The example uses a [Dockerfile.app](Dockerfile.app) which references the latest base [image](https://hub.docker.com/r/hackolade/studio) with all prerequisites needed to run Hackolade.  We chose to not include the Hackolade Studio application in the base image so it would remain stable, while the Dockefile.app instructions download the latest version.  
 
-The image has a pre-created user “hackolade” with UID 1000 and GID 0, which may be needed to synchronize permissions between container and host system. This group GID is particularly important in the case 
+The image has a pre-created user “hackolade” with UID 1000 and GID 0, which may be needed to synchronize permissions between container and host system. This group GID is particularly important in the case the user is dynamically assigned in the container.
 
-Note that user / group inside a container should have access to mounted folders as well as host user to avoid permission issues: appData, data, logs, options.  This is why user UID/GIG mapping is necessary between the host and the container.
+Note that user / group inside a container should have access to mounted folders as well as host user, to avoid permission issues: appData, data, logs, options.  This is why user UID/GIG mapping is necessary between the host and the container.
 
-All necessary folder are setup at build time to be read/writable by any user part of the GID group defined at build time.
+All necessary folders are setup at build time to be read/writable by any user part of the GID group defined at build time.
 
 
 
