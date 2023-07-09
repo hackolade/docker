@@ -7,7 +7,7 @@ FROM hackolade/studio:0.0.13
 # A build argument HACKOLADE_URL is defined ***in the parent image*** as an ONBUILD ARG hook and leveraged in /usr/bin/install-hackolade.sh at build time.
 # If you need a specific version, you need to invoke the build with `docker build --build-arg HACKOLADE_URL=... ` or with an equivalent of your build command
 # and replace /current/ with /previous/v5.1.0/ in the URL, for example or whatever version number you require.
-# Defining this ARG in the final Dockerfile WON'T work.
+# Defining this ARG in the final Dockerfile WILL NOT work.
 
 # Only for documentation purpose as these two env variables are defined in the parent image and default to 1000:0
 # if not overriden at runtime with for example docker run -i --rm -e UID=1234 ...
@@ -22,11 +22,13 @@ FROM hackolade/studio:0.0.13
 # Uncomment lines below to select plugins to install in the image
 #
 # RUN installPlugin.sh Avro
+# RUN installPlugin.sh BigQuery
 # RUN installPlugin.sh Cassandra
 # RUN installPlugin.sh CosmosDB-with-SQL-API
 # RUN installPlugin.sh CosmosDB-with-Mongo-API
 # RUN installPlugin.sh CosmosDB-with-Gremlin-API
 # RUN installPlugin.sh DeltaLake
+# RUN installPlugin.sh DocumentDB
 # RUN installPlugin.sh Elasticsearch
 # RUN installPlugin.sh ElasticsearchV7plus
 # RUN installPlugin.sh EventBridge
@@ -40,17 +42,23 @@ FROM hackolade/studio:0.0.13
 # RUN installPlugin.sh Neptune-Gremlin
 # RUN installPlugin.sh MariaDB
 # RUN installPlugin.sh MarkLogic
-# RUN installPlugin.sh MonStor
-# RUN installPlugin.sh SQLServer
+# RUN installPlugin.sh MySQL
 # RUN installPlugin.sh Neo4j
+# RUN installPlugin.sh Neptune-Gremlin
 # RUN installPlugin.sh OpenAPI
+# RUN installPlugin.sh Oracle
 # RUN installPlugin.sh Parquet
+# RUN installPlugin.sh PostgreSQL
+# RUN installPlugin.sh Protobuf
 # RUN installPlugin.sh Redshift
 # RUN installPlugin.sh ScyllaDB
 # RUN installPlugin.sh Snowflake
+# RUN installPlugin.sh SQLServer
 # RUN installPlugin.sh Swagger
 # RUN installPlugin.sh Synapse
+# RUN installPlugin.sh Teradata
 # RUN installPlugin.sh TinkerPop
+# RUN installPlugin.sh YugabyteDB-YSQL
 #
 
 #
