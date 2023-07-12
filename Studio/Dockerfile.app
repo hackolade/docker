@@ -67,3 +67,8 @@ FROM hackolade/studio:0.0.13
 RUN apt remove curl unzip zip -y && apt autoclean
 
 USER hackolade
+
+# Uncomment and adapt for each plugin you want to install
+#
+# ADD ./plugins/SQLServer-0.1.60.tar.gz /home/hackolade/.hackolade/plugins/
+# RUN mv /home/hackolade/.hackolade/plugins/SQLServer-0.1.60 /home/hackolade/.hackolade/plugins/SQLServer

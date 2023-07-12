@@ -61,4 +61,3 @@ USER $USERNAME
 USER root
 RUN apt-get remove curl unzip zip -y
 USER $USERNAME
-

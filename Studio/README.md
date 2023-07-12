@@ -112,6 +112,25 @@ To view the version number of a plugin in your image:
 
 `docker run --rm --entrypoint cat hackolade:latest /home/hackolade/.hackolade/plugins/<plugin name>/package.json`
 
+##### Install plugins without an internet connection
+
+If your environment doesn't allow you to install plugins directly, you will need to download each plugin from our Github organization plugin repositories and put them inside a plugins folder close to the Dockerfile.
+
+For example, if you need to install the plugin for MSSQL server, download the ***SQLServer-0.1.60.tar.gz*** source release from [the release page https://github.com/hackolade/SQLServer/releases](https://github.com/hackolade/SQLServer/releases) and put the archive into a plugins folder close to your Dockerfile.
+
+Your file structure should be as follows:
+
+```
+Dockerfile.app
+plugins/SQLServer-0.1.60.tar.gz
+```
+
+Then add the following line at the end of your Dockerfile (e.g. after the command `USER hackolade`) for each plugin you want to install:
+
+```
+ADD ./plugins/SQLServer-0.1.60.tar.gz /home/hackolade/.hackolade/plugins/
+RUN /home/hackolade/.hackolade/plugins/SQLServer-0.1.60 /home/hackolade/.hackolade/plugins/SQLServer
+```
 
 
 ### Run CLI commands in a container
