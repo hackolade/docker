@@ -66,7 +66,29 @@ docker build --no-cache --pull -f Dockerfile.app -t hackolade:latest --build-arg
 ```
 Note: make sure you are using an official Hackolade published version!  Don't trust other sources.
 
+#### Build the image using a local zip file (offline)
 
+If your environment doesn't allow you to access our [Hackolade releases](https://s3-eu-west-1.amazonaws.com/hackolade/previous) directly, you will need to download the version you want to install and reference it into the Dockerfile to be able to install it.  Make sure you download a Linux version to be able to install it inside a Docker image.
+
+- First, download the Hackolade version you want to install ***close to the Dockerfile*** and name the downloaded file ***Hackolade.zip***.  
+
+- Then, add the following lines to your Dockerfile
+
+```
+# Copy the local zip file you want to install
+COPY ./Hackolade.zip /tmp/Hackolade.zip
+
+# Install the zip file
+RUN /usr/bin/install-hackolade.sh
+```
+
+- Then build the image with the Hackolade.zip file destination path in the Dockerfile as a build-argument:
+
+```bash
+docker build --no-cache -f Dockerfile.app -t hackolade:latest --build-arg=HACKOLADE_URL="/tmp/Hackolade.zip" .
+```
+
+Note that in such an offline case you need to also be able to access the source image (see first `FROM`instruction in our Dockerfile.app example).  This image can be accessed either from our Docker Hub, either from your internal Docker Registry if your administrators hosted a copy of our image.
 
 #### Plugins
 
@@ -90,7 +112,31 @@ To view the version number of a plugin in your image:
 
 `docker run --rm --entrypoint cat hackolade:latest /home/hackolade/.hackolade/plugins/<plugin name>/package.json`
 
+##### Install plugins without an internet connection
 
+If your environment doesn't allow you to install plugins directly, you will need to download each plugin from our Github organization plugin repositories and put them inside a plugins folder close to the Dockerfile.
+
+For example, if you need to install the plugin for MSSQL server, download the ***SQLServer-0.1.60.tar.gz*** source release from [the release page https://github.com/hackolade/SQLServer/releases](https://github.com/hackolade/SQLServer/releases) and put the archive into a plugins folder close to your Dockerfile.
+
+Your file structure should be as follows:
+
+```
+Dockerfile.app
+plugins/SQLServer-0.1.60.tar.gz
+```
+
+Then add the following line at the end of your Dockerfile (e.g. after the command `USER hackolade`) for each plugin you want to install:
+
+```
+ADD ./plugins/SQLServer-0.1.60.tar.gz /home/hackolade/.hackolade/plugins/
+RUN /home/hackolade/.hackolade/plugins/SQLServer-0.1.60 /home/hackolade/.hackolade/plugins/SQLServer
+```
+
+Finally you can build the Docker image using 
+
+```
+docker build --no-cache -f Dockerfile.app -t hackolade:latest .
+```
 
 ### Run CLI commands in a container
 
