@@ -66,7 +66,29 @@ docker build --no-cache --pull -f Dockerfile.app -t hackolade:latest --build-arg
 ```
 Note: make sure you are using an official Hackolade published version!  Don't trust other sources.
 
+#### Build the image using a local zip file (offline)
 
+If your environment doesn't allow you to access our [Hackolade releases](https://s3-eu-west-1.amazonaws.com/hackolade/previous) directly, you will need to download the version you want to install and reference it into the Dockerfile to be able to install it.  Make sure you download a Linux version to be able to install it inside a Docker image.
+
+- First, download the Hackolade version you want to install ***close to the Dockerfile*** and name the downloaded file ***Hackolade.zip***.  
+
+- Then, add the following lines to your Dockerfile
+
+```
+# Copy the local zip file you want to install
+COPY ./Hackolade.zip /tmp/Hackolade.zip
+
+# Install the zip file
+RUN /usr/bin/install-hackolade.sh
+```
+
+- Then build the image with the Hackolade.zip file destination path in the Dockerfile as a build-argument:
+
+```bash
+docker build --no-cache -f Dockerfile.app -t hackolade:latest --build-arg=HACKOLADE_URL="/tmp/Hackolade.zip" .
+```
+
+Note that in such an offline case you need to also be able to access the source image (see first `FROM`instruction in our Dockerfile.app example).  This image can be accessed either from our Docker Hub, either from your internal Docker Registry if your administrators hosted a copy of our image.
 
 #### Plugins
 
