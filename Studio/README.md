@@ -132,6 +132,11 @@ ADD ./plugins/SQLServer-0.1.60.tar.gz /home/hackolade/.hackolade/plugins/
 RUN /home/hackolade/.hackolade/plugins/SQLServer-0.1.60 /home/hackolade/.hackolade/plugins/SQLServer
 ```
 
+Finally you can build the Docker image using 
+
+```
+docker build --no-cache -f Dockerfile.app -t hackolade:latest .
+```
 
 ### Run CLI commands in a container
 
