@@ -66,11 +66,13 @@ docker build --no-cache --pull -f Dockerfile.app -t hackolade:latest --build-arg
 ```
 Note: make sure you are using an official Hackolade published version!  Don't trust other sources.
 
-#### Build the image using a local zip file (offline)
 
-If your environment doesn't allow you to access our [Hackolade releases](https://s3-eu-west-1.amazonaws.com/hackolade/previous) directly, you will need to download the version you want to install and reference it into the Dockerfile to be able to install it.  Make sure you download a Linux version to be able to install it inside a Docker image.
 
-- First, download the Hackolade version you want to install ***close to the Dockerfile*** and name the downloaded file ***Hackolade.zip***.  
+#### Build the image if you have no Internet connection (offline)
+
+If your environment doesn't allow you to access our Hackolade releases directly, you will need to download the version you want to install and reference it into the Dockerfile to be able to install it.  Make sure you download a Linux version to be able to install it inside a Docker image.  You may find previous versions of Hackolade Studio Desktop by replacing in the following URL v6.9.6 with v<version of your choice>, for example https://s3-eu-west-1.amazonaws.com/hackolade/previous/v6.9.6/Hackolade-linux-x64.zip
+
+- First, download the Hackolade version you want to install ***nearby the Dockerfile*** and name the downloaded file ***Hackolade.zip***.  
 
 - Then, add the following lines to your Dockerfile
 
@@ -88,7 +90,9 @@ RUN /usr/bin/install-hackolade.sh
 docker build --no-cache -f Dockerfile.app -t hackolade:latest --build-arg=HACKOLADE_URL="/tmp/Hackolade.zip" .
 ```
 
-Note that in such an offline case you need to also be able to access the source image (see first `FROM`instruction in our Dockerfile.app example).  This image can be accessed either from our Docker Hub, either from your internal Docker Registry if your administrators hosted a copy of our image.
+Note that in such an offline case you need to also be able to access the source image (see first `FROM` instruction in our Dockerfile.app example).  This image can be accessed either from our Docker Hub, either from your internal Docker Registry if your administrators hosted a copy of our image.
+
+
 
 #### Plugins
 
@@ -102,8 +106,6 @@ If you need target plugins, they can be installed using one of the following met
 
 If a plugin you need exists but is somehow not listed in your Dockerfile.plugins file, you can find the exhaustive list in the [plugin registry](https://github.com/hackolade/plugins/blob/master/pluginRegistry.json).  Then you may add a line (without the # comment): `RUN installPlugin.sh <plugin name> <plugin version>` You may activate multiple lines to install plugins at the same time. Plugin version is optional parameter, if it is omitted, the latest plugin will be downloaded.
 
-
-
 To list existing plugins in your image:
 
 `docker run --rm --entrypoint ls hackolade:latest /home/hackolade/.hackolade/plugins/`
@@ -112,9 +114,11 @@ To view the version number of a plugin in your image:
 
 `docker run --rm --entrypoint cat hackolade:latest /home/hackolade/.hackolade/plugins/<plugin name>/package.json`
 
-##### Install plugins without an internet connection
 
-If your environment doesn't allow you to install plugins directly, you will need to download each plugin from our Github organization plugin repositories and put them inside a plugins folder close to the Dockerfile.
+
+##### Install plugins without an Internet connection (offline)
+
+If your environment doesn't allow you to install plugins directly from our repos, you will need to download each plugin from our GitHub organization plugin repositories and put them inside a plugins folder nearby the Dockerfile.
 
 For example, if you need to install the plugin for MSSQL server, download the ***SQLServer-0.1.60.tar.gz*** source release from [the release page https://github.com/hackolade/SQLServer/releases](https://github.com/hackolade/SQLServer/releases) and put the archive into a plugins folder close to your Dockerfile.
 
@@ -137,6 +141,8 @@ Finally you can build the Docker image using
 ```
 docker build --no-cache -f Dockerfile.app -t hackolade:latest .
 ```
+
+
 
 ### Run CLI commands in a container
 
@@ -217,7 +223,7 @@ docker compose run --rm hackoladeStudioCLI validatekey --key=<concurrent-license
 
 
 
-##### Without Internet connection
+##### Without Internet connection (offline)
 
 If your build server has no Internet connection, it is necessary to do an offline validation of your license key.  The process is as follows:
 

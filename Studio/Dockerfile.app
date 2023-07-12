@@ -68,6 +68,7 @@ RUN apt remove curl unzip zip -y && apt autoclean
 
 USER hackolade
 
+# If you have no Internet connection (offline) and need to install plugin(s)
 # Uncomment and adapt for each plugin you want to install
 #
 # ADD ./plugins/SQLServer-0.1.60.tar.gz /home/hackolade/.hackolade/plugins/
