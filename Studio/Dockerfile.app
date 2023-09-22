@@ -1,7 +1,7 @@
 # Base image with OS and dependencies
 # The base image does NOT include the Hackolade Studio application, which instead gets downloaded as part of the operations below
 # Note that the application is only certified to run in Docker for version 5.1.0 (and above) when adjustments were made for this purpose.
-FROM hackolade/studio:0.0.13
+FROM hackolade/studio:0.0.18
 
 # The latest version of Hackolade will be automatically downloaded and installed by default.
 # A build argument HACKOLADE_URL is defined ***in the parent image*** as an ONBUILD ARG hook and leveraged in /usr/bin/install-hackolade.sh at build time.
