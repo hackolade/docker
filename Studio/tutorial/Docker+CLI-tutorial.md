@@ -1,24 +1,24 @@
 # Running the Hackolade Command-Line Interface in a Docker container
 
-This article is in support of the video tutorial on the same subject.
+This article is in support of the [video tutorial](https://community.hackolade.com/slides/slide/docker-based-automation-57) on the same subject.
 
 
 
-## Some context: Metadata-as-Code
+## Context: Metadata-as-Code
 One of the big pillars of Hackolade and the Hackolade Studio architecture and functionality, has been the fact that we subscribe to the principles of [Metadata-as-Code](https://hackolade.com/metadata-as-code.html). This is super important to us, as we try to make sure that the walls between different data modeling stakeholders are torn down, and models are forever kept up-to-date. The _infinite loop of DevOps_ is now also a reality in the world of Data Modeling.
 
 ![](https://hackolade.com/img/metadata-as-code-_infinity_loop.png)
 
 As we have discussed elsewhere, (eg. [in this online documentation page](https://hackolade.com/help/Repository.html) and [in this video](https://community.hackolade.com/slides/hackolade-studio-tutorial-5-workgroup-collaboration-and-versioning-5)), Hackolade Studio's JSON-based architecture, and its integration with Git repositories are super important, as they enable new and innovative levels of automation and integration.
 
-## About the Hackolade Command Line Interface
+## About the Hackolade Command-Line Interface
 One of the key components to making this happen, is the Hackolade Studio [Command-Line Interface](https://hackolade.com/help/CommandLineInterface.html). In and of itself, this is super interesting, as it allows for the automation of many functionalities that you would normally performs with the Hackolade Studio graphical user interface, but using a simple to understand script. The easiest way to try this is to call that script from the terminal of your workstation where Hackolade is installed - and get going!
 
 You can find more information about the CLI in our online documentation: 
 * [high level information](https://hackolade.com/help/IntegratetheCLIwithDevOpsCICDpip.html)
 * [detailed information](https://hackolade.com/help/CommandLineInterface.html)
 
-The interesting thing is that we can not only run this on the workstation where you have Hackolade Studio installed, but you can also install the Hackolade Studio CLI on a server, and trigger it to run multi-threaded in a **Docker container** , as part of that environment. This means that, as part of your entire CI/CD pipeline, you can trigger data modeling automations and have it perform things like creation of artifacts, forward- and reverse-engineering, model comparisons, documentation generation, etc etc. All the things that you can use the CLI for, you can now trigger from your pipeline using the Hackolade Studio CLI installed in a Docker container. You can use
+The interesting thing is that we can not only run this on the workstation where you have Hackolade Studio installed, but you can also install the Hackolade Studio CLI on a server, and trigger it to run **concurrent multi-threaded** sessions in a **Docker container**, as part of that environment.  As part of your CI/CD pipeline, you can trigger data modeling automations and have it perform things like creation of artifacts, forward- and reverse-engineering, model comparisons, documentation generation, ...  All the things that you can use the CLI for, you can now trigger from your pipeline using the Hackolade Studio CLI installed in a Docker container. You can use
 * [GitHub Actions](https://docs.github.com/en/actions/creating-actions/creating-a-docker-container-action)
 * [Azure Pipelines](https://learn.microsoft.com/en-us/azure/devops/pipelines/)
 * [Bitbucket Pipelines](https://support.atlassian.com/bitbucket-cloud/docs/run-docker-commands-in-bitbucket-pipelines/)
