@@ -8,7 +8,7 @@ The purpose of running Hackolade Studio in a Docker container is to operate the 
 
 **Important note:**  the Docker CLI requires a **concurrent** license key with an available seat.   If the seat gets validated offline, it remains dedicated to the Docker CLI and is not sharable with other users.  To ensure that your CI/CD pipeline jobs always have an available seat, you may want to get a concurrent license key dedicated to this purpose.  On a single machine, you may run multiple containers of the same image in parallel with a concurrent license key.    An individual workstation license of Hackolade is **not** sufficient.  If you just need to run the CLI from an OS command prompt or terminal, you may do so with your regular Professional or Workgroup edition license.
 
-To purchase a concurrent license, perpetual or subscription, please send an email to support@hackolade.com. 
+To purchase a concurrent license subscription, please send an email to support@hackolade.com. 
 
 To ensure proper behavior of the Hackolade Studio CLI in a Docker container, make sure to run version v5.1.1 or above.
 
