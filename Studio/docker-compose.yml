@@ -11,7 +11,7 @@ services:
     - hackolade-studio-logs:/home/hackolade/Documents/HackoladeLogs
     - hackolade-studio-output:/home/hackolade/Documents/output
     # Provide models or inputs from the host (but can be done through named volumes too)
-    - ./input-models:/home/hackolade/Documents/models
+    - ./models:/home/hackolade/Documents/models
     # If you have custom options to configure Hackolade like naming conventions or custom properties uncomment the following line
     #  - ./options:/home/hackolade/.hackolade/options
 
