@@ -36,9 +36,9 @@ To view the version number of a plugin in your image:
 docker run --rm --entrypoint cat hackolade:latest /home/hackolade/.hackolade/plugins/<plugin name>/package.json
 ```
 
-## 
+### Unprivileged user
 
-The image has a pre-created user **hackolade** with UID **1000** and GID **0**.  You may need to synchronize permissions between container and host system when mounting folders from the host.  The group **GID** is particularly important in the case the user is dynamically assigned in the container.
+The image has a pre-created unprivileged user **hackolade** with UID **1000** and GID **0**.  You may need to synchronize permissions between container and host system when mounting folders from the host.  The group **GID** is particularly important in the case the user is dynamically assigned in the container.
 
 All necessary folders are setup at build time to be read/writable by any user part of the GID group defined at build time.
 
