@@ -1,0 +1,7 @@
+*.bat
+*.json
+*.md
+*.yml
+doc
+lib
+tutorial
