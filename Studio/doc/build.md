@@ -77,7 +77,7 @@ For example, if you need to install the plugin for MSSQL server, download the **
 Your file structure should be as follows:
 
 ```bash
-Dockerfile.app
+Dockerfile
 plugins/SQLServer-0.1.60.tar.gz
 ```
 
@@ -91,5 +91,5 @@ RUN mv /home/hackolade/.hackolade/plugins/SQLServer-0.1.60 /home/hackolade/.hack
 Finally you can build the Docker image using 
 
 ```bash
-docker build --no-cache -f Dockerfile.app -t hackolade:latest .
+docker build --no-cache -t hackolade:latest .
 ```
