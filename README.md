@@ -1,5 +1,5 @@
-# Hackolade repo for Dockerfiles
+# Running Hackolade Studio Command Line Interface in Docker containers
 
-This repo contains instructions and files in support of Hackolade images found on [Docker Hub](https://hub.docker.com/u/hackolade)
+This repository contains instructions and files for running Hackolade Studio CLI using our official Docker image which can be found on [Docker Hub](https://hub.docker.com/r/hackolade/studio/tags)
 
-See folders for more details...
+Check [How to run Hackolade Studio with Docker](./Studio/README.md) in [./Studio subfolder](./Studio) for details.

@@ -1,10 +1,21 @@
 services:
- hackoladeStudioCLI:
-   image: hackolade:latest
-   security_opt:
-     - seccomp:securityPolicies.json
-   volumes:
-     - ./appData:/home/hackolade/.config/Hackolade
-     - ./data:/home/hackolade/Documents/data/
-     - ./logs:/home/hackolade/Documents/HackoladeLogs/
-     - ./options:/home/hackolade/.hackolade/options
+  hackoladeStudioCLI:
+    image: hackolade:latest
+    working_dir: /home/hackolade/Documents
+    # security_opt:
+    # - seccomp:securityPolicies.json
+    # environment:
+    # - WITH_SANDBOXING=true
+    volumes:
+    - hackolade-studio-app-data:/home/hackolade/.config/Hackolade
+    - hackolade-studio-logs:/home/hackolade/Documents/HackoladeLogs
+    - hackolade-studio-output:/home/hackolade/Documents/output
+    # Provide models or inputs from the host (but can be done through named volumes too)
+    - ./input-models:/home/hackolade/Documents/models
+    # If you have custom options to configure Hackolade like naming conventions or custom properties uncomment the following line
+    #  - ./options:/home/hackolade/.hackolade/options
+
+volumes:
+  hackolade-studio-app-data: {}
+  hackolade-studio-logs: {}
+  hackolade-studio-output: {}
