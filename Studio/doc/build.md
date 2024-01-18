@@ -6,8 +6,7 @@
 docker build --no-cache --pull -t hackolade:latest .
 ```
 
-The example uses a [Dockerfile](Dockerfile) which references the latest runtime [image](https://hub.docker.com/r/hackolade/studio) with all prerequisites needed to run Hackolade.  
-We chose to not include the Hackolade Studio application in the base image so it would remain stable, while the Dockefile.app instructions download the latest version.
+The example uses a [Dockerfile](Dockerfile) which references the latest runtime [image](https://hub.docker.com/r/hackolade/studio) with all prerequisites needed to run Hackolade.
 
 ### With a specific Hackolade version directly from our Releases
 
@@ -39,15 +38,13 @@ docker run --rm --entrypoint cat hackolade:latest /home/hackolade/.hackolade/plu
 
 ## 
 
-The image has a pre-created user **hackolade** with UID **1000** and GID **0**.  Depending of the approach you use to **persist data**, you may need to synchronize permissions between container and host system.  The group GID is particularly important in the case the user is dynamically assigned in the container.
-
-Note that user / group inside a container should have access to mounted folders as well as host user, to avoid permission issues: appData, data, logs, options.  This is why user UID/GIG mapping is necessary between the host and the container.
+The image has a pre-created user **hackolade** with UID **1000** and GID **0**.  You may need to synchronize permissions between container and host system when mounting folders from the host.  The group **GID** is particularly important in the case the user is dynamically assigned in the container.
 
 All necessary folders are setup at build time to be read/writable by any user part of the GID group defined at build time.
 
 # (Offline alternative) Build the image if you have no Internet connection 
 
-If your environment doesn't allow you to access our Hackolade releases directly, you will need to download the version you want to install and reference it into the Dockerfile to be able to install it.  Make sure you download a Linux version to be able to install it inside a Docker image.  You may find previous versions of Hackolade Studio Desktop by replacing in the following URL v6.9.6 with v<version of your choice>, for example https://s3-eu-west-1.amazonaws.com/hackolade/previous/v6.9.6/Hackolade-linux-x64.zip
+If your environment doesn't allow you to access our Hackolade releases directly, you will need to download the version you want to install and reference it into the Dockerfile to be able to install it.  Make sure you download a Linux version to be able to install it inside a Docker image.  You may find previous versions of Hackolade Studio Desktop by replacing in the following URL v6.9.6 with v<version of your choice>, for example [https://s3-eu-west-1.amazonaws.com/hackolade/previous/v6.9.6/Hackolade-linux-x64.zip](https://s3-eu-west-1.amazonaws.com/hackolade/previous/v6.9.6/Hackolade-linux-x64.zip).
 
 1. First, download the Hackolade version you want to install ***nearby the Dockerfile*** and name the downloaded file ***Hackolade.zip***.  
 
