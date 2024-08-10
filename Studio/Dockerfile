@@ -1,7 +1,7 @@
 # Base image with OS and dependencies
 # The base image does NOT include the Hackolade Studio application, which instead gets downloaded as part of the operations below
 # Note that the application is only certified to run in Docker for version 5.1.0 (and above) when adjustments were made for this purpose.
-FROM hackolade/studio:0.0.17
+FROM hackolade/studio:0.0.18
 
 # The latest version of Hackolade will be automatically downloaded and installed by default.
 # A build argument HACKOLADE_URL is defined ***in the parent image*** as an ONBUILD ARG hook and leveraged in /usr/bin/install-hackolade.sh at build time.
@@ -61,6 +61,12 @@ FROM hackolade/studio:0.0.17
 # RUN installPlugin.sh YugabyteDB-YSQL
 #
 
+# If you have no Internet connection (offline) and need to install plugin(s)
+# Uncomment and adapt for each plugin you want to install
+#
+# ADD ./plugins/SQLServer-0.1.60.tar.gz /home/hackolade/.hackolade/plugins/
+# RUN mv /home/hackolade/.hackolade/plugins/SQLServer-0.1.60 /home/hackolade/.hackolade/plugins/SQLServer
+
 #
 # Some programs needed for installation application and plugins are not required at runtime, and are removed from the image
 #
@@ -68,8 +74,3 @@ RUN apt remove curl unzip zip -y && apt autoclean
 
 USER hackolade
 
-# If you have no Internet connection (offline) and need to install plugin(s)
-# Uncomment and adapt for each plugin you want to install
-#
-# ADD ./plugins/SQLServer-0.1.60.tar.gz /home/hackolade/.hackolade/plugins/
-# RUN mv /home/hackolade/.hackolade/plugins/SQLServer-0.1.60 /home/hackolade/.hackolade/plugins/SQLServer
