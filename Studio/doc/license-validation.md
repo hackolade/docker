@@ -35,7 +35,7 @@ If your server has no Internet connection, it is necessary to do an offline vali
 4. Validate the license key the command in the SAME image as was used in step 1 while providing the LicenseFile.xml to the container, here with a bind mount in the following example.
 
    ```bash
-    docker compose run --rm -v ./LicenseFile.xml:/licenseFile.xml hackoladeStudioCLI validatekey \
+    docker compose run --rm -v ${PWD}/LicenseFile.xml:/LicenseFile.xml hackoladeStudioCLI validatekey \
         --key=<concurrent-license-key> \
         --file=/LicenseFile.xml
     ```

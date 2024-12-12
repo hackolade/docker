@@ -138,7 +138,7 @@ Assuming that a valid Hackolade model file called *`model.json`* is placed in th
         --name hackolade-data-extractor \
         -u root \
         -v hackolade-studio-output:/output \
-        -v ./output:/output-on-host \
+        -v ${PWD}/output:/output-on-host \
         --entrypoint cp \
       hackolade:latest -r /output /output-on-host/. 
     ```
@@ -149,7 +149,7 @@ Assuming that a valid Hackolade model file called *`model.json`* is placed in th
         --name hackolade-data-extractor \
         -u root \
         -v hackolade-studio-logs:/logs \
-        -v ./logs:/logs-on-host \
+        -v ${PWD}/logs:/logs-on-host \
         --entrypoint cp \
       hackolade:latest -r /logs /logs-on-host/. 
     ```
@@ -163,7 +163,7 @@ You may have customized the behavior of the application GUI, and wish to use the
 
 If the containers will be running on a machine with no Hackolade Studio GUI, you use in the [docker-compose.yml](docker-compose.yml) file the default subfolder of the location where the containers will be running:
 
-         - ./options:/home/hackolade/.hackolade/options
+         - ${PWD}/options:/home/hackolade/.hackolade/options
 
 Or you may reference an absolute path to the location of these files, if you're also running the Hackolade Studio GUI on the same Windows machine:
 
