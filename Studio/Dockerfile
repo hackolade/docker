@@ -24,9 +24,11 @@ FROM hackolade/studio:0.0.21
 # RUN installPlugin.sh Avro
 # RUN installPlugin.sh BigQuery
 # RUN installPlugin.sh Cassandra
+# RUN installPlugin.sh CockroachDB
 # RUN installPlugin.sh CosmosDB-with-SQL-API
 # RUN installPlugin.sh CosmosDB-with-Mongo-API
 # RUN installPlugin.sh CosmosDB-with-Gremlin-API
+# RUN installPlugin.sh Db2
 # RUN installPlugin.sh DeltaLake
 # RUN installPlugin.sh DocumentDB
 # RUN installPlugin.sh Elasticsearch
@@ -35,6 +37,7 @@ FROM hackolade/studio:0.0.21
 # RUN installPlugin.sh Firebase
 # RUN installPlugin.sh Firestore
 # RUN installPlugin.sh Glue
+# RUN installPlugin.sh GraphQL 
 # RUN installPlugin.sh HBase
 # RUN installPlugin.sh Hive
 # RUN installPlugin.sh JanusGraph
@@ -68,4 +71,3 @@ FROM hackolade/studio:0.0.21
 # RUN mv /home/hackolade/.hackolade/plugins/SQLServer-0.1.60 /home/hackolade/.hackolade/plugins/SQLServer
 
 USER hackolade
-
