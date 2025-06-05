@@ -6,10 +6,12 @@ The instructions below assume that you have Docker [installed](https://www.docke
 
 The purpose of running Hackolade Studio in a Docker container is to operate the Command-Line Interface ("CLI"), typically in a the context of integration with CI/CD pipelines.  
 
-⚠ It is **not** to run the application GUI, which is **not** supported.
+⚠ The purpose is **not** to run the application GUI in Docker -- this is **not** supported.
+
+
 
 ## Repository structure
-This repository contains files and instructions for running [Hackolade](https://hackolade.com) applications published on [Docker Hub](https://hub.docker.com/r/hackolade/studio):
+This repository contains files and instructions for running the [Hackolade Studio](https://hackolade.com) data modeling application published on [Docker Hub](https://hub.docker.com/r/hackolade/studio):
 
 - [Dockerfile](Dockerfile): ready-to-use example of a full installation of Hackolade Studio, including the possibility to install selected target plugins
 - [docker-compose.yml](docker-compose.yml): example of how the recommended way to configure the launch of containers of the Hackolade CLI.
@@ -19,6 +21,8 @@ This repository contains files and instructions for running [Hackolade](https://
   - [docker-validateKey.bat](docker-validateKey.bat): validate a license key
   - [docker-genDoc.bat](docker-genDoc.bat): run the CLI for the genDoc command.  Requires a validated license key.
 
+
+
 ## Licensing
 
 **Important note:**  the Docker CLI requires a **concurrent** license key with an **available seat**.   If the seat gets validated offline, it remains dedicated to the Docker CLI and is not sharable with other users.  To ensure that your CI/CD pipeline jobs always have an available seat, you may want to get a concurrent license key dedicated to this purpose.  On a single machine, you may run multiple containers of the same image in parallel with a concurrent license key.    An individual workstation license of Hackolade is **not** sufficient.  If you just need to run the CLI from an OS command prompt or terminal, you may do so with your regular Professional or Workgroup edition license.
@@ -26,6 +30,8 @@ This repository contains files and instructions for running [Hackolade](https://
 To purchase a concurrent license subscription, please send an email to support@hackolade.com. 
 
 To ensure proper behavior of the Hackolade Studio CLI in a Docker container, make sure to use an Hackolade version v5.1.1 or above.
+
+
 
 ## Managing data
 
@@ -44,7 +50,9 @@ The **hackolade** user pre-configured inside the image has the following UID/GID
 - GID: 0
 
 
+
 ### Required directories (inside containers)
+
 Hackolade reads and writes data to the following folders inside containers:
 
 -**/home/hackolade/.config/Hackolade**: this folder (**appData**) is necessary for the proper operation of the application in containers and must be readable and writable by **hackolade** user.
@@ -56,6 +64,7 @@ Hackolade reads and writes data to the following folders inside containers:
 You must create manually the folders you will bind mount prior to running hackolade studio containers because docker doesn't create them automatically anymore.
 
 #### File permissions and bind mounts
+
 Any pre-existing data in the Docker image in the bind mounted folders will be **erased and overridde**n** by the data present on the host folder.  Docker will use the user owning the folder on the host as the owner of all the files of target directory where the bind mount is done.  Therefore, the unprivileged **hackolade** user inside the container (note that Hackolade CLI can not be run as *root***) must have enough permissions to write and read from these host folders.  
 
 
@@ -65,6 +74,8 @@ Any pre-existing data in the Docker image in the bind mounted folders will be **
 mkdir -p $PWD/models $PWD/hackolade-options
 chown -R 1000:0 $PWD/models $PWD/hackolade-options
 ```
+
+
 
 ## Build the image
 
@@ -77,6 +88,7 @@ Once you have built the Docker image you will need to first validate your concur
 Follow the fully detailed instructions in [this page](./doc/license-validation.md).
 
 **Note:** The license key validation must be repeated for each new Docker image.
+
 
 
 ## Run Hackolade CLI in a container
@@ -102,7 +114,8 @@ docker compose run --rm hackoladeStudioCLI help
 You may consult our [online documentation](https://hackolade.com/help/CommandLineInterface.html) for the full description of commands and their respective arguments.
 
 
-## Example Scenario: Generate documentation and forward engineer for a model
+
+## Example Scenario: Generate documentation and forward-engineer for a model
 
 This example is using the [docker-compose.yml](./docker-compose.yml) file. 
 
@@ -170,3 +183,9 @@ Or you may reference an absolute path to the location of these files, if you're 
 ```Windows
      - C:/Users/%username%/.hackolade/options:/home/hackolade/.hackolade/options
 ```
+
+
+
+## Running the CLI from GitHub Actions based on a trigger
+
+Take a look at [this repository](https://github.com/hackolade/studio-cli-github-actions-examples) for such an illustration.
