@@ -11,10 +11,10 @@ The purpose of running Hackolade Studio in a Docker container is to operate the 
 
 
 ## Repository structure
-This repository contains files and instructions for running the [Hackolade Studio](https://hackolade.com) data modeling application published on [Docker Hub](https://hub.docker.com/r/hackolade/studio):
+This repository contains files and instructions for running the [Hackolade Studio](https://hackolade.com) data modeling application, using the base image published on [Docker Hub](https://hub.docker.com/r/hackolade/studio):
 
 - [Dockerfile](Dockerfile): ready-to-use example of a full installation of Hackolade Studio, including the possibility to install selected target plugins
-- [docker-compose.yml](docker-compose.yml): example of how the recommended way to configure the launch of containers of the Hackolade CLI.
+- [docker-compose.yml](docker-compose.yml): example of the recommended way to configure the launch of containers of the Hackolade CLI.
 - [securityPolicies.json](securityPolicies.json) - [optional] the list of required system call operations to be able to run Hackolade with Chrome sandboxing (disabled by default) inside a container ([more details](https://docs.docker.com/engine/security/seccomp/))
 - batch files examples when running on Windows:
   - [docker-help.bat](docker-help.bat): verify the proper running of the CLI by displaying the CLI help in a container.  Will work without a validated license key.
@@ -36,7 +36,9 @@ To ensure proper behavior of the Hackolade Studio CLI in a Docker container, mak
 ## Managing data
 
 Hackolade requires to read and persist data from some specific folders.  There are many ways to manage data in the context of containers using [data volumes](https://docs.docker.com/storage/volumes/).  
+
 For security reasons and following best practices for running containers, Hackolade will run using a dedicated yet **unprivileged** user: **hackolade**.
+
 For portability reasons, we advise to use Docker named volumes for folders where Hackolade is writing as much as possible instead of bind mounts from the host.  It deeply simplifies the requirements for running Hackolade Docker image.  This is especially true for the two operational folders **appData** and **HackoladeLogs** as well as for the folder Hackolade will generate output artifacts, like results of forward engineering commands.
 
 In general, reading data out of any folder should likely work out of the box because our **hackolade** user is having **GID 0**, but for writing data the target folder should be writable by our **hackolade** user.
@@ -79,9 +81,11 @@ chown -R 1000:0 $PWD/models $PWD/hackolade-options
 
 ## Build the image
 
-The first required step is to build the Docker image with the Hackolade Studio application and the plugins you want to use.  Follow instructions details in [this page](./doc/build.md).
+The very first step is to fetch the base image from our [Docker Hub latest tag](https://hub.docker.com/r/hackolade/studio/tags).  
 
-Once you have built the Docker image you will need to first validate your concurrent license for that new image before being able to run the Hackolade CLI with your scenario of choice.
+Then you must build your Docker image with the Hackolade Studio application version and the plugins that you want to use.  Follow instructions details in [this page](./doc/build.md).
+
+Once you have built the Docker image you need to first validate your concurrent license for that new image before being able to run the Hackolade CLI with your scenario of choice.
 
 ### Validate license key for the image
 

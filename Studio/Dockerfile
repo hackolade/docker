@@ -3,7 +3,7 @@
 # Note that the application is only certified to run in Docker for version 5.1.0 (and above) when adjustments were made for this purpose.
 FROM hackolade/studio:0.0.21
 
-# The latest version of Hackolade will be automatically downloaded and installed by default.
+# The latest version of Hackolade Studio will be automatically downloaded and installed by default.
 # A build argument HACKOLADE_URL is defined ***in the parent image*** as an ONBUILD ARG hook and leveraged in /usr/bin/install-hackolade.sh at build time.
 # If you need a specific version, you need to invoke the build with `docker build --build-arg HACKOLADE_URL=... ` or with an equivalent of your build command
 # and replace /current/ with /previous/v5.1.0/ in the URL, for example or whatever version number you require.
