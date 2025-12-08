@@ -1,7 +1,10 @@
 # Base image with OS and dependencies
 # The base image does NOT include the Hackolade Studio application, which instead gets downloaded as part of the operations below
 # Note that the application is only certified to run in Docker for version 5.1.0 (and above) when adjustments were made for this purpose.
-FROM hackolade/studio:0.0.21
+# Check the latest version of the image here: https://hub.docker.com/r/hackolade/studio/tags and
+# use a pin down version if you want to use a specific version.
+#FROM hackolade/studio:0.0.23
+FROM hackolade/studio:latest
 
 # The latest version of Hackolade Studio will be automatically downloaded and installed by default.
 # A build argument HACKOLADE_URL is defined ***in the parent image*** as an ONBUILD ARG hook and leveraged in /usr/bin/install-hackolade.sh at build time.
@@ -11,7 +14,7 @@ FROM hackolade/studio:0.0.21
 
 # Only for documentation purpose as these two env variables are defined in the parent image and default to 1000:0
 # if not overriden at runtime with for example docker run -i --rm -e UID=1234 ...
-# ENV UID=${$UID} 
+# ENV UID=${$UID}
 
 #
 # Plugin installation
@@ -37,7 +40,7 @@ FROM hackolade/studio:0.0.21
 # RUN installPlugin.sh Firebase
 # RUN installPlugin.sh Firestore
 # RUN installPlugin.sh Glue
-# RUN installPlugin.sh GraphQL 
+# RUN installPlugin.sh GraphQL
 # RUN installPlugin.sh HBase
 # RUN installPlugin.sh Hive
 # RUN installPlugin.sh JanusGraph
@@ -67,7 +70,8 @@ FROM hackolade/studio:0.0.21
 # If you have no Internet connection (offline) and need to install plugin(s)
 # Uncomment and adapt for each plugin you want to install
 #
-# ADD ./plugins/SQLServer-0.1.60.tar.gz /home/hackolade/.hackolade/plugins/
+# ADD ./plugins/SQLServer-0.1.60.zip /home/hackolade/.hackolade/plugins/
+# RUN unzip /home/hackolade/.hackolade/plugins/SQLServer-0.1.60.zip -d /home/hackolade/.hackolade/plugins/
 # RUN mv /home/hackolade/.hackolade/plugins/SQLServer-0.1.60 /home/hackolade/.hackolade/plugins/SQLServer
 
 USER hackolade
