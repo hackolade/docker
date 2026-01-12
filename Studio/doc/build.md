@@ -6,7 +6,7 @@
 docker build --no-cache --pull -t hackolade:latest .
 ```
 
-The example uses a [Dockerfile](Dockerfile) which references the latest runtime [image](https://hub.docker.com/r/hackolade/studio) with all prerequisites needed to run Hackolade.
+The example uses a [Dockerfile](../Dockerfile) which references the latest runtime [image](https://hub.docker.com/r/hackolade/studio) with all prerequisites needed to run Hackolade.
 
 ### With a specific Hackolade version directly from our Releases
 
