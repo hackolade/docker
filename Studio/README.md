@@ -137,7 +137,9 @@ Assuming that a valid Hackolade model file called *`model.json`* is placed in th
     ```
 3. Generate documentation for the model.json file
     ```bash
-    docker compose run --rm hackoladeStudioCLI genDoc --model=/home/hackolade/Documents/models/model.json --format=HTML --doc=/home/hackolade/Documents/output/doc.html
+    docker compose run --rm hackoladeStudioCLI genDoc \
+      --model=/home/hackolade/Documents/models/model.json \
+      --format=HTML --doc=/home/hackolade/Documents/output/doc.html
     ```
 4. Forward engineer the model in output folder
     ```bash
