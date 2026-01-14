@@ -4,7 +4,7 @@ Before you can use Hackolade Studio CLI in Docker, you must validate your concur
 
 **Important:** You need a **concurrent license key** (not a workstation license) to use Hackolade in Docker. The license validation must be repeated for each new Docker image you build, as each image has a unique identifier.
 
----
+
 
 ## Online License Validation (With Internet Connection)
 
@@ -66,7 +66,7 @@ docker compose run --rm hackoladeStudioCLI validatekey \
 
 This single command automatically gets the UUID and validates the license in one go. The `$(...)` part runs the UUID command first and uses its output.
 
----
+
 
 ## Offline License Validation (Without Internet Connection)
 
@@ -152,7 +152,7 @@ Replace `YOUR-LICENSE-KEY` with your actual license key.
 
 **Note:** Docker Compose automatically handles the `hackolade-studio-app-data` volume, so you only need to mount the license file.
 
----
+
 
 ## Troubleshooting
 
@@ -176,7 +176,6 @@ If you get permission errors, ensure the volumes exist:
 docker volume create hackolade-studio-app-data
 ```
 
----
 
 ## Important Notes
 
