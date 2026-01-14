@@ -1,47 +1,186 @@
 # How to validate a concurrent Hackolade license
 
-## Online, if your are connected to the internet
+Before you can use Hackolade Studio CLI in Docker, you must validate your concurrent license key. This process links your license to the specific Docker image you built.
 
-Use the following command to validate your license in one go:
+**Important:** You need a **concurrent license key** (not a workstation license) to use Hackolade in Docker. The license validation must be repeated for each new Docker image you build, as each image has a unique identifier.
+
+---
+
+## Online License Validation (With Internet Connection)
+
+If your server has Internet access, you can validate your license directly.
+
+### Method 1: Using Docker CLI
+
+**Step 1: Get the computer ID (UUID)**
 ```bash
-docker compose run --rm hackoladeStudioCLI validatekey \
-            --key=<concurrent-license-key> \
-            --identifier=$(docker compose run --rm --entrypoint show-computer-id.sh hackoladeStudioCLI)
-
+docker run --rm \
+  --entrypoint show-computer-id.sh \
+  hackolade:latest
 ```
 
-## Without Internet connection (offline)
+This command will output a UUID (like `12345678-1234-1234-1234-123456789abc`). Copy this value - you'll need it in the next step.
 
-If your server has no Internet connection, it is necessary to do an offline validation of your license key.  The process is as follows:
+**Step 2: Validate the license**
+```bash
+docker run --rm \
+  -v hackolade-studio-app-data:/home/hackolade/.config/Hackolade \
+  hackolade:latest validatekey \
+  --key=YOUR-LICENSE-KEY \
+  --identifier=YOUR-UUID-FROM-STEP-1
+```
 
-1. Fetch the UUID from the docker image you built: 
-    ```bash
-    docker compose run --rm --entrypoint show-computer-id.sh hackoladeStudioCLI
-    ```
-2. From the browser of a computer with Internet access, go to this page: [https://quicklicensemanager.com/hackolade/QlmCustomerSite](https://quicklicensemanager.com/hackolade/QlmCustomerSite)
+Replace:
+- `YOUR-LICENSE-KEY` with your actual concurrent license key
+- `YOUR-UUID-FROM-STEP-1` with the UUID you copied from step 1
 
-    <img src="../lib/Offline_license_activation.png" style="zoom:50%;" />
+**What this does:**
+- `docker run --rm` - Runs a container and removes it when done
+- `-v hackolade-studio-app-data:...` - Mounts the volume where license data is stored
+- `hackolade:latest` - Uses the image you built
+- `validatekey` - The Hackolade CLI command to validate a license
 
-    - enter your license key in the "Activation Key" field
-    - select the version "Hackolade 5.0" or above
-    - enter the UUID fetched above in the "Computer ID" field
-    - make sure to check the options "Generate a license file" and "I consent to the Privacy Policy"
-    - click the Activate button
+### Method 2: Using Docker Compose
 
-    A file **LicenseFile.xml** will be generated and downloaded by your browser.  Do NOT edit or alter the content of the file as it contains integrity validation to prevent abuse.  
+**Option A: Two-step process (easier to understand)**
+```bash
+# Step 1: Get the computer ID
+docker compose run --rm --entrypoint show-computer-id.sh hackoladeStudioCLI
+```
 
-3. copy the **LicenseFile.xml** to your server aside the **docker-compose.yml** file.
+Copy the UUID that's displayed, then:
 
-4. Validate the license key the command in the SAME image as was used in step 1 while providing the LicenseFile.xml to the container, here with a bind mount in the following example.
+```bash
+# Step 2: Validate the license
+docker compose run --rm hackoladeStudioCLI validatekey \
+  --key=YOUR-LICENSE-KEY \
+  --identifier=YOUR-UUID-FROM-STEP-1
+```
 
-   ```bash
-    docker compose run --rm -v ${PWD}/LicenseFile.xml:/LicenseFile.xml hackoladeStudioCLI validatekey \
-        --key=<concurrent-license-key> \
-        --file=/LicenseFile.xml
-    ```
+**Option B: One-step process (more advanced)**
+```bash
+docker compose run --rm hackoladeStudioCLI validatekey \
+  --key=YOUR-LICENSE-KEY \
+  --identifier=$(docker compose run --rm --entrypoint show-computer-id.sh hackoladeStudioCLI)
+```
 
-    If you get the error message `Your computer ID does not match the activation key information on our license server`, it means that you failed to use the same image in steps 1 and 4, resulting in unmatched UUID's.
+This single command automatically gets the UUID and validates the license in one go. The `$(...)` part runs the UUID command first and uses its output.
 
-**Important:** If your docker-compose.yml subfolder volumes configuration is different than the example above, please make sure to adjust the path accordingly.  The **--file** argument is a path **inside** the container.
+---
 
-**Note:** The entire above process must be repeated for each new Docker image as the UUID changes with each creation.
+## Offline License Validation (Without Internet Connection)
+
+If your server has no Internet connection, you need to validate your license offline using a license file.
+
+### Method 1: Using Docker CLI
+
+**Step 1: Get the computer ID (UUID)**
+```bash
+docker run --rm \
+  --entrypoint show-computer-id.sh \
+  hackolade:latest
+```
+
+Copy the UUID that's displayed.
+
+**Step 2: Generate the license file**
+
+From a computer with Internet access, open your browser and go to:
+[https://quicklicensemanager.com/hackolade/QlmCustomerSite](https://quicklicensemanager.com/hackolade/QlmCustomerSite)
+
+<img src="../lib/Offline_license_activation.png" style="zoom:50%;" />
+
+Fill in the form:
+- **Activation Key**: Enter your concurrent license key
+- **Version**: Select "Hackolade 5.0" or above
+- **Computer ID**: Enter the UUID from step 1
+- **Options**: Check both "Generate a license file" and "I consent to the Privacy Policy"
+- Click the **Activate** button
+
+A file named **LicenseFile.xml** will be downloaded. **Do NOT edit or alter this file** - it contains integrity validation to prevent abuse.
+
+**Step 3: Copy the license file to your server**
+
+Copy the **LicenseFile.xml** file to your server, in the same directory where you run your Docker commands (or wherever you keep your models folder).
+
+**Step 4: Validate the license using the file**
+
+```bash
+docker run --rm \
+  -v hackolade-studio-app-data:/home/hackolade/.config/Hackolade \
+  -v ${PWD}/LicenseFile.xml:/LicenseFile.xml \
+  hackolade:latest validatekey \
+  --key=YOUR-LICENSE-KEY \
+  --file=/LicenseFile.xml
+```
+
+Replace `YOUR-LICENSE-KEY` with your actual license key.
+
+**Important:**
+- The `--file` argument is a path **inside** the container (`/LicenseFile.xml`)
+- The `-v ${PWD}/LicenseFile.xml:/LicenseFile.xml` part mounts your local file into the container
+- You must use the **same Docker image** for steps 1 and 4, otherwise the UUIDs won't match
+
+### Method 2: Using Docker Compose
+
+**Step 1: Get the computer ID (UUID)**
+```bash
+docker compose run --rm --entrypoint show-computer-id.sh hackoladeStudioCLI
+```
+
+Copy the UUID that's displayed.
+
+**Step 2: Generate the license file**
+
+Follow the same process as described in "Method 1: Using Docker CLI" step 2 above.
+
+**Step 3: Copy the license file to your server**
+
+Copy the **LicenseFile.xml** file to the same directory where your `docker-compose.yml` file is located.
+
+**Step 4: Validate the license using the file**
+
+```bash
+docker compose run --rm \
+  -v ${PWD}/LicenseFile.xml:/LicenseFile.xml \
+  hackoladeStudioCLI validatekey \
+  --key=YOUR-LICENSE-KEY \
+  --file=/LicenseFile.xml
+```
+
+Replace `YOUR-LICENSE-KEY` with your actual license key.
+
+**Note:** Docker Compose automatically handles the `hackolade-studio-app-data` volume, so you only need to mount the license file.
+
+---
+
+## Troubleshooting
+
+### Error: "Your computer ID does not match the activation key information"
+
+This error means you used different Docker images in steps 1 and 4, resulting in unmatched UUIDs.
+
+**Solution:** Make sure you:
+1. Use the same image tag (`hackolade:latest`) for both getting the UUID and validating
+2. Don't rebuild the image between steps 1 and 4
+3. If you did rebuild, start over from step 1 with the new image
+
+### License validation not persisting
+
+Make sure you're mounting the `hackolade-studio-app-data` volume (or using Docker Compose which does this automatically). The license information is stored in this volume.
+
+### Permission errors
+
+If you get permission errors, ensure the volumes exist:
+```bash
+docker volume create hackolade-studio-app-data
+```
+
+---
+
+## Important Notes
+
+- **Each Docker image has a unique UUID** - you must validate the license for each image you build
+- **Use the same image** for getting the UUID and validating the license
+- **The license file path** (`--file`) is a path **inside the container**, not on your host
+- **Concurrent licenses only** - workstation licenses won't work with Docker

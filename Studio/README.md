@@ -1,12 +1,23 @@
-# Running Hackolade Studio CLI in Docker 
+# Running Hackolade Studio CLI in Docker
 
 ![Docker Image Version (latest by date)](https://img.shields.io/docker/v/hackolade/studio)
 
 The instructions below assume that you have Docker [installed](https://www.docker.com/get-started) and running.
 
-The purpose of running Hackolade Studio in a Docker container is to operate the Command-Line Interface ("CLI"), typically in a the context of integration with CI/CD pipelines.  
+The purpose of running Hackolade Studio in a Docker container is to operate the Command-Line Interface ("CLI"), typically in a the context of integration with CI/CD pipelines.
 
 ⚠ The purpose is **not** to run the application GUI in Docker -- this is **not** supported.
+
+## 🚀 Getting Started
+
+**New to Docker or need step-by-step instructions?** Start with our comprehensive [Getting Started Guide](./doc/getting-started.md) which includes:
+- Docker basics explained in simple terms
+- Instructions using **Docker CLI directly** (for beginners and those who want explicit control)
+- Instructions using **Docker Compose** (for simpler, shorter commands)
+- Complete examples for common scenarios
+- Troubleshooting tips
+
+The guide is designed to be understandable even if you've never used Docker before.
 
 
 
@@ -27,7 +38,7 @@ This repository contains files and instructions for running the [Hackolade Studi
 
 **Important note:**  the Docker CLI requires a **concurrent** license key with an **available seat**.   If the seat gets validated offline, it remains dedicated to the Docker CLI and is not sharable with other users.  To ensure that your CI/CD pipeline jobs always have an available seat, you may want to get a concurrent license key dedicated to this purpose.  On a single machine, you may run multiple containers of the same image in parallel with a concurrent license key.    An individual workstation license of Hackolade is **not** sufficient.  If you just need to run the CLI from an OS command prompt or terminal, you may do so with your regular Professional or Workgroup edition license.
 
-To purchase a concurrent license subscription, please send an email to support@hackolade.com. 
+To purchase a concurrent license subscription, please send an email to support@hackolade.com.
 
 To ensure proper behavior of the Hackolade Studio CLI in a Docker container, make sure to use an Hackolade version v5.1.1 or above.
 
@@ -35,7 +46,7 @@ To ensure proper behavior of the Hackolade Studio CLI in a Docker container, mak
 
 ## Managing data
 
-Hackolade requires to read and persist data from some specific folders.  There are many ways to manage data in the context of containers using [data volumes](https://docs.docker.com/storage/volumes/).  
+Hackolade requires to read and persist data from some specific folders.  There are many ways to manage data in the context of containers using [data volumes](https://docs.docker.com/storage/volumes/).
 
 For security reasons and following best practices for running containers, Hackolade will run using a dedicated yet **unprivileged** user: **hackolade**.
 
@@ -67,7 +78,7 @@ You must create manually the folders you will bind mount prior to running hackol
 
 #### File permissions and bind mounts
 
-Any pre-existing data in the Docker image in the bind mounted folders will be **erased and overridde**n** by the data present on the host folder.  Docker will use the user owning the folder on the host as the owner of all the files of target directory where the bind mount is done.  Therefore, the unprivileged **hackolade** user inside the container (note that Hackolade CLI can not be run as *root***) must have enough permissions to write and read from these host folders.  
+Any pre-existing data in the Docker image in the bind mounted folders will be **erased and overridde**n** by the data present on the host folder.  Docker will use the user owning the folder on the host as the owner of all the files of target directory where the bind mount is done.  Therefore, the unprivileged **hackolade** user inside the container (note that Hackolade CLI can not be run as *root***) must have enough permissions to write and read from these host folders.
 
 
 ##### Example how to set permissions on host folder
@@ -81,7 +92,7 @@ chown -R 1000:0 $PWD/models $PWD/hackolade-options
 
 ## Build the image
 
-The very first step is to fetch the base image from our [Docker Hub latest tag](https://hub.docker.com/r/hackolade/studio/tags).  
+The very first step is to fetch the base image from our [Docker Hub latest tag](https://hub.docker.com/r/hackolade/studio/tags).
 
 Then you must build your Docker image with the Hackolade Studio application version and the plugins that you want to use.  Follow instructions details in [this page](./doc/build.md).
 
@@ -97,15 +108,18 @@ Follow the fully detailed instructions in [this page](./doc/license-validation.m
 
 ## Run Hackolade CLI in a container
 
-It is suggested to run commands using the [docker-compose.yml](docker-compose.yml) file, possibly after editing it for your specific needs. 
+You can run Hackolade CLI commands using either **Docker CLI directly** or **Docker Compose**. Both approaches are fully supported and documented.
 
-A typical command will look like this:
+### Using Docker Compose (Recommended for simplicity)
 
+Docker Compose uses the [docker-compose.yml](docker-compose.yml) file to manage volumes and configuration automatically, resulting in shorter commands.
+
+A typical command:
 ```bash
 docker compose run --rm hackoladeStudioCLI command [--arguments]
 ```
-where:
 
+where:
 - `hackoladeStudioCLI` is the name of the service as defined in docker-compose.yml
 - `command` is the CLI command
 - `--arguments` is for optional arguments
@@ -115,70 +129,160 @@ Example:
 docker compose run --rm hackoladeStudioCLI help
 ```
 
+### Using Docker CLI Directly
+
+If you prefer explicit control or want to understand exactly what's happening, you can use Docker CLI commands directly:
+
+```bash
+docker run --rm \
+  -v hackolade-studio-app-data:/home/hackolade/.config/Hackolade \
+  -v hackolade-studio-logs:/home/hackolade/Documents/HackoladeLogs \
+  -v hackolade-studio-output:/home/hackolade/Documents/output \
+  -v ${PWD}/models:/home/hackolade/Documents/models \
+  -w /home/hackolade/Documents \
+  hackolade:latest command [--arguments]
+```
+
+Example:
+```bash
+docker run --rm \
+  -v hackolade-studio-app-data:/home/hackolade/.config/Hackolade \
+  -v hackolade-studio-logs:/home/hackolade/Documents/HackoladeLogs \
+  -v hackolade-studio-output:/home/hackolade/Documents/output \
+  -v ${PWD}/models:/home/hackolade/Documents/models \
+  -w /home/hackolade/Documents \
+  hackolade:latest help
+```
+
+**For detailed instructions and more examples, see the [Getting Started Guide](./doc/getting-started.md).**
+
 You may consult our [online documentation](https://hackolade.com/help/CommandLineInterface.html) for the full description of commands and their respective arguments.
 
 
 
 ## Example Scenario: Generate documentation and forward-engineer for a model
 
-This example is using the [docker-compose.yml](./docker-compose.yml) file. 
+This example shows how to generate documentation and forward-engineer a model. We provide both **Docker CLI** and **Docker Compose** versions.
 
 Assuming that a valid Hackolade model file called *`model.json`* is placed in the *`models`* subfolder of the location where the container is being run:
 
-1. Build the docker image with **hackolade:latest** tag:
-    ```bash
-    docker build --no-cache --pull -t hackolade:latest .
-    ```
-2. Validate the license (online)
-    ```bash
-    docker compose run --rm hackoladeStudioCLI validatekey \
-            --key=<concurrent-license-key> \
-            --identifier=$(docker compose run --rm --entrypoint show-computer-id.sh hackoladeStudioCLI)
-    ```
-3. Generate documentation for the model.json file
-    ```bash
-    docker compose run --rm hackoladeStudioCLI genDoc \
-      --model=/home/hackolade/Documents/models/model.json \
-      --format=HTML --doc=/home/hackolade/Documents/output/doc.html
-    ```
-4. Forward engineer the model in output folder
-    ```bash
-    docker compose run --rm hackoladeStudioCLI forweng \
-        --model model.json \
-        --jsonschemacompliance full \
-        --skipUndefinedLevel \
-        --structuredpath false \
-        --path /home/hackolade/Documents/output/ \
-        --outputtype jsonschema
-    ```
-5. Retrieve Hackolade logs from the **hackolade-studio-output** docker volume:
-    ```bash
-    docker run --rm --init \
-        --name hackolade-data-extractor \
-        -u root \
-        -v hackolade-studio-output:/output \
-        -v ${PWD}/output:/output-on-host \
-        --entrypoint cp \
-      hackolade:latest -r /output /output-on-host/. 
-    ```
+### Step 1: Build the docker image
 
-6. Retrieve generated files from the **hackolade-studio-logs** docker volume:
-    ```bash
-      docker run --rm --init \
-        --name hackolade-data-extractor \
-        -u root \
-        -v hackolade-studio-logs:/logs \
-        -v ${PWD}/logs:/logs-on-host \
-        --entrypoint cp \
-      hackolade:latest -r /logs /logs-on-host/. 
-    ```
+Both methods use the same build command:
+```bash
+docker build --no-cache --pull -t hackolade:latest .
+```
+
+### Step 2: Validate the license
+
+**Using Docker Compose:**
+```bash
+docker compose run --rm hackoladeStudioCLI validatekey \
+        --key=<concurrent-license-key> \
+        --identifier=$(docker compose run --rm --entrypoint show-computer-id.sh hackoladeStudioCLI)
+```
+
+**Using Docker CLI:**
+```bash
+# First, get the computer ID
+UUID=$(docker run --rm --entrypoint show-computer-id.sh hackolade:latest)
+
+# Then validate the license
+docker run --rm \
+  -v hackolade-studio-app-data:/home/hackolade/.config/Hackolade \
+  hackolade:latest validatekey \
+  --key=<concurrent-license-key> \
+  --identifier=$UUID
+```
+
+For detailed license validation instructions (including offline), see [license-validation.md](./doc/license-validation.md).
+
+### Step 3: Generate documentation
+
+**Using Docker Compose:**
+```bash
+docker compose run --rm hackoladeStudioCLI genDoc \
+  --model=/home/hackolade/Documents/models/model.json \
+  --format=HTML --doc=/home/hackolade/Documents/output/doc.html
+```
+
+**Using Docker CLI:**
+```bash
+docker run --rm \
+  -v hackolade-studio-app-data:/home/hackolade/.config/Hackolade \
+  -v hackolade-studio-logs:/home/hackolade/Documents/HackoladeLogs \
+  -v hackolade-studio-output:/home/hackolade/Documents/output \
+  -v ${PWD}/models:/home/hackolade/Documents/models \
+  -w /home/hackolade/Documents \
+  hackolade:latest genDoc \
+  --model=/home/hackolade/Documents/models/model.json \
+  --format=HTML --doc=/home/hackolade/Documents/output/doc.html
+```
+
+### Step 4: Forward engineer the model
+
+**Using Docker Compose:**
+```bash
+docker compose run --rm hackoladeStudioCLI forweng \
+    --model model.json \
+    --jsonschemacompliance full \
+    --skipUndefinedLevel \
+    --structuredpath false \
+    --path /home/hackolade/Documents/output/ \
+    --outputtype jsonschema
+```
+
+**Using Docker CLI:**
+```bash
+docker run --rm \
+  -v hackolade-studio-app-data:/home/hackolade/.config/Hackolade \
+  -v hackolade-studio-logs:/home/hackolade/Documents/HackoladeLogs \
+  -v hackolade-studio-output:/home/hackolade/Documents/output \
+  -v ${PWD}/models:/home/hackolade/Documents/models \
+  -w /home/hackolade/Documents \
+  hackolade:latest forweng \
+  --model model.json \
+  --jsonschemacompliance full \
+  --skipUndefinedLevel \
+  --structuredpath false \
+  --path /home/hackolade/Documents/output/ \
+  --outputtype jsonschema
+```
+
+### Step 5: Retrieve generated files
+
+Both methods use the same commands to extract files from Docker volumes:
+
+**Retrieve output files:**
+```bash
+docker run --rm --init \
+    --name hackolade-data-extractor \
+    -u root \
+    -v hackolade-studio-output:/output \
+    -v ${PWD}/output:/output-on-host \
+    --entrypoint cp \
+  hackolade:latest -r /output /output-on-host/.
+```
+
+**Retrieve log files:**
+```bash
+docker run --rm --init \
+    --name hackolade-log-extractor \
+    -u root \
+    -v hackolade-studio-logs:/logs \
+    -v ${PWD}/logs:/logs-on-host \
+    --entrypoint cp \
+  hackolade:latest -r /logs /logs-on-host/.
+```
+
+**For more examples and detailed explanations, see the [Getting Started Guide](./doc/getting-started.md).**
 
 This example can be adjusted to run any CLI command, as documented [here](https://hackolade.com/help/CommandLineInterface.html).
 
 
 ### Custom properties, naming conventions, Excel export options
 
-You may have customized the behavior of the application GUI, and wish to use them during CLI processing.  
+You may have customized the behavior of the application GUI, and wish to use them during CLI processing.
 
 If the containers will be running on a machine with no Hackolade Studio GUI, you use in the [docker-compose.yml](docker-compose.yml) file the default subfolder of the location where the containers will be running:
 
