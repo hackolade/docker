@@ -2,7 +2,7 @@
 
 Sometimes you may want to run the Docker container interactively to explore the environment, debug issues, or run multiple commands in the same session. This guide explains how to use the Hackolade Studio Docker image in an interactive shell session.
 
----
+
 
 ## What is an Interactive Session?
 
@@ -13,7 +13,7 @@ An interactive session allows you to open a shell (command prompt) inside a runn
 - Test commands before scripting them
 - Work with files interactively
 
----
+
 
 ## Starting an Interactive Session
 
@@ -64,7 +64,7 @@ docker compose run --rm --entrypoint /bin/bash hackoladeStudioCLI
 
 This will start an interactive bash session with all volumes from `docker-compose.yml` automatically mounted.
 
----
+
 
 ## Running Hackolade CLI Commands in Interactive Sessions
 
@@ -117,7 +117,7 @@ startup.sh revEng \
   --inferRelationships=true
 ```
 
----
+
 
 ## Example Scenario: Interactive Development Workflow
 
@@ -272,7 +272,7 @@ docker stop hackolade-interactive
 docker rm hackolade-interactive
 ```
 
----
+
 
 ## Tips and Best Practices
 
@@ -323,7 +323,7 @@ Bash tab completion works in interactive sessions, so you can:
 - Press `Tab` to auto-complete file names
 - Press `Tab` twice to see available options
 
----
+
 
 ## Troubleshooting
 
@@ -353,7 +353,7 @@ chmod +r models/*.json  # If needed
 tail -50 HackoladeLogs/hackolade.log
 ```
 
----
+
 
 ## Comparison: Interactive vs Non-Interactive
 
@@ -366,7 +366,7 @@ tail -50 HackoladeLogs/hackolade.log
 | **State safety** | ⚠️ State persists between commands (can cause issues) | ✅ Fresh state for each command (safer, **preferred**) |
 | **Use case** | Development, debugging, exploration | CI/CD pipelines, automation (**recommended for production**) |
 
----
+
 
 ## Summary
 
