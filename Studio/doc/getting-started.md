@@ -28,7 +28,8 @@ Docker Compose is a tool that lets you define and run multiple containers using 
 - You prefer configuration files over long command lines
 - You're working in a team (easier to share configuration)
 
----
+
+
 
 ## Prerequisites
 
@@ -37,7 +38,8 @@ Before you begin, make sure you have:
 2. **Docker is running** (check by running `docker --version` in your terminal)
 3. A **concurrent Hackolade license key** (required for Docker CLI usage)
 
----
+
+
 
 ## Step 1: Understanding Data Storage
 
@@ -89,7 +91,8 @@ chown -R 1000:0 ./models
 
 The `docker-compose.yml` file (already in this repository) defines all the volumes for you.
 
----
+
+
 
 ## Step 2: Building the Docker Image
 
@@ -118,7 +121,7 @@ docker build --no-cache --pull -t hackolade:latest .
 
 **Note:** The `docker-compose.yml` file references `hackolade:latest`, so make sure your image has this exact tag.
 
----
+
 
 ## Step 3: Validating Your License
 
@@ -176,7 +179,7 @@ This single command does both steps automatically by using `$(...)` to get the U
 
 **Note:** The `docker-compose.yml` file automatically handles all the volume mounts, so you don't need to specify them manually.
 
----
+
 
 ## Step 4: Running Hackolade CLI Commands
 
@@ -246,7 +249,7 @@ docker compose run --rm hackoladeStudioCLI help
 docker compose run --rm hackoladeStudioCLI version
 ```
 
----
+
 
 ## Step 5: Common Scenarios
 
@@ -364,7 +367,7 @@ docker compose run --rm hackoladeStudioCLI compMod \
   --deltamodel=/home/hackolade/Documents/output/delta.json
 ```
 
----
+
 
 ## Step 6: Retrieving Generated Files
 
@@ -424,7 +427,7 @@ docker run --rm --init \
   hackolade:latest -r /logs /logs-on-host/.
 ```
 
----
+
 
 ## Creating a Helper Script (Optional)
 
@@ -453,7 +456,7 @@ chmod +x run-hackolade.sh
 ./run-hackolade.sh genDoc --model=/home/hackolade/Documents/models/model.json --format=HTML --doc=/home/hackolade/Documents/output/doc.html
 ```
 
----
+
 
 ## Troubleshooting
 
@@ -485,7 +488,7 @@ docker volume create hackolade-studio-output
 - Check that you're using a concurrent license key (not a workstation license)
 - Ensure the license has available seats
 
----
+
 
 ## Next Steps
 
@@ -494,7 +497,7 @@ docker volume create hackolade-studio-output
 - Read [interactive-sessions.md](./interactive-sessions.md) to learn how to use the Docker image interactively for development and debugging
 - Check the [Hackolade CLI documentation](https://hackolade.com/help/CommandLineInterface.html) for all available commands
 
----
+
 
 ## Quick Reference
 
