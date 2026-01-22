@@ -164,7 +164,7 @@ First, get the computer ID (UUID) that will be used to generate the offline lice
 docker compose run --rm showComputerIdForOfflineValidation
 ```
 
-Copy the UUID that's displayed (e.g., `12345678-1234-1234-1234-123456789abc`).
+Copy the UUID that's displayed (e.g., `12345678-1234-1234-1234-123456789abc-docker`). Note that Docker images will have the `-docker` suffix in the UUID.
 
 **Step 4b: Generate the license file**
 
