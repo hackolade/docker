@@ -4,6 +4,16 @@ This guide will help you get started with the **ready-to-use** Hackolade CLI Doc
 
 ![Docker Image Version (latest by date)](https://img.shields.io/docker/v/hackolade/hck-cli)
 
+## ⚠️ Important Notes
+
+Before you begin, please note these critical requirements:
+
+- **Concurrent licenses only** - workstation licenses won't work with Docker
+- **License is tied to the Docker image** - Each image version has a unique UUID, so you must validate the license for each version you use. If you change image versions, you'll need to validate the license again for the new image.
+- **Always specify version tags** - the `latest` tag is not published. Use `hackolade/hck-cli:8.8.5` or intermediate tags like `8.8.5-YYYY-MM-DD` for plugin updates
+- **Use Docker secrets** for license keys in production environments
+- **Data paths are simplified** - use `/data/*` instead of `/home/hackolade/Documents/*`
+
 ## What is This Image?
 
 The `hackolade/hck-cli` Docker image is a pre-built, production-ready image that includes:
@@ -652,14 +662,6 @@ docker run --rm \
   -v hackolade-studio-output:/data/output \
   hackolade/hck-cli:8.8.5 COMMAND
 ```
-
-## Important Notes
-
-- **Concurrent licenses only** - workstation licenses won't work with Docker
-- **License is tied to the Docker image** - Each image version has a unique UUID, so you must validate the license for each version you use. If you change image versions, you'll need to validate the license again for the new image.
-- **Always specify version tags** - the `latest` tag is not published. Use `hackolade/hck-cli:8.8.5` or intermediate tags like `8.8.5-YYYY-MM-DD` for plugin updates
-- **Use Docker secrets** for license keys in production environments
-- **Data paths are simplified** - use `/data/*` instead of `/home/hackolade/Documents/*`
 
 ## Backward Compatibility with Other Images
 
