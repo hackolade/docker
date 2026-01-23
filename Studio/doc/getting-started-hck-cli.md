@@ -4,7 +4,7 @@ This guide will help you get started with the **ready-to-use** Hackolade CLI Doc
 
 ![Docker Image Version (latest by date)](https://img.shields.io/docker/v/hackolade/hck-cli)
 
-## ⚠️ Important Notes
+## ⚠️ Important notes
 
 Before you begin, please note these critical requirements:
 
@@ -16,7 +16,7 @@ Before you begin, please note these critical requirements:
 
 > **🚨 CRITICAL - Plugin Updates Policy:** Plugin updates between releases are **ONLY** available via intermediate tags from the **latest release** (e.g., `hackolade/hck-cli:8.8.5-YYYY-MM-DD`). **Plugin updates will NOT be backported to previous released images.** To get the latest plugin updates, you must use intermediate tags from the most recent release or wait for the next full release.
 
-## What is This Image?
+## What is this image?
 
 The `hackolade/hck-cli` Docker image is a pre-built, production-ready image that includes:
 - Hackolade Studio CLI binary (`hck-cli`)
@@ -34,7 +34,7 @@ The `hackolade/hck-cli` Docker image is a pre-built, production-ready image that
 - Automatic volume validation - CLI warns if required volumes are not mounted
 - Per-command log isolation in `/data/logs` organized as `<date>-command` folders for easier troubleshooting and log analysis
 
-## Differences from Building Your Own Image
+## Differences from building your own image
 
 | Feature | Pre-built Image (`hackolade/hck-cli`) | Building Your Own (hackolade/studio) |
 |---------|--------------------------------------|-------------------|
@@ -43,7 +43,7 @@ The `hackolade/hck-cli` Docker image is a pre-built, production-ready image that
 | Entrypoint | `hck-cli` binary | `startup.sh` script |
 | Updates | Pull new version | Rebuild image |
 | Plugins | All included | Select during build |
-| Architecture support | Multi-arch (AMD64 + ARM64) | Depends on build platform |
+| Architecture support | Multi-arch (AMD64 + ARM64) | AMD64/x86_64 only (Intel-based chips) |
 | Customization | Limited | Full control |
 
 **When to use the pre-built image:**
@@ -59,7 +59,7 @@ The `hackolade/hck-cli` Docker image is a pre-built, production-ready image that
 - You have specific security requirements
 - See [build.md](./build.md) for instructions
 
-## Image Availability
+## Image availability
 
 The image is published on Docker Hub under the `hackolade/hck-cli` repository and will be available for each release of Hackolade Studio alongside the existing `hackolade/studio` image.
 
@@ -89,7 +89,7 @@ Before you begin, make sure you have:
 
 **Note for macOS Silicon users:** The image includes ARM64 support, so it runs efficiently on Apple Silicon Macs (MX) without emulation overhead. Docker Desktop automatically selects the correct architecture.
 
-## Understanding the Image Structure
+## Understanding the image structure
 
 ### Entrypoint
 
@@ -112,7 +112,7 @@ This structure reduces path length and simplifies volume management compared to 
 
 **Log isolation:** Logs are automatically organized per command in `/data/logs` using folders named `<date>-command` (e.g., `2024-01-15-genDoc`, `2024-01-15-forweng`). This folder structure provides proper command isolation, making it easier to analyze logs for specific commands when troubleshooting issues. Each command execution creates its own log folder, allowing you to trace problems to specific operations by date and command type.
 
-## Quick Start with Docker Compose
+## Quick start with Docker Compose
 
 The easiest way to use this image is with Docker Compose. We provide a `compose.yml` file that handles all the configuration.
 
@@ -286,7 +286,7 @@ docker compose run --rm hck-cli forweng \
   --outputtype jsonschema
 ```
 
-## Using Docker CLI Directly
+## Using Docker CLI directly
 
 If you prefer using Docker CLI directly instead of Docker Compose, here's how:
 
@@ -338,7 +338,7 @@ docker run --rm \
   --doc /data/output/doc.html
 ```
 
-## Security Best Practices
+## Security best practices
 
 ### Using Docker Secrets for License Keys
 
@@ -413,7 +413,7 @@ validateKeyOffline:
 
 This ensures the container has no network access during offline validation.
 
-## Common Scenarios
+## Common scenarios
 
 ### Scenario 1: Generate Documentation
 
@@ -457,7 +457,7 @@ docker compose run --rm hck-cli compMod \
   --deltamodel=/data/output/delta.json
 ```
 
-## Retrieving Generated Files
+## Retrieving generated files
 
 After running commands, retrieve files from Docker volumes (if you used named volumes):
 
@@ -619,7 +619,7 @@ services:
 
 
 
-## Next Steps
+## Next steps
 
 - Read [license-validation.md](./license-validation.md) for detailed license validation instructions
 - **Need to build a custom image?** See [getting-started.md](./getting-started.md) for instructions on building your own image with selected plugins
@@ -627,7 +627,7 @@ services:
 - Check the [Hackolade CLI documentation](https://hackolade.com/help/CommandLineInterface.html) for all available commands
 - See [interactive-sessions.md](./interactive-sessions.md) for debugging and development workflows
 
-## Quick Reference
+## Quick reference
 
 ### Docker Compose Commands
 
@@ -671,7 +671,7 @@ docker run --rm \
   hackolade/hck-cli:8.8.5 COMMAND
 ```
 
-## Backward Compatibility with Other Images
+## Backward compatibility with other images
 
 For users migrating from the `hackolade/studio` image or custom-built images that use `startup.sh` as the entrypoint, this image maintains backward compatibility by including the `startup.sh` and `show-computer-id.sh` scripts.
 
