@@ -8,11 +8,13 @@ This guide will help you get started with the **ready-to-use** Hackolade CLI Doc
 
 Before you begin, please note these critical requirements:
 
-- **Concurrent licenses only** - workstation licenses won't work with Docker
-- **License is tied to the Docker image** - Each image version has a unique UUID, so you must validate the license for each version you use. If you change image versions, you'll need to validate the license again for the new image.
-- **Always specify version tags** - the `latest` tag is not published. Use `hackolade/hck-cli:8.8.5` or intermediate tags like `8.8.5-YYYY-MM-DD` for plugin updates
+- **Concurrent licenses only**: workstation licenses won't work with Docker
+- **License is tied to the Docker image**: Each image version has a unique UUID, so you must validate the license for each version you use. If you change image versions, you'll need to validate the license again for the new image.
+- **Always specify version tags**: the `latest` tag is not published. Use `hackolade/hck-cli:8.8.5` or intermediate tags like `8.8.5-YYYY-MM-DD` for plugin updates
 - **Use Docker secrets** for license keys in production environments
-- **Data paths are simplified** - use `/data/*` instead of `/home/hackolade/Documents/*`
+- **Data paths are simplified**: use `/data/*` instead of `/home/hackolade/Documents/*`
+
+> **🚨 CRITICAL - Plugin Updates Policy:** Plugin updates between releases are **ONLY** available via intermediate tags from the **latest release** (e.g., `hackolade/hck-cli:8.8.5-YYYY-MM-DD`). **Plugin updates will NOT be backported to previous released images.** To get the latest plugin updates, you must use intermediate tags from the most recent release or wait for the next full release.
 
 ## What is This Image?
 
@@ -23,28 +25,56 @@ The `hackolade/hck-cli` Docker image is a pre-built, production-ready image that
 - Ready to use immediately - no build step required
 
 **Key advantages:**
-- ✅ No need to build your own image
-- ✅ Versioned releases starting from 8.8.5 with optional intermediate tags for plugin updates
-- ✅ Simplified data paths (`/data` instead of `/home/hackolade/Documents/...`)
-- ✅ Secure secret management using Docker secrets
-- ✅ Backward compatible with existing scripts
-- ✅ Multi-architecture support (AMD64/x86_64 and ARM64) - runs efficiently on macOS Silicon (Apple M1/M2/M3 chips) without emulation overhead
-- ✅ Automatic volume validation - CLI warns if required volumes are not mounted
-- ✅ Per-command log isolation in `/data/logs` organized as `<date>-command` folders for easier troubleshooting and log analysis
+- No need to build your own image
+- Versioned releases starting from 8.8.5 with optional intermediate tags for plugin updates
+- Simplified data paths (`/data` instead of `/home/hackolade/Documents/...`)
+- Secure secret management using Docker secrets
+- Backward compatible with existing scripts
+- Multi-architecture support (AMD64/x86_64 and ARM64) - runs efficiently on macOS Silicon (Apple MX chips) without emulation overhead
+- Automatic volume validation - CLI warns if required volumes are not mounted
+- Per-command log isolation in `/data/logs` organized as `<date>-command` folders for easier troubleshooting and log analysis
+
+## Differences from Building Your Own Image
+
+| Feature | Pre-built Image (`hackolade/hck-cli`) | Building Your Own (hackolade/studio) |
+|---------|--------------------------------------|-------------------|
+| Setup time | Instant (just pull) | Requires build step |
+| Data paths | `/data/*` (simplified) | `/home/hackolade/Documents/*` |
+| Entrypoint | `hck-cli` binary | `startup.sh` script |
+| Updates | Pull new version | Rebuild image |
+| Plugins | All included | Select during build |
+| Architecture support | Multi-arch (AMD64 + ARM64) | Depends on build platform |
+| Customization | Limited | Full control |
+
+**When to use the pre-built image:**
+- You want to get started quickly
+- You need all plugins
+- You prefer simplicity over customization
+- You're running in CI/CD pipelines
+- You're using macOS Silicon (Apple MX) and want efficient ARM64 performance without emulation
+
+**When to build your own:**
+- You need specific plugin versions
+- You want to customize the image
+- You have specific security requirements
+- See [build.md](./build.md) for instructions
 
 ## Image Availability
 
 The image is published on Docker Hub under the `hackolade/hck-cli` repository and will be available for each release of Hackolade Studio alongside the existing `hackolade/studio` image.
 
+
 **Image naming convention:**
-- `hackolade/hck-cli:8.8.5` - Initial release version (starting from 8.8.5)
-- `hackolade/hck-cli:8.8.5-YYYY-MM-DD` - Intermediate tags for plugin updates during the week (e.g., `8.8.5-2025-01-10`)
+- `hackolade/hck-cli:8.8.5` : Initial release version (starting from 8.8.5)
+- `hackolade/hck-cli:8.8.5-YYYY-MM-DD` -:Intermediate tags for plugin updates during the week (e.g., `8.8.5-2025-01-10`)
 
 **Note:** The `latest` tag is not currently published. Always specify a version tag when pulling or referencing the image. If plugins are updated during the week, intermediate tags with the format `X.Y.Z-<date>` may be published to provide access to updated plugins before the next full release.
 
+> **🚨  Plugin Updates Policy:** Plugin updates between releases are **ONLY** available via intermediate tags from the **latest release** (e.g., `hackolade/hck-cli:8.8.5-YYYY-MM-DD`). **Plugin updates will NOT be backported to previous released images.** To get the latest plugin updates, you must use intermediate tags from the most recent release or wait for the next full release.
+
 **Platform support:**
-- ✅ **AMD64/x86_64** - Linux and Windows (Intel/AMD processors)
-- ✅ **ARM64** - Linux ARM64 and **macOS Silicon** (Apple M1/M2/M3 chips)
+- **AMD64/x86_64** : Linux and Windows (Intel/AMD processors)
+- **ARM64** : Linux ARM64 and **macOS Silicon** (Apple MX chips)
 
 Docker automatically pulls the correct architecture image for your platform. If you're running on macOS Silicon (Apple Silicon), Docker Desktop will automatically use the ARM64 image, providing efficient performance without emulation overhead.
 
@@ -57,7 +87,7 @@ Before you begin, make sure you have:
 3. **Docker is running** (check by running `docker --version` in your terminal)
 4. A **concurrent Hackolade license key** (required for Docker CLI usage)
 
-**Note for macOS Silicon users:** The image includes ARM64 support, so it runs efficiently on Apple Silicon Macs (M1/M2/M3) without emulation overhead. Docker Desktop automatically selects the correct architecture.
+**Note for macOS Silicon users:** The image includes ARM64 support, so it runs efficiently on Apple Silicon Macs (MX) without emulation overhead. Docker Desktop automatically selects the correct architecture.
 
 ## Understanding the Image Structure
 
@@ -86,13 +116,15 @@ This structure reduces path length and simplifies volume management compared to 
 
 The easiest way to use this image is with Docker Compose. We provide a `compose.yml` file that handles all the configuration.
 
+**Important:** The [`compose.yml`](../compose.yml) file in this repository is specifically designed for the **pre-built `hackolade/hck-cli` image** and is tied to this documentation. It uses simplified data paths (`/data/*`) and the `hck-cli` binary entrypoint, which differ from compose files used with custom-built images.
+
 ### Step 1: Set Up Your Compose File
 
-We provide a ready-to-use `compose.yml` file. You can either:
+We provide a ready-to-use `compose.yml` file specifically for the pre-built image. You can either:
 
 **Option A: Copy the provided compose file** (recommended)
 
-Copy the [`compose.yml`](../compose.yml) file from this repository to your working directory:
+Copy the [`compose.yml`](../compose.yml) file from this repository to your working directory. This compose file is specifically designed for the pre-built `hackolade/hck-cli` image and is documented in this guide:
 
 ```bash
 cp compose.yml /path/to/your/working/directory/
@@ -100,9 +132,9 @@ cp compose.yml /path/to/your/working/directory/
 
 **Option B: Create your own compose file**
 
-Create a `compose.yml` file in your working directory. See the [`compose.yml`](../compose.yml) file in this repository for a complete example.
+Create a `compose.yml` file in your working directory. See the [`compose.yml`](../compose.yml) file in this repository for a complete example. Make sure to follow the structure documented in this guide.
 
-The compose file includes:
+The compose file (designed for the pre-built image) includes:
 - `hck-cli` service - Main service for running CLI commands
 - `showComputerIdForOfflineValidation` service - Gets computer ID for offline license validation
 - `validateKeyOnline` service - Validates license online using Docker secrets
@@ -141,7 +173,7 @@ Use this method if your server has internet access.
 
 **Step 4a: Prepare your license key file**
 
-Create a file containing your license key. The path `${HOME}/Downloads/license-key.txt` is just an example - you can use any path you prefer, but make sure it matches the path in your `compose.yml` secrets section:
+Create a file containing your license key. The path `${HOME}/Downloads/license-key.txt` is just an example. You can use any path you prefer, but make sure it matches the path in your `compose.yml` secrets section:
 
 ```bash
 # Example: Using ${HOME}/Downloads (adjust path as needed)
@@ -160,7 +192,7 @@ The compose file automatically:
 - Uses the correct network mode for online validation (`network_mode: host`)
 - Stores the validated license in the persistent volume
 
-**Note:** For online validation, you don't need to get the computer ID separately - the validation process handles it automatically.
+**Note:** For online validation, you don't need to get the computer ID separately. The validation process handles it automatically.
 
 #### Offline License Validation
 
@@ -188,11 +220,11 @@ Fill in the form:
 - **Options**: Check both "Generate a license file" and "I consent to the Privacy Policy"
 - Click the **Activate** button
 
-A file named **LicenseFile.xml** will be downloaded. **Do NOT edit or alter this file** - it contains integrity validation to prevent abuse.
+A file named **LicenseFile.xml** will be downloaded. **Do NOT edit or alter this file**. It contains integrity validation to prevent abuse.
 
 **Step 4c: Prepare the license file**
 
-Copy the **LicenseFile.xml** file to your server. The path `${HOME}/Downloads/LicenseFile.xml` is just an example - use the path that matches your `compose.yml` secrets section:
+Copy the **LicenseFile.xml** file to your server. The path `${HOME}/Downloads/LicenseFile.xml` is just an example. Use the path that matches your `compose.yml` secrets section:
 
 ```bash
 # Example: Using ${HOME}/Downloads (adjust path to match your compose.yml)
@@ -290,9 +322,7 @@ docker run --rm \
 
 **Get computer ID:**
 ```bash
-docker run --rm \
-  --entrypoint show-computer-id.sh \
-  hackolade/hck-cli:8.8.5
+docker run --rm hackolade/hck-cli:8.8.5 getComputerId
 ```
 
 **Generate documentation:**
@@ -315,19 +345,19 @@ docker run --rm \
 The compose file uses Docker secrets to securely manage license keys and files. This is the **recommended approach** for production environments.
 
 **Benefits:**
-- ✅ Secrets are not exposed in command-line arguments
-- ✅ Secrets are not visible in `docker ps` or container logs
-- ✅ Secrets are managed by Docker and can be rotated easily
-- ✅ Secrets are only available to services that explicitly request them
+- Secrets are not exposed in command-line arguments
+- Secrets are not visible in `docker ps` or container logs
+- Secrets are managed by Docker and can be rotated easily
+- Secrets are only available to services that explicitly request them
 
 **How it works:**
 
 1. **Define secrets in compose.yml:**
    ```yaml
    secrets:
-     license_key:
+     license_key: # Don't change the name of the secret!
        file: ${HOME}/Downloads/license-key.txt  # Example path - use any path you prefer
-     license_file:
+     license_file: # Don't change the name of the secret!
        file: ${HOME}/Downloads/LicenseFile.xml  # Example path - use any path you prefer
    ```
 
@@ -362,7 +392,7 @@ While you can pass license keys via environment variables, this is **not recomme
 # NOT RECOMMENDED for production
 docker run --rm \
   -e LICENSE_KEY="your-key-here" \
-  hackolade/hck-cli:8.8.5 validateKey
+  hackolade/hck-cli:8.8.5 validateKey --key ${LICENSE_KEY}
 ```
 
 **Why secrets are better:**
@@ -429,7 +459,7 @@ docker compose run --rm hck-cli compMod \
 
 ## Retrieving Generated Files
 
-After running commands, retrieve files from Docker volumes:
+After running commands, retrieve files from Docker volumes (if you used named volumes):
 
 **Retrieve output files:**
 ```bash
@@ -579,7 +609,7 @@ docker pull --platform linux/arm64 hackolade/hck-cli:8.8.5
 Or in your `compose.yml`, specify the platform:
 ```yaml
 services:
-  hck-cli: &hck-cli
+  hck-cli:
     image: hackolade/hck-cli:8.8.5
     platform: linux/arm64  # For Apple Silicon
     # platform: linux/amd64  # For Intel/AMD
@@ -587,35 +617,13 @@ services:
 
 **Note:** Docker Desktop for Mac automatically selects the correct architecture, so manual platform specification is usually not needed.
 
-## Differences from Building Your Own Image
 
-| Feature | Pre-built Image (`hackolade/hck-cli`) | Building Your Own |
-|---------|--------------------------------------|-------------------|
-| Setup time | ⚡ Instant (just pull) | 🔨 Requires build step |
-| Data paths | `/data/*` (simplified) | `/home/hackolade/Documents/*` |
-| Entrypoint | `hck-cli` binary | `startup.sh` script |
-| Updates | Pull new version | Rebuild image |
-| Plugins | All included | Select during build |
-| Architecture support | ✅ Multi-arch (AMD64 + ARM64) | Depends on build platform |
-| Customization | Limited | Full control |
-
-**When to use the pre-built image:**
-- ✅ You want to get started quickly
-- ✅ You need all plugins
-- ✅ You prefer simplicity over customization
-- ✅ You're running in CI/CD pipelines
-- ✅ You're using macOS Silicon (Apple M1/M2/M3) and want efficient ARM64 performance without emulation
-
-**When to build your own:**
-- ✅ You need specific plugin versions
-- ✅ You want to customize the image
-- ✅ You have specific security requirements
-- ✅ See [build.md](./build.md) for instructions
 
 ## Next Steps
 
 - Read [license-validation.md](./license-validation.md) for detailed license validation instructions
-- Read [build.md](./build.md) if you need to build a custom image with specific plugins
+- **Need to build a custom image?** See [getting-started.md](./getting-started.md) for instructions on building your own image with selected plugins
+- Read [build.md](./build.md) for advanced build configurations
 - Check the [Hackolade CLI documentation](https://hackolade.com/help/CommandLineInterface.html) for all available commands
 - See [interactive-sessions.md](./interactive-sessions.md) for debugging and development workflows
 

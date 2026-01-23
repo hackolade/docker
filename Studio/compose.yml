@@ -11,6 +11,12 @@
 # leveraging our hck-cli docker image from Docker Hub
 # This image contains the Hackolade Studio Release and all of the plugins already installed
 # It's ready to be used.
+#
+# This compose.yml file is specifically designed for the pre-built hackolade/hck-cli image.
+# For complete documentation and usage instructions, see: doc/getting-started-hck-cli.md
+#
+# If you are building your own image using hackolade/studio, use docker-compose.yml instead,
+# which is designed for custom-built images. See doc/getting-started.md for building instructions.
 
 services:
   # Run a cli command (default to version)

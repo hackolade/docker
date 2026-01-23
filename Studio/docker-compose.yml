@@ -1,3 +1,12 @@
+# This docker-compose.yml file is specifically designed for custom-built images
+# based on hackolade/studio. It uses the traditional data paths (/home/hackolade/Documents/*)
+# and startup.sh entrypoint.
+#
+# For complete documentation and usage instructions, see: doc/getting-started.md
+#
+# If you want to use the pre-built hackolade/hck-cli image instead, use compose.yml
+# which is designed for the pre-built image. See doc/getting-started-hck-cli.md
+
 services:
   hackoladeStudioCLI:
     image: hackolade:latest

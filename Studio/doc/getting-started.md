@@ -28,8 +28,63 @@ Docker Compose is a tool that lets you define and run multiple containers using 
 - You prefer configuration files over long command lines
 - You're working in a team (easier to share configuration)
 
+### Compose File for Custom-Built Images
 
+This guide uses [`docker-compose.yml`](../docker-compose.yml), which is specifically designed for **custom-built images** based on `hackolade/studio`. This compose file:
+- Uses traditional data paths (`/home/hackolade/Documents/*`)
+- References your custom-built image tag (`hackolade:latest`)
+- Uses the `startup.sh` entrypoint
+- Is documented in this guide
 
+**Note:** If you want to use the pre-built `hackolade/hck-cli` image instead, use [`compose.yml`](../compose.yml) which is designed for the pre-built image. See [getting-started-hck-cli.md](./getting-started-hck-cli.md) for details.
+
+## Building Your Own vs. Pre-built Image
+
+Before you start, decide which approach fits your needs:
+
+| Feature | Building Your Own (`hackolade/studio`) | Pre-built Image (`hackolade/hck-cli`) |
+|---------|----------------------------------------|--------------------------------------|
+| Setup time | Requires build step | Instant (just pull) |
+| Data paths | `/home/hackolade/Documents/*` | `/data/*` (simplified) |
+| Entrypoint | `startup.sh` script | `hck-cli` binary |
+| Updates | Rebuild image | Pull new version |
+| Plugins | Select during build | All included |
+| Architecture support | Depends on build platform | Multi-arch (AMD64 + ARM64) |
+| Customization | Full control | Limited |
+
+**When to use the pre-built image:**
+- You want to get started quickly
+- You need all plugins
+- You prefer simplicity over customization
+- You're running in CI/CD pipelines
+- You're using macOS Silicon (Apple MX) and want efficient ARM64 performance without emulation
+
+**When to build your own:**
+- You need specific plugin versions
+- You want to customize the image
+- You have specific security requirements
+
+**📖 Ready-to-use pre-built image?** See the [Getting Started Guide for the Pre-built CLI Image](./getting-started-hck-cli.md) for complete instructions.
+
+**🔨 Need to build your own?** Continue with this guide to learn how to build a custom image with selected plugins.
+
+## ⚠️ Migration Notice for Existing Users
+
+If you are currently using a custom-built image based on `hackolade/studio` and have an existing `docker-compose.yml` file, **you must migrate to the new `compose.yml` structure** when using the pre-built `hackolade/hck-cli` image.
+
+**Key differences you need to update:**
+
+1. **Image reference**: Change from your custom image tag to `hackolade/hck-cli:8.8.5` (or appropriate version)
+2. **Data paths**: Update volume mounts from `/home/hackolade/Documents/*` to `/data/*`
+   - `/home/hackolade/Documents/models` → `/data/models`
+   - `/home/hackolade/Documents/output` → `/data/output`
+   - `/home/hackolade/Documents/HackoladeLogs` → `/data/logs`
+3. **Entrypoint**: The pre-built image uses `hck-cli` binary directly (no `startup.sh` wrapper needed)
+4. **Working directory**: Remove `-w /home/hackolade/Documents` as it's no longer needed
+
+**Reference compose file:** Use the [`compose.yml`](../compose.yml) file in this repository as your migration reference. This compose file is specifically designed for the pre-built image and documented in [getting-started-hck-cli.md](./getting-started-hck-cli.md).
+
+**If you continue building your own image:** Use the [`docker-compose.yml`](../docker-compose.yml) file in this repository, which is specifically designed for custom-built images. This compose file uses the traditional data paths (`/home/hackolade/Documents/*`) and is documented in this guide.
 
 ## Prerequisites
 
@@ -89,7 +144,7 @@ mkdir -p ./models
 chown -R 1000:0 ./models
 ```
 
-The `docker-compose.yml` file (already in this repository) defines all the volumes for you.
+The [`docker-compose.yml`](../docker-compose.yml) file (already in this repository) is specifically designed for custom-built images and defines all the volumes for you.
 
 
 
@@ -119,7 +174,7 @@ Docker Compose doesn't build images directly, but you can still use the same Doc
 docker build --no-cache --pull -t hackolade:latest .
 ```
 
-**Note:** The `docker-compose.yml` file references `hackolade:latest`, so make sure your image has this exact tag.
+**Note:** The [`docker-compose.yml`](../docker-compose.yml) file (designed for custom-built images) references `hackolade:latest`, so make sure your image has this exact tag.
 
 
 
@@ -177,7 +232,7 @@ docker compose run --rm hackoladeStudioCLI validatekey \
 
 This single command does both steps automatically by using `$(...)` to get the UUID inline.
 
-**Note:** The `docker-compose.yml` file automatically handles all the volume mounts, so you don't need to specify them manually.
+**Note:** The [`docker-compose.yml`](../docker-compose.yml) file (designed for custom-built images) automatically handles all the volume mounts, so you don't need to specify them manually.
 
 
 
@@ -237,7 +292,7 @@ docker run --rm \
 docker compose run --rm hackoladeStudioCLI COMMAND [OPTIONS]
 ```
 
-Much simpler! Docker Compose automatically handles all the volumes based on `docker-compose.yml`.
+Much simpler! Docker Compose automatically handles all the volumes based on [`docker-compose.yml`](../docker-compose.yml), which is designed for custom-built images.
 
 **Example: Show help**
 ```bash
