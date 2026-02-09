@@ -1,5 +1,3 @@
-<img width="1476" height="758" alt="image" src="https://github.com/user-attachments/assets/889b3043-63e3-40c6-bac7-ab64dd1bc99d" /># Getting Started with Hackolade CLI Docker Image
-
 This guide will help you get started with the **ready-to-use** Hackolade CLI Docker image (`hackolade/hck-cli`). This image contains Hackolade Studio and all plugins pre-installed, so you can use it directly without building your own image.
 
 ![Docker Image Version (latest by date)](https://img.shields.io/docker/v/hackolade/hck-cli)
