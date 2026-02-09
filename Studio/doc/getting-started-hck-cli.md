@@ -8,7 +8,7 @@ This guide will help you get started with the **ready-to-use** Hackolade CLI Doc
 
 Before you begin, please note these critical requirements:
 
-- **Concurrent licenses only**: workstation licenses won't work with Docker
+- **Concurrent licenses only**: for Docker, you must have a Hackolade Studio **concurrent** license type, as dedicated licenses won't work with Docker
 - **License is tied to the Docker image**: Each image version has a unique UUID, so you must validate the license for each version you use. If you change image versions, you'll need to validate the license again for the new image.
 - **Always specify version tags**: the `latest` tag is not published. Use `hackolade/hck-cli:8.9.2` or intermediate tags like `8.9.2-YYYY-MM-DD` for plugin updates
 - **Use Docker secrets** for license keys in production environments
@@ -19,7 +19,7 @@ Before you begin, please note these critical requirements:
 ## What is this image?
 
 The `hackolade/hck-cli` Docker image is a pre-built, production-ready image that includes:
-- Hackolade Studio CLI binary (`hck-cli`)
+- Hackolade Studio CLI binary (`hck-cli`) -- note that hck-cli in this Docker image replaces the "hackolade" invocation found in the CLI documentation page
 - All target plugins pre-installed
 - Optimized data volume structure at `/data` (reducing path length and complexity)
 - Ready to use immediately - no build step required
@@ -165,7 +165,9 @@ This will pull the image version specified in your `compose.yml` file (`hackolad
 
 ### Step 4: Validate Your License
 
-Before using the CLI, you must validate your license. The compose file provides secure methods using Docker secrets. Choose the method that matches your environment:
+Before using the CLI, you must validate your license.  This step must be performed for each new image, but only needs to be performed once. After validation has successfully completed, then all successions of commands can be orchestrated and invoked without having to validate the license key again.  
+
+The compose file provides secure methods using Docker secrets. Choose the method that matches your environment:
 
 #### Online License Validation (Recommended)
 
@@ -173,7 +175,7 @@ Use this method if your server has internet access.
 
 **Step 4a: Prepare your license key file**
 
-Create a file containing your license key. The path `${HOME}/Downloads/license-key.txt` is just an example. You can use any path you prefer, but make sure it matches the path in your `compose.yml` secrets section:
+Create a file containing the concurrent license key you purchased for Docker. The path `${HOME}/Downloads/license-key.txt` is just an example. You can use any path you prefer, but make sure it matches the path in your `compose.yml` secrets section:
 
 ```bash
 # Example: Using ${HOME}/Downloads (adjust path as needed)
