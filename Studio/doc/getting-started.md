@@ -74,7 +74,7 @@ If you are currently using a custom-built image based on `hackolade/studio` and 
 
 **Key differences you need to update:**
 
-1. **Image reference**: Change from your custom image tag to `hackolade/hck-cli:8.8.5` (or appropriate version)
+1. **Image reference**: Change from your custom image tag to `hackolade/hck-cli:8.9.2` (or appropriate version)
 2. **Data paths**: Update volume mounts from `/home/hackolade/Documents/*` to `/data/*`
    - `/home/hackolade/Documents/models` → `/data/models`
    - `/home/hackolade/Documents/output` → `/data/output`
