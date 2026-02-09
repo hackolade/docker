@@ -29,7 +29,7 @@ services:
   # docker compose run -t --rm validateKeyOnline
   # docker compose run -t --rm hck-cli gendoc --format=HTML --model '/data/models/MongoDB/Yelp Challenge dataset.hck.json' --doc /data/output/doc-test --jsonSchema
   hck-cli: &hck-cli
-    image: hackolade/hck-cli:8.8.5
+    image: hackolade/hck-cli:8.9.2
     command: ["version"]
     restart: 'no'
     # network_mode: 'none'
