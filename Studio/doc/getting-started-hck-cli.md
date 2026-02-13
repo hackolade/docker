@@ -622,6 +622,7 @@ services:
 ## Next steps
 
 - Read [license-validation.md](./license-validation.md) for detailed license validation instructions
+- **Need to install custom TLS certificates?** See [custom-certificates.md](./custom-certificates.md) for instructions on installing custom certificates in containers
 - **Need to build a custom image?** See [getting-started.md](./getting-started.md) for instructions on building your own image with selected plugins
 - Read [build.md](./build.md) for advanced build configurations
 - Check the [Hackolade CLI documentation](https://hackolade.com/help/CommandLineInterface.html) for all available commands
