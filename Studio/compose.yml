@@ -78,6 +78,20 @@ services:
     secrets:
       - license_key
 
+  installCustomCertificates:
+    image:  hackolade/hck-cli:8.9.2
+    entrypoint: [ "bash", "-c" ]
+    command: ['update-ca-certificates']
+    restart: 'no'
+    # calling update-ca-certificates can only be done by root and will generate
+    # a new ca-certificates.crt file that will bundle all installed certificates
+    # in /etc/ssl/certs
+    user: root
+    volumes:
+      - installed-tls-certificates:/etc/ssl/certs
+      # - ./custom-certificate.crt:/etc/ssl/certs/custom-certificate.crt
+      # Bind or inject any other custom certificate into /etc/ssl/certs but without overriding everything!
+
 volumes:
   # This docker volume is mandatory if you want the licensing to work and be able to use the cli
   hackolade-studio-app-data:
@@ -86,6 +100,7 @@ volumes:
   # hackolade-studio-models:
   # hackolade-studio-options:
   hackolade-studio-output:
+  installed-tls-certificates:
 
 secrets: # Don't change the name of the secrets as the cli is looking for them by name with these values by default
   license_key:
