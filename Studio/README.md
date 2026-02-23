@@ -19,7 +19,21 @@ The purpose of running Hackolade Studio in a Docker container is to operate the 
 
 The guide is designed to be understandable even if you've never used Docker before.
 
+## 🎯 Using the Pre-built CLI Image (Recommended)
 
+**Want to skip the build step?** We now provide a ready-to-use Docker image (`hackolade/hck-cli`) that includes Hackolade Studio and all plugins pre-installed. This is the fastest way to get started!
+
+**Benefits:**
+- ✅ No build step required - just pull and use
+- ✅ Simplified data paths (`/data` instead of `/home/hackolade/Documents/...`)
+- ✅ Secure secret management for license keys
+- ✅ Always up-to-date with latest releases
+
+**Get started:** See our [Getting Started Guide for the Pre-built CLI Image](./doc/getting-started-hck-cli.md) for complete instructions.
+
+**When to use the pre-built image vs. building your own:**
+- **Use pre-built image** (`hackolade/hck-cli`) if you want simplicity and all plugins included
+- **Build your own** (instructions below) if you need specific plugin versions or customizations
 
 ## Repository structure
 This repository contains files and instructions for running the [Hackolade Studio](https://hackolade.com) data modeling application, using the base image published on [Docker Hub](https://hub.docker.com/r/hackolade/studio):

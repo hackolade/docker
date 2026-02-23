@@ -1,10 +1,10 @@
 # Getting Started with Hackolade Studio CLI in Docker
 
-This guide will help you run Hackolade Studio CLI in Docker, whether you're new to Docker or an experienced user. We provide instructions using both **Docker CLI directly** and **Docker Compose** - choose the approach that works best for you.
+This guide will help you run Hackolade Studio CLI in Docker, whether you're new to Docker or an experienced user. We provide instructions using both **Docker CLI directly** and **Docker Compose**. Choose the approach that works best for you.
 
-## What is Docker? (A Simple Explanation)
+## What is Docker? (A simple explanation)
 
-Think of Docker as a way to package an application with everything it needs to run (like a shipping container). Instead of installing Hackolade Studio directly on your computer, you run it inside a "container" - an isolated environment that has all the necessary components pre-installed.
+Think of Docker as a way to package an application with everything it needs to run (like a shipping container). Instead of installing Hackolade Studio directly on your computer, you run it inside a "container", an isolated environment that has all the necessary components pre-installed.
 
 **Key Docker concepts:**
 - **Image**: A template/blueprint for creating containers (like a recipe)
@@ -28,8 +28,63 @@ Docker Compose is a tool that lets you define and run multiple containers using 
 - You prefer configuration files over long command lines
 - You're working in a team (easier to share configuration)
 
+### Compose File for custom-built images
 
+This guide uses [`docker-compose.yml`](../docker-compose.yml), which is specifically designed for **custom-built images** based on `hackolade/studio`. This compose file:
+- Uses traditional data paths (`/home/hackolade/Documents/*`)
+- References your custom-built image tag (`hackolade:latest`)
+- Uses the `startup.sh` entrypoint
+- Is documented in this guide
 
+**Note:** If you want to use the pre-built `hackolade/hck-cli` image instead, use [`compose.yml`](../compose.yml) which is designed for the pre-built image. See [getting-started-hck-cli.md](./getting-started-hck-cli.md) for details.
+
+## Building your own vs. pre-built image
+
+Before you start, decide which approach fits your needs:
+
+| Feature | Building Your Own (`hackolade/studio`) | Pre-built Image (`hackolade/hck-cli`) |
+|---------|----------------------------------------|--------------------------------------|
+| Setup time | Requires build step | Instant (just pull) |
+| Data paths | `/home/hackolade/Documents/*` | `/data/*` (simplified) |
+| Entrypoint | `startup.sh` script | `hck-cli` binary |
+| Updates | Rebuild image | Pull new version |
+| Plugins | Select during build | All included |
+| Architecture support | AMD64/x86_64 only (Intel-based chips) | Multi-arch (AMD64 + ARM64) |
+| Customization | Full control | Limited |
+
+**When to use the pre-built image:**
+- You want to get started quickly
+- You need all plugins
+- You prefer simplicity over customization
+- You're running in CI/CD pipelines
+- You're using macOS Silicon (Apple MX) and want efficient ARM64 performance without emulation
+
+**When to build your own:**
+- You need specific plugin versions
+- You want to customize the image
+- You have specific security requirements
+
+**📖 Ready-to-use pre-built image?** See the [Getting Started Guide for the Pre-built CLI Image](./getting-started-hck-cli.md) for complete instructions.
+
+**🔨 Need to build your own?** Continue with this guide to learn how to build a custom image with selected plugins.
+
+## ⚠️ Migration notice for existing users
+
+If you are currently using a custom-built image based on `hackolade/studio` and have an existing `docker-compose.yml` file, **you must migrate to the new `compose.yml` structure** when using the pre-built `hackolade/hck-cli` image.
+
+**Key differences you need to update:**
+
+1. **Image reference**: Change from your custom image tag to `hackolade/hck-cli:8.9.2` (or appropriate version)
+2. **Data paths**: Update volume mounts from `/home/hackolade/Documents/*` to `/data/*`
+   - `/home/hackolade/Documents/models` → `/data/models`
+   - `/home/hackolade/Documents/output` → `/data/output`
+   - `/home/hackolade/Documents/HackoladeLogs` → `/data/logs`
+3. **Entrypoint**: The pre-built image uses `hck-cli` binary directly (no `startup.sh` wrapper needed)
+4. **Working directory**: Remove `-w /home/hackolade/Documents` as it's no longer needed
+
+**Reference compose file:** Use the [`compose.yml`](../compose.yml) file in this repository as your migration reference. This compose file is specifically designed for the pre-built image and documented in [getting-started-hck-cli.md](./getting-started-hck-cli.md).
+
+**If you continue building your own image:** Use the [`docker-compose.yml`](../docker-compose.yml) file in this repository, which is specifically designed for custom-built images. This compose file uses the traditional data paths (`/home/hackolade/Documents/*`) and is documented in this guide.
 
 ## Prerequisites
 
@@ -41,17 +96,17 @@ Before you begin, make sure you have:
 
 
 
-## Step 1: Understanding Data Storage
+## Step 1: Understanding data storage
 
 Hackolade needs to store and access data. We use **volumes** to make data persist between container runs.
 
-### Required Storage Locations
+### Required storage locations
 
 Inside the container, Hackolade uses these folders:
-- `/home/hackolade/.config/Hackolade` - Application data (settings, license info)
-- `/home/hackolade/Documents/HackoladeLogs` - Log files
-- `/home/hackolade/Documents/output` - Generated files (documentation, schemas, etc.)
-- `/home/hackolade/Documents/models` - Your model files (input)
+- `/home/hackolade/.config/Hackolade` : Application data (settings, license info)
+- `/home/hackolade/Documents/HackoladeLogs` : Log files
+- `/home/hackolade/Documents/output` : Generated files (documentation, schemas, etc.)
+- `/home/hackolade/Documents/models` : Your model files (input)
 
 **Important notes on folder customization:**
 
@@ -61,7 +116,7 @@ Inside the container, Hackolade uses these folders:
 
 - **Application data (`/home/hackolade/.config/Hackolade`)**: **Cannot be moved** and bind mounting it can create unexpected issues. It's safer to keep it in a Docker named volume (which is the default in our examples).
 
-### Setting Up Storage: Docker CLI Method
+### Setting up storage: Docker CLI method
 
 With Docker CLI, you'll create **named volumes** (Docker-managed storage) and **bind mounts** (folders on your computer).
 
@@ -80,7 +135,7 @@ chown -R 1000:0 ./models
 
 **Why `chown 1000:0`?** The container runs as user `hackolade` with UID 1000 and GID 0. This command ensures the folder is writable by the container.
 
-### Setting Up Storage: Docker Compose Method
+### Setting up storage: Docker Compose method
 
 Docker Compose automatically creates volumes when you first run it. You just need to create the models folder:
 
@@ -89,16 +144,16 @@ mkdir -p ./models
 chown -R 1000:0 ./models
 ```
 
-The `docker-compose.yml` file (already in this repository) defines all the volumes for you.
+The [`docker-compose.yml`](../docker-compose.yml) file (already in this repository) is specifically designed for custom-built images and defines all the volumes for you.
 
 
 
 
-## Step 2: Building the Docker Image
+## Step 2: Building the Docker image
 
 First, you need to build a Docker image that contains Hackolade Studio.
 
-### Docker CLI Method
+### Docker CLI method
 
 ```bash
 docker build --no-cache --pull -t hackolade:latest .
@@ -111,7 +166,7 @@ docker build --no-cache --pull -t hackolade:latest .
 - `-t hackolade:latest` - Tags the image with name "hackolade" and version "latest"
 - `.` - Uses the Dockerfile in the current directory
 
-### Docker Compose Method
+### Docker Compose method
 
 Docker Compose doesn't build images directly, but you can still use the same Docker CLI command:
 
@@ -119,15 +174,15 @@ Docker Compose doesn't build images directly, but you can still use the same Doc
 docker build --no-cache --pull -t hackolade:latest .
 ```
 
-**Note:** The `docker-compose.yml` file references `hackolade:latest`, so make sure your image has this exact tag.
+**Note:** The [`docker-compose.yml`](../docker-compose.yml) file (designed for custom-built images) references `hackolade:latest`, so make sure your image has this exact tag.
 
 
 
-## Step 3: Validating Your License
+## Step 3: Validating your license
 
 Before you can use Hackolade CLI, you must validate your license key for the Docker image.
 
-### Docker CLI Method
+### Docker CLI method
 
 **Step 3a: Get the computer ID**
 ```bash
@@ -161,7 +216,7 @@ Replace:
 
 For offline validation, see the detailed instructions in [license-validation.md](./license-validation.md).
 
-### Docker Compose Method
+### Docker Compose method
 
 **Step 3a: Get the computer ID**
 ```bash
@@ -177,15 +232,15 @@ docker compose run --rm hackoladeStudioCLI validatekey \
 
 This single command does both steps automatically by using `$(...)` to get the UUID inline.
 
-**Note:** The `docker-compose.yml` file automatically handles all the volume mounts, so you don't need to specify them manually.
+**Note:** The [`docker-compose.yml`](../docker-compose.yml) file (designed for custom-built images) automatically handles all the volume mounts, so you don't need to specify them manually.
 
 
 
-## Step 4: Running Hackolade CLI Commands
+## Step 4: Running Hackolade CLI commands
 
 Now you're ready to run Hackolade CLI commands!
 
-### Docker CLI Method
+### Docker CLI method
 
 **Basic command structure:**
 ```bash
@@ -199,14 +254,14 @@ docker run --rm \
 ```
 
 **What each part does:**
-- `docker run --rm` - Run container and remove when done
-- `-v hackolade-studio-app-data:...` - Mount app data volume
-- `-v hackolade-studio-logs:...` - Mount logs volume
-- `-v hackolade-studio-output:...` - Mount output volume
-- `-v ${PWD}/models:...` - Mount your local models folder
-- `-w /home/hackolade/Documents` - Set working directory
-- `hackolade:latest` - The image to use
-- `COMMAND [OPTIONS]` - The Hackolade CLI command
+- `docker run --rm` : Run container and remove when done
+- `-v hackolade-studio-app-data:...` : Mount app data volume
+- `-v hackolade-studio-logs:...` : Mount logs volume
+- `-v hackolade-studio-output:...` : Mount output volume
+- `-v ${PWD}/models:...` : Mount your local models folder
+- `-w /home/hackolade/Documents` : Set working directory
+- `hackolade:latest` : The image to use
+- `COMMAND [OPTIONS]` : The Hackolade CLI command
 
 **Example: Show help**
 ```bash
@@ -237,7 +292,7 @@ docker run --rm \
 docker compose run --rm hackoladeStudioCLI COMMAND [OPTIONS]
 ```
 
-Much simpler! Docker Compose automatically handles all the volumes based on `docker-compose.yml`.
+Much simpler! Docker Compose automatically handles all the volumes based on [`docker-compose.yml`](../docker-compose.yml), which is designed for custom-built images.
 
 **Example: Show help**
 ```bash
@@ -251,9 +306,9 @@ docker compose run --rm hackoladeStudioCLI version
 
 
 
-## Step 5: Common Scenarios
+## Step 5: Common scenarios
 
-### Scenario 1: Generate Documentation
+### Scenario 1: Generate documentation
 
 Generate HTML documentation from a model file.
 
@@ -279,7 +334,7 @@ docker compose run --rm hackoladeStudioCLI genDoc \
   --doc=/home/hackolade/Documents/output/doc.html
 ```
 
-### Scenario 2: Forward Engineering
+### Scenario 2: Forward engineering
 
 Generate JSON Schema files from a model.
 
@@ -311,7 +366,7 @@ docker compose run --rm hackoladeStudioCLI forweng \
   --outputtype=jsonschema
 ```
 
-### Scenario 3: Reverse Engineering
+### Scenario 3: Reverse engineering
 
 Reverse engineer a database to create a model.
 
@@ -341,7 +396,7 @@ docker compose run --rm hackoladeStudioCLI revEng \
   --inferRelationships=true
 ```
 
-### Scenario 4: Compare Two Models
+### Scenario 4: Compare two models
 
 Compare two model files and generate a delta model.
 
@@ -369,11 +424,11 @@ docker compose run --rm hackoladeStudioCLI compMod \
 
 
 
-## Step 6: Retrieving Generated Files
+## Step 6: Retrieving generated files
 
 After running commands, you need to copy files from Docker volumes to your computer.
 
-### Docker CLI Method
+### Docker CLI method
 
 **Retrieve output files:**
 ```bash
@@ -403,7 +458,7 @@ docker run --rm --init \
 - Uses `cp` command to copy files from volume to local folder
 - Removes container when done (`--rm`)
 
-### Docker Compose Method
+### Docker Compose method
 
 Docker Compose doesn't have a built-in way to extract files, so you still use Docker CLI:
 
@@ -429,7 +484,7 @@ docker run --rm --init \
 
 
 
-## Creating a Helper Script (Optional)
+## Creating a helper script (optional)
 
 To make Docker CLI commands easier, you can create a helper script.
 
@@ -460,7 +515,7 @@ chmod +x run-hackolade.sh
 
 ## Troubleshooting
 
-### Permission Denied Errors
+### Permission denied Errors
 
 **Note:** This only applies to **bind mounts** (folders on your host computer), not to Docker named volumes.
 
@@ -499,9 +554,9 @@ docker volume create hackolade-studio-output
 
 
 
-## Quick Reference
+## Quick reference
 
-### Docker CLI Quick Commands
+### Docker CLI quick commands
 
 ```bash
 # Build image
@@ -522,7 +577,7 @@ docker run --rm \
   hackolade:latest COMMAND
 ```
 
-### Docker Compose Quick Commands
+### Docker Compose quick commands
 
 ```bash
 # Build image (same as Docker CLI)
