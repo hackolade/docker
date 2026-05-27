@@ -337,6 +337,19 @@ docker run --rm \
   --model /data/models/model.json \
   --doc /data/output/doc.html
 ```
+In case of offline validation:
+```bash
+docker run --rm \
+  -v hackolade-studio-app-data:/home/hackolade/.config \
+  -v hackolade-studio-logs:/data/logs \
+  -v ${PWD}/models:/data/models \
+  -v hackolade-studio-output:/data/output \
+  -v ${PWD}/LicenseFile.xml:<Path used during validateKey>/LicenseFile.xml \
+  hackolade/hck-cli:8.9.2 genDoc \
+  --format=HTML \
+  --model /data/models/model.json \
+  --doc /data/output/doc.html
+```
 
 ## Security best practices
 
