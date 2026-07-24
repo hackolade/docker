@@ -6,7 +6,7 @@ This guide will help you get started with the **ready-to-use** Hackolade CLI Doc
 
 Before you begin, please note these critical requirements:
 
-- **Concurrent licenses only**: for Docker, you must have a Hackolade Studio **concurrent** license type, as dedicated licenses won't work with Docker
+- **Floating licenses only**: for Docker, you must have a Hackolade Studio **floating** license type (a.k.a. concurrent license key), as dedicated licenses won't work with Docker
 - **License is tied to the Docker image**: Each image version has a unique UUID, so you must validate the license for each version you use. If you change image versions, you'll need to validate the license again for the new image.
 - **Always specify version tags**: the `latest` tag is not published. Use `hackolade/hck-cli:8.9.2` or intermediate tags like `8.9.2-YYYY-MM-DD` for plugin updates
 - **Use Docker secrets** for license keys in production environments
@@ -83,7 +83,7 @@ Before you begin, make sure you have:
    - **macOS Silicon users:** Docker Desktop for Mac includes ARM64 support
 2. **Docker Compose** installed (v2.0+ recommended)
 3. **Docker is running** (check by running `docker --version` in your terminal)
-4. A **concurrent Hackolade license key** (required for Docker CLI usage)
+4. A **floating Hackolade license key** (required for Docker CLI usage)
 
 **Note for macOS Silicon users:** The image includes ARM64 support, so it runs efficiently on Apple Silicon Macs (MX) without emulation overhead. Docker Desktop automatically selects the correct architecture.
 
@@ -173,7 +173,7 @@ Use this method if your server has internet access.
 
 **Step 4a: Prepare your license key file**
 
-Create a file containing the concurrent license key you purchased for Docker. The path `${HOME}/Downloads/license-key.txt` is just an example. You can use any path you prefer, but make sure it matches the path in your `compose.yml` secrets section:
+Create a file containing the floating license key you purchased for Docker. The path `${HOME}/Downloads/license-key.txt` is just an example. You can use any path you prefer, but make sure it matches the path in your `compose.yml` secrets section:
 
 ```bash
 # Example: Using ${HOME}/Downloads (adjust path as needed)
@@ -214,7 +214,7 @@ From a computer with internet access, open your browser and go to:
 [https://quicklicensemanager.com/hackolade/QlmCustomerSite](https://quicklicensemanager.com/hackolade/QlmCustomerSite)
 
 Fill in the form:
-- **Activation Key**: Enter your concurrent license key
+- **Activation Key**: Enter your floating license key
 - **Version**: Leave empty (or select the appropriate version if required)
 - **Computer ID**: Enter the UUID from step 4a
 - **Options**: Check both "Generate a license file" and "I consent to the Privacy Policy"
@@ -551,7 +551,7 @@ The CLI automatically checks for required volumes and will warn you if they're n
 ### License Validation Failed
 
 - Make sure you're using the same image tag for getting UUID and validating
-- Check that you're using a concurrent license key (not a workstation license)
+- Check that you're using a floating license key (not a workstation license)
 - Ensure the license has available seats
 - Verify secret files exist and have correct permissions
 

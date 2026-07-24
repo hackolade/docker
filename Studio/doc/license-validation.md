@@ -1,8 +1,8 @@
-# How to validate a concurrent Hackolade license
+# How to validate a floating Hackolade license
 
-Before you can use Hackolade Studio CLI in Docker, you must validate your concurrent license key. This process links your license to the specific Docker image you built.
+Before you can use Hackolade Studio CLI in Docker, you must validate your floating license key, a.k.a. concurrent license key. This process links your license to the specific Docker image you built.
 
-**Important:** You need a **concurrent license key** (not a workstation license) to use Hackolade in Docker. The license validation must be repeated for each new Docker image you build, as each image has a unique identifier.
+**Important:** You need a **floating license key** (not a workstation license) to use Hackolade in Docker. The license validation must be repeated for each new Docker image you build, as each image has a unique identifier.
 
 
 
@@ -31,7 +31,7 @@ docker run --rm \
 ```
 
 Replace:
-- `YOUR-LICENSE-KEY` with your actual concurrent license key
+- `YOUR-LICENSE-KEY` with your actual floating license key
 - `YOUR-UUID-FROM-STEP-1` with the UUID you copied from step 1
 
 **What this does:**
@@ -91,7 +91,7 @@ From a computer with Internet access, open your browser and go to:
 <img src="../lib/Offline_license_activation.png" style="zoom:50%;" />
 
 Fill in the form:
-- **Activation Key**: Enter your concurrent license key
+- **Activation Key**: Enter your floating license key
 - **Version**: Select "Hackolade 5.0" or above
 - **Computer ID**: Enter the UUID from step 1
 - **Options**: Check both "Generate a license file" and "I consent to the Privacy Policy"
@@ -182,4 +182,4 @@ docker volume create hackolade-studio-app-data
 - **Each Docker image has a unique UUID** - you must validate the license for each image you build
 - **Use the same image** for getting the UUID and validating the license
 - **The license file path** (`--file`) is a path **inside the container**, not on your host
-- **Concurrent licenses only** - workstation licenses won't work with Docker
+- **Floating licenses only** - workstation licenses won't work with Docker

@@ -91,7 +91,7 @@ If you are currently using a custom-built image based on `hackolade/studio` and 
 Before you begin, make sure you have:
 1. **Docker installed** on your system ([Install Docker](https://www.docker.com/get-started))
 2. **Docker is running** (check by running `docker --version` in your terminal)
-3. A **concurrent Hackolade license key** (required for Docker CLI usage)
+3. A **floating Hackolade license key** (required for Docker CLI usage -- a.k.a. concurrent license key)
 
 
 
@@ -540,7 +540,7 @@ docker volume create hackolade-studio-output
 ### License Validation Failed
 
 - Make sure you're using the same image for getting UUID and validating
-- Check that you're using a concurrent license key (not a workstation license)
+- Check that you're using a floating license key (not a workstation license)
 - Ensure the license has available seats
 
 
