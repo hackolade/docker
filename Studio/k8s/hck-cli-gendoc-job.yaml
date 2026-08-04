@@ -1,0 +1,58 @@
+# Generate documentation under a hardened Job — same security posture as hck-cli-job.yaml.
+#
+# Place a model at /data/models/smoke.hck.json on the hck-cli-data PVC before running
+# (kubectl cp, an init container, or a CI step that seeds the volume).
+#
+# Apply:
+#   kubectl apply -f hck-cli-gendoc-job.yaml
+#   kubectl logs job/hck-cli-gendoc
+#
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: hck-cli-gendoc
+  labels:
+    app: hck-cli
+    pod-security.kubernetes.io/enforce: restricted
+spec:
+  backoffLimit: 1
+  template:
+    metadata:
+      labels:
+        app: hck-cli
+        pod-security.kubernetes.io/enforce: restricted
+    spec:
+      restartPolicy: Never
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1001
+        fsGroup: 0
+        seccompProfile:
+          type: RuntimeDefault
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: hck-cli-data
+        - name: tmp
+          emptyDir:
+            medium: Memory
+            sizeLimit: 1Gi
+      containers:
+        - name: hck-cli
+          image: hackolade/hck-cli:8.9.2
+          args:
+            - genDoc
+            - --model=/data/models/smoke.hck.json
+            - --doc=/data/output/smoke.pdf
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: ["ALL"]
+          volumeMounts:
+            - name: data
+              mountPath: /data
+            - name: tmp
+              mountPath: /tmp

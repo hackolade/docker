@@ -39,7 +39,10 @@ The guide is designed to be understandable even if you've never used Docker befo
 This repository contains files and instructions for running the [Hackolade Studio](https://hackolade.com) data modeling application, using the base image published on [Docker Hub](https://hub.docker.com/r/hackolade/studio):
 
 - [Dockerfile](Dockerfile): ready-to-use example of a full installation of Hackolade Studio, including the possibility to install selected target plugins
-- [docker-compose.yml](docker-compose.yml): example of the recommended way to configure the launch of containers of the Hackolade CLI.
+- [docker-compose.yml](docker-compose.yml): example for **custom-built** `hackolade/studio` images (traditional paths)
+- [compose.yml](compose.yml): simple example for the pre-built **`hackolade/hck-cli`** image
+- [compose.hardened.yml](compose.hardened.yml): hardened `hck-cli` example (read-only rootfs, `/data` + `/tmp` tmpfs)
+- [k8s/](k8s/): Kubernetes Job examples with PVC at `/data` and memory emptyDir at `/tmp`
 - [securityPolicies.json](securityPolicies.json) - [optional] the list of required system call operations to be able to run Hackolade with Chrome sandboxing (disabled by default) inside a container ([more details](https://docs.docker.com/engine/security/seccomp/))
 - batch files examples when running on Windows:
   - [docker-help.bat](docker-help.bat): verify the proper running of the CLI by displaying the CLI help in a container.  Will work without a validated license key.
@@ -80,12 +83,29 @@ The **hackolade** user pre-configured inside the image has the following UID/GID
 
 ### Required directories (inside containers)
 
-Hackolade reads and writes data to the following folders inside containers:
+#### Pre-built `hackolade/hck-cli` image (recommended)
 
--**/home/hackolade/.config/Hackolade**: this folder (**appData**) is necessary for the proper operation of the application in containers and must be readable and writable by **hackolade** user.
--**/home/hackolade/Documents/HackoladeLogs**: this folder is where Hackolade Studio writes its logging information, which is useful in case of any issue and must be readable and writable by **hackolade** user.
-- **/home/hackolade/Documents/data**: we recommend this folder that will be used for generated artifacts within containers but you can define it anywhere inside container filesystem as long as you make it persistent.  It may contain models, documentation, sources for reverse-engineering, artifacts out of forward-engineering, etc...  Instead of a relative path to the location where the container is run, you may reference an absolute path to the location of these files.
--[Optional]**/home/hackolade/.hackolade/options**: is where Hackolade reads user defined configurations like naming conventions, excel export options, custom properties, etc...
+The image expects a **read-only root filesystem** with exactly two writable mounts:
+
+- **`/data`** (persistent volume): license/userData under `/data/app`, plus logs, models, output, settings, and options
+- **`/tmp`** (tmpfs): sockets, caches, and scratch files
+
+See [`doc/getting-started-hck-cli.md`](./doc/getting-started-hck-cli.md) and [`compose.yml`](./compose.yml). Custom CAs use read-only PEM mounts and `NODE_EXTRA_CA_CERTS` / `SSL_CERT_FILE` — see [`doc/custom-certificates.md`](./doc/custom-certificates.md).
+
+For hardened deployments, see [`compose.hardened.yml`](./compose.hardened.yml) and [`k8s/`](./k8s/).
+
+**Breaking change:** do not mount `/home/hackolade/.config` for the pre-built image; that path is no longer used for license state.
+
+#### Custom-built `hackolade/studio` images
+
+Older custom builds may still use the historical layout:
+
+- `/home/hackolade/.config/Hackolade`: application data (**appData**) — must be readable and writable by the container user
+- `/home/hackolade/Documents/HackoladeLogs`: logging information
+- `/home/hackolade/Documents/data`: generated artifacts (models, documentation, RE/FE outputs, etc.)
+- [Optional] `/home/hackolade/.hackolade/options`: user-defined configurations
+
+Prefer migrating custom images to the `/data` + `/tmp` model used by `hackolade/hck-cli`.
 
 
 You must create manually the folders you will bind mount prior to running hackolade studio containers because docker doesn't create them automatically anymore.
