@@ -1,48 +1,37 @@
 # Running Hackolade Studio CLI in Docker
 
-![Docker Image Version (latest by date)](https://img.shields.io/docker/v/hackolade/studio)
+![Docker Image Version (latest by date)](https://img.shields.io/docker/v/hackolade/hck-cli)
 
-The instructions below assume that you have Docker [installed](https://www.docker.com/get-started) and running.
+The purpose of running Hackolade in a Docker container is to operate the **Command-Line Interface (CLI)**, typically in CI/CD pipelines.
 
-The purpose of running Hackolade Studio in a Docker container is to operate the Command-Line Interface ("CLI"), typically in a the context of integration with CI/CD pipelines.
+⚠ The purpose is **not** to run the application GUI in Docker — this is **not** supported.
 
-⚠ The purpose is **not** to run the application GUI in Docker -- this is **not** supported.
+The instructions below assume Docker is [installed](https://www.docker.com/get-started) and running.
 
-## 🚀 Getting Started
+## 🚀 Getting started (recommended)
 
-**New to Docker or need step-by-step instructions?** Start with our comprehensive [Getting Started Guide](./doc/getting-started.md) which includes:
-- Docker basics explained in simple terms
-- Instructions using **Docker CLI directly** (for beginners and those who want explicit control)
-- Instructions using **Docker Compose** (for simpler, shorter commands)
-- Complete examples for common scenarios
-- Troubleshooting tips
+Use the pre-built [`hackolade/hck-cli`](https://hub.docker.com/r/hackolade/hck-cli/tags) image — Hackolade Studio CLI with all plugins, no build step:
 
-The guide is designed to be understandable even if you've never used Docker before.
+**[Getting started with hackolade/hck-cli](./doc/getting-started-hck-cli.md)**
 
-## 🎯 Using the Pre-built CLI Image (Recommended)
+Includes [`compose.yml`](./compose.yml), [`compose.hardened.yml`](./compose.hardened.yml) (read-only rootfs), and [`k8s/`](./k8s/) Job examples.
 
-**Want to skip the build step?** We now provide a ready-to-use Docker image (`hackolade/hck-cli`) that includes Hackolade Studio and all plugins pre-installed. This is the fastest way to get started!
+## Build your own image (advanced)
 
-**Benefits:**
-- ✅ No build step required - just pull and use
-- ✅ Simplified data paths (`/data` instead of `/home/hackolade/Documents/...`)
-- ✅ Secure secret management for license keys
-- ✅ Always up-to-date with latest releases
-
-**Get started:** See our [Getting Started Guide for the Pre-built CLI Image](./doc/getting-started-hck-cli.md) for complete instructions.
-
-**When to use the pre-built image vs. building your own:**
-- **Use pre-built image** (`hackolade/hck-cli`) if you want simplicity and all plugins included
-- **Build your own** (instructions below) if you need specific plugin versions or customizations
+Need a custom plugin set or Dockerfile based on [`hackolade/studio`](https://hub.docker.com/r/hackolade/studio/tags)? See [getting-started.md](./doc/getting-started.md) and [build.md](./doc/build.md).
 
 ## Repository structure
-This repository contains files and instructions for running the [Hackolade Studio](https://hackolade.com) data modeling application, using the base image published on [Docker Hub](https://hub.docker.com/r/hackolade/studio):
 
-- [Dockerfile](Dockerfile): ready-to-use example of a full installation of Hackolade Studio, including the possibility to install selected target plugins
-- [docker-compose.yml](docker-compose.yml): example for **custom-built** `hackolade/studio` images (traditional paths)
-- [compose.yml](compose.yml): simple example for the pre-built **`hackolade/hck-cli`** image
-- [compose.hardened.yml](compose.hardened.yml): hardened `hck-cli` example (read-only rootfs, `/data` + `/tmp` tmpfs)
-- [k8s/](k8s/): Kubernetes Job examples with PVC at `/data` and memory emptyDir at `/tmp`
+Primary examples use the pre-built **`hackolade/hck-cli`** image:
+
+- [compose.yml](compose.yml): simple local Compose example
+- [compose.hardened.yml](compose.hardened.yml): read-only rootfs, `/data` + `/tmp` tmpfs
+- [k8s/](k8s/): Kubernetes Job manifests (PVC + memory emptyDir)
+
+Custom-build path (legacy layout on `hackolade/studio`):
+
+- [Dockerfile](Dockerfile): example full installation with selected plugins
+- [docker-compose.yml](docker-compose.yml): Compose for custom-built images
 - [securityPolicies.json](securityPolicies.json) - [optional] the list of required system call operations to be able to run Hackolade with Chrome sandboxing (disabled by default) inside a container ([more details](https://docs.docker.com/engine/security/seccomp/))
 - batch files examples when running on Windows:
   - [docker-help.bat](docker-help.bat): verify the proper running of the CLI by displaying the CLI help in a container.  Will work without a validated license key.
