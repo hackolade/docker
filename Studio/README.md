@@ -14,6 +14,8 @@ Use the pre-built [`hackolade/hck-cli`](https://hub.docker.com/r/hackolade/hck-c
 
 **[Getting started with hackolade/hck-cli](./doc/getting-started-hck-cli.md)** — consolidated writes to `/data` + `/tmp`, hardened Compose, and Kubernetes examples.
 
+**[Example: offline metadata pipeline](./doc/example-offline-metadata-pipeline.md)** — story walkthrough: new image tag, offline license, `version` / `showLicense` / `listLogs` / `showLogs`, revEng → compMod → DDL → docs (hardened Compose).
+
 ```bash
 # Recommended baseline for CI / production (read-only rootfs, same write layout)
 docker compose -f compose.hardened.yml run --rm hck-cli version
@@ -41,6 +43,7 @@ Primary examples use the pre-built **`hackolade/hck-cli`** image (same `/data` +
 - [compose.yml](compose.yml): local Compose — consolidated mounts, writable rootfs
 - [compose.hardened.yml](compose.hardened.yml): **hardened** — same mounts + read-only rootfs, `cap_drop: ALL`
 - [k8s/](k8s/): **Kubernetes** Jobs — same mounts + Restricted Pod Security Standard
+- [doc/docker-cli-howto.md](doc/docker-cli-howto.md): **`docker run`** examples without Compose
 
 Custom-build path (legacy layout on `hackolade/studio`):
 
