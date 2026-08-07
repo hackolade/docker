@@ -21,7 +21,9 @@
 #   /tmp   tmpfs — sockets, caches, scratch
 #
 # Usage:
-#   docker compose -f compose.hardened.yml run --rm hck-cli version
+#   docker compose -f compose.hardened.yml run --rm hck-cli
+#   (--rm removes the one-off container; omitting it leaves orphan …-run-… containers)
+#   Default command is version — lists Studio release and installed plugins
 #
 # For the same /data + /tmp layout without read-only rootfs, use compose.yml.
 # For Kubernetes manifests with a PVC, see k8s/hck-cli-job.yaml.
@@ -47,6 +49,7 @@ services:
 
   showComputerIdForOfflineValidation:
     extends: hck-cli
+    # Prints Computer ID + ready-to-open QLM URL for LicenseFile.xml download
     command: ["getComputerId"]
 
   validateKeyOffline:

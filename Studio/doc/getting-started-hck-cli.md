@@ -4,6 +4,17 @@ Ready-to-use Docker image: Hackolade Studio CLI, all target plugins, no build st
 
 ![Docker Image Version (latest by date)](https://img.shields.io/docker/v/hackolade/hck-cli)
 
+## Guides
+
+| Guide | Use when |
+| --- | --- |
+| **This page** | First run, deployment profiles, troubleshooting |
+| **[Offline pipeline example](./example-offline-metadata-pipeline.md)** | **Complete CI story** — new image tag, offline license, revEng → compMod → DDL → docs, plus `version`, `showLicense`, `listLogs`, `showLogs` |
+| **[Docker CLI how-to](./docker-cli-howto.md)** | You prefer **`docker run`** instead of Compose |
+| **[License validation](./license-validation.md)** | Online or offline floating license setup |
+| **[Kubernetes](../k8s/README.md)** | Running on K8s / OpenShift |
+| **[Custom TLS certificates](./custom-certificates.md)** | Private CAs with read-only PEM mounts |
+
 ## Runtime model (all deployments)
 
 Every `hackolade/hck-cli` container uses the **same consolidated write layout** — whether you enable a read-only root filesystem or not. Runtime state is not scattered under `/home/hackolade/...` anymore.
@@ -29,7 +40,8 @@ This is the same layout in [`compose.yml`](../compose.yml), [`compose.hardened.y
 
 ```bash
 # Hardened smoke test (recommended baseline for pipelines)
-docker compose -f compose.hardened.yml run --rm hck-cli version
+# `version` is the default command — explicit `version` arg is optional
+docker compose -f compose.hardened.yml run --rm hck-cli
 ```
 
 OpenShift arbitrary UID: [`compose.hardened.yml`](../compose.hardened.yml) (`hck-cli-arbitrary-uid`) or [`k8s/hck-cli-job-openshift.yaml`](../k8s/hck-cli-job-openshift.yaml).
@@ -40,6 +52,7 @@ OpenShift arbitrary UID: [`compose.hardened.yml`](../compose.hardened.yml) (`hck
 - **Pin a version tag** — `latest` is not published. Example: `hackolade/hck-cli:8.12.7`. Weekly plugin refreshes may appear as `8.12.7-YYYY-MM-DD` on the [current release only](https://hub.docker.com/r/hackolade/hck-cli/tags).
 - **Re-validate when the image tag changes** — license state is tied to the image UUID.
 - **Mount `/data` and `/tmp` on every run** — required when `read_only: true`; use the same layout even when the root filesystem is writable.
+- **Always use `docker compose run --rm`** — removes the one-off container when the command exits. Without `--rm`, stopped `…-run-…` containers accumulate and Compose warns about **orphan containers** on the next run.
 
 Need a custom plugin set or your own Dockerfile? See [getting-started.md](./getting-started.md) (legacy `hackolade/studio` build path).
 
@@ -52,11 +65,24 @@ cp compose.hardened.yml compose.local.yml   # or compose.yml for a minimal local
 mkdir -p ./models
 ```
 
-2. Pull and check the image:
+2. Pull and check the image (`version` is the default service command):
 
 ```bash
 docker compose -f compose.local.yml pull
-docker compose -f compose.local.yml run --rm hck-cli version
+docker compose -f compose.local.yml run --rm hck-cli
+```
+
+Expect **Hackolade version** plus **Installed plugins** with version, commit, and build date for each bundled plugin:
+
+```text
+detected containerized environment and allowed command
+
+Hackolade version: 8.12.7
+
+Installed plugins (40):
+  Avro: 0.2.27, commit: d0fda00f, built: 2026-07-03T13:26:23+0000
+  BigQuery: 0.2.30, commit: 04fb1148, built: 2026-08-07T09:04:23+0000
+  …
 ```
 
 3. Validate your license (online — adjust secret paths in the compose file):
@@ -76,9 +102,9 @@ docker compose -f compose.local.yml run --rm hck-cli genDoc \
   --doc /data/output/doc
 ```
 
-Offline validation: [license-validation.md](./license-validation.md).
+Offline validation: run **`showComputerIdForOfflineValidation`** — it prints the Computer ID and a **ready-to-open QLM URL** (`is_file=1`, prefilled `is_pcid` and `is_avkey` when `license_key` is configured). Open the URL on a connected machine to download **`LicenseFile.xml`**, then run **`validateKeyOffline`**. Details: [license-validation.md](./license-validation.md).
 
-**Full pipeline story** (new image, offline license, revEng → compMod → DDL → docs with `version`, `showLicense`, `listLogs`, `showLogs`): [example-offline-metadata-pipeline.md](./example-offline-metadata-pipeline.md).
+**Next:** follow the **[offline metadata pipeline example](./example-offline-metadata-pipeline.md)** for a full hardened Compose walkthrough (image upgrade, offline license, revEng → compMod → forweng → genDoc, diagnostics).
 
 ## Inspecting the image, license, and logs
 
@@ -86,7 +112,7 @@ Wrapper commands handled by `hck-cli` itself (no full Studio session). Use them 
 
 | Command | Purpose |
 | --- | --- |
-| `version` | Studio/CLI build in the image |
+| `version` | Studio release in the image + full plugin inventory (name, version, commit, build date) |
 | `showLicense` | License installed and valid for **this** image tag? (`--json` for scripts; exit 0 = OK) |
 | `listLogs` | List command runs under `/data/logs` (newest first) |
 | `showLogs [runId] [--tail N] [--logfile main\|re\|fe\|license]` | Tail logs for one run |
@@ -94,7 +120,7 @@ Wrapper commands handled by `hck-cli` itself (no full Studio session). Use them 
 ```bash
 export COMPOSE="docker compose -f compose.hardened.yml"
 
-$COMPOSE run --rm hck-cli version
+$COMPOSE run --rm hck-cli                    # default command: version
 $COMPOSE run --rm hck-cli showLicense
 $COMPOSE run --rm hck-cli showLicense --json
 $COMPOSE run --rm hck-cli listLogs
@@ -121,17 +147,7 @@ Update the `image:` line in your compose file, then `docker compose pull`.
 
 ## Docker CLI (without Compose)
 
-Minimal `docker run` example (same `/data` + `/tmp` layout). For a full **`docker run`** reference, mirror the commands in [example-offline-metadata-pipeline.md](./example-offline-metadata-pipeline.md) and [getting-started-hck-cli.md](./getting-started-hck-cli.md).
-
-```bash
-docker volume create hackolade-studio-data
-
-docker run --rm \
-  -v hackolade-studio-data:/data \
-  -v "${PWD}/models:/data/models" \
-  --tmpfs /tmp:rw,size=1g,mode=1777 \
-  hackolade/hck-cli:8.12.7 version
-```
+See **[docker-cli-howto.md](./docker-cli-howto.md)** for local and hardened `docker run` templates, diagnostics, and artifact extraction.
 
 ## Troubleshooting
 
@@ -143,12 +159,14 @@ docker run --rm \
 | Secret not found | Paths in compose `secrets:` match files on disk |
 | Unsure if license is valid | `hck-cli showLicense` or `showLicense --json` |
 | Command failed in CI | `hck-cli listLogs` then `showLogs <runId> --logfile re` |
+| `Found orphan containers` warning | Past runs without `--rm`; use `docker compose run --rm …` always, then `docker compose -f compose.hardened.yml down --remove-orphans` to clean up |
 
 ## See also
 
-- [Example: offline metadata pipeline](./example-offline-metadata-pipeline.md) — hardened Compose walkthrough
+- [Offline metadata pipeline example](./example-offline-metadata-pipeline.md) — **full CI walkthrough**
+- [Docker CLI how-to](./docker-cli-howto.md)
 - [License validation](./license-validation.md)
-- [Custom TLS certificates](./custom-certificates.md) (read-only PEM mounts — works with hardened / K8s)
+- [Custom TLS certificates](./custom-certificates.md)
 - [Kubernetes examples](../k8s/README.md)
 - [Build your own image](./getting-started.md)
 - [Hackolade CLI command reference](https://hackolade.com/help/CommandLineInterface.html)

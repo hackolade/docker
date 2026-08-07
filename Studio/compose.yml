@@ -20,6 +20,8 @@
 #
 # Documentation: doc/getting-started-hck-cli.md
 # Custom builds on hackolade/studio: docker-compose.yml + doc/getting-started.md
+#
+# Usage: docker compose run --rm …  (always --rm for one-off CLI jobs)
 
 services:
   # Run a CLI command (defaults to version).
@@ -45,6 +47,7 @@ services:
 
   showComputerIdForOfflineValidation:
     extends: hck-cli
+    # Prints Computer ID + ready-to-open QLM URL for LicenseFile.xml download
     command: ["getComputerId"]
 
   # validateKeyOfflineFromFile:
