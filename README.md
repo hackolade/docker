@@ -1,19 +1,26 @@
 # Running Hackolade CLI in Docker
 
-This repository provides **ready-to-use examples** for the pre-built [`hackolade/hck-cli`](https://hub.docker.com/r/hackolade/hck-cli/tags) image: Hackolade Studio CLI, all target plugins, and a hardened runtime layout (`/data` + `/tmp`) — no build step required.
+This repository provides **ready-to-use examples** for the pre-built [`hackolade/hck-cli`](https://hub.docker.com/r/hackolade/hck-cli/tags) image: Hackolade Studio CLI, all target plugins, no build step.
 
 ![Docker Image Version (latest by date)](https://img.shields.io/docker/v/hackolade/hck-cli)
 
 **Start here:** [Getting started with hackolade/hck-cli](./Studio/doc/getting-started-hck-cli.md)
 
-The [`Studio/`](./Studio) folder includes:
+## Runtime model
 
-- [`compose.yml`](./Studio/compose.yml) — simple local Compose example
-- [`compose.hardened.yml`](./Studio/compose.hardened.yml) — read-only rootfs, dropped capabilities (Kubernetes Restricted parity)
-- [`k8s/`](./Studio/k8s/) — Job manifests with PVC at `/data` and memory `emptyDir` at `/tmp`
+All examples use the **same two write paths** (whether or not the root filesystem is read-only):
 
-## Custom-built images (legacy runtime)
+- **`/data`** — persistent volume or PVC (license, models, output, logs)
+- **`/tmp`** — tmpfs / memory emptyDir (ephemeral scratch)
 
-If you need a custom plugin set or a bespoke image, you can still build on the [`hackolade/studio`](https://hub.docker.com/r/hackolade/studio/tags) runtime base image. That path requires a build step and uses the legacy `/home/hackolade/Documents/*` layout.
+## Examples in [`Studio/`](./Studio)
 
-See [Building your own image](./Studio/doc/getting-started.md) and [build.md](./Studio/doc/build.md).
+| File | Profile |
+| --- | --- |
+| [`compose.yml`](./Studio/compose.yml) | Local — consolidated `/data` + `/tmp` |
+| [`compose.hardened.yml`](./Studio/compose.hardened.yml) | **Hardened** — same mounts + read-only rootfs, dropped caps (CI / production) |
+| [`k8s/`](./Studio/k8s/) | **Kubernetes** — same mounts + Restricted Pod Security Standard |
+
+## Custom-built images (legacy)
+
+Build on [`hackolade/studio`](https://hub.docker.com/r/hackolade/studio/tags) if you need a custom plugin set. That path uses the legacy `/home/hackolade/Documents/*` layout — see [getting-started.md](./Studio/doc/getting-started.md).

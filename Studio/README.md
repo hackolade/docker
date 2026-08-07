@@ -12,9 +12,23 @@ The instructions below assume Docker is [installed](https://www.docker.com/get-s
 
 Use the pre-built [`hackolade/hck-cli`](https://hub.docker.com/r/hackolade/hck-cli/tags) image — Hackolade Studio CLI with all plugins, no build step:
 
-**[Getting started with hackolade/hck-cli](./doc/getting-started-hck-cli.md)**
+**[Getting started with hackolade/hck-cli](./doc/getting-started-hck-cli.md)** — consolidated writes to `/data` + `/tmp`, hardened Compose, and Kubernetes examples.
 
-Includes [`compose.yml`](./compose.yml), [`compose.hardened.yml`](./compose.hardened.yml) (read-only rootfs), and [`k8s/`](./k8s/) Job examples.
+```bash
+# Recommended baseline for CI / production (read-only rootfs, same write layout)
+docker compose -f compose.hardened.yml run --rm hck-cli version
+```
+
+## Runtime model
+
+Every `hackolade/hck-cli` deployment uses **two writable mounts only**:
+
+| Mount | Purpose |
+| --- | --- |
+| `/data` | License state, models, output, logs (persistent volume or PVC) |
+| `/tmp` | Sockets, caches, scratch (tmpfs / memory emptyDir) |
+
+[`compose.yml`](./compose.yml) and [`compose.hardened.yml`](./compose.hardened.yml) share this layout. Hardened adds read-only root filesystem, dropped capabilities, and non-root execution — the profile used in [`k8s/`](./k8s/) as well.
 
 ## Build your own image (advanced)
 
@@ -22,11 +36,11 @@ Need a custom plugin set or Dockerfile based on [`hackolade/studio`](https://hub
 
 ## Repository structure
 
-Primary examples use the pre-built **`hackolade/hck-cli`** image:
+Primary examples use the pre-built **`hackolade/hck-cli`** image (same `/data` + `/tmp` write layout in every profile):
 
-- [compose.yml](compose.yml): simple local Compose example
-- [compose.hardened.yml](compose.hardened.yml): read-only rootfs, `/data` + `/tmp` tmpfs
-- [k8s/](k8s/): Kubernetes Job manifests (PVC + memory emptyDir)
+- [compose.yml](compose.yml): local Compose — consolidated mounts, writable rootfs
+- [compose.hardened.yml](compose.hardened.yml): **hardened** — same mounts + read-only rootfs, `cap_drop: ALL`
+- [k8s/](k8s/): **Kubernetes** Jobs — same mounts + Restricted Pod Security Standard
 
 Custom-build path (legacy layout on `hackolade/studio`):
 

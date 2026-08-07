@@ -9,20 +9,21 @@
 
 # Hardened Docker Compose example for hackolade/hck-cli.
 #
-# Matches how the image runs under the Kubernetes Restricted Pod Security Standard
-# and OpenShift restricted-v2 SCC:
+# Same consolidated write layout as compose.yml (/data + /tmp). This file adds the
+# security profile expected in CI, production, and Kubernetes Restricted:
 #
 #   - read-only root filesystem
 #   - all capabilities dropped, no privilege escalation
 #   - non-root user (1000:1001 by default)
-#   - exactly two writable mounts:
-#       /data  persistent volume — license state, logs, models, output, settings
-#       /tmp   tmpfs — sockets, caches, scratch (discarded when the container exits)
+#
+# Writable mounts (always the same two paths):
+#   /data  persistent volume — license state, logs, models, output, settings
+#   /tmp   tmpfs — sockets, caches, scratch
 #
 # Usage:
 #   docker compose -f compose.hardened.yml run --rm hck-cli version
 #
-# For local development without these constraints, use compose.yml instead.
+# For the same /data + /tmp layout without read-only rootfs, use compose.yml.
 # For Kubernetes manifests with a PVC, see k8s/hck-cli-job.yaml.
 # Documentation: doc/getting-started-hck-cli.md
 

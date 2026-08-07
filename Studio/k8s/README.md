@@ -1,6 +1,13 @@
 # Kubernetes examples for `hackolade/hck-cli`
 
-Job manifests that match [`compose.hardened.yml`](../compose.hardened.yml): read-only root filesystem, non-root user, dropped capabilities, **PVC at `/data`**, and **memory `emptyDir` at `/tmp`**.
+Same **consolidated write layout** as [`compose.yml`](../compose.yml) and [`compose.hardened.yml`](../compose.hardened.yml):
+
+| Mount | Backing | Holds |
+| --- | --- | --- |
+| `/data` | PVC | License state, models, output, logs |
+| `/tmp` | memory `emptyDir` | Scratch (required with `readOnlyRootFilesystem`) |
+
+These manifests add the **hardened profile**: read-only root filesystem, non-root, dropped capabilities (Kubernetes **Restricted** Pod Security Standard).
 
 Pin the image tag in each manifest (default: `hackolade/hck-cli:8.12.7`).
 
@@ -22,19 +29,12 @@ kubectl logs job/hck-cli-version
 
 ## Before you run a real command
 
-1. **License** — validate once and persist state on the PVC (easiest: run [`compose.yml`](../compose.yml) locally, then reuse the volume data, or run a one-off validation Job).
-2. **Models** — for `genDoc`, place a `.hck.json` file under `/data/models/` on the PVC.
-3. **Storage class** — edit the PVC in the manifest if your cluster needs a specific `storageClassName`.
-
-## Writable mounts
-
-| Mount | Backing | Holds |
-| --- | --- | --- |
-| `/data` | PVC | License state (`/data/app`), models, output, logs |
-| `/tmp` | memory `emptyDir` | Sockets, caches, scratch (required when `readOnlyRootFilesystem: true`) |
+1. **License** — validate once and persist state on the PVC (easiest: run Compose locally, then reuse volume data).
+2. **Models** — for `genDoc`, place a `.hck.json` under `/data/models/` on the PVC.
+3. **Storage class** — edit the PVC if your cluster needs a specific `storageClassName`.
 
 ## See also
 
-- [Getting started with hck-cli](../doc/getting-started-hck-cli.md)
+- [Getting started with hck-cli](../doc/getting-started-hck-cli.md) — runtime model and deployment profiles
 - [License validation](../doc/license-validation.md)
 - [Custom TLS certificates](../doc/custom-certificates.md)
