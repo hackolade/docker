@@ -1,0 +1,73 @@
+# OpenShift restricted-v2 variant: arbitrary UID in the root supplementary group.
+#
+# OpenShift assigns a random UID with no /etc/passwd entry. The image handles this
+# via nss_wrapper when /data is group-writable (fsGroup: 0 matches image ownership).
+#
+# Bind explicitly to restricted-v2 when your cluster requires it:
+#   openshift.io/scc: restricted-v2
+#
+# Apply:
+#   kubectl apply -f hck-cli-job-openshift.yaml
+#   kubectl logs job/hck-cli-version-openshift
+#
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: hck-cli-data
+  labels:
+    app: hck-cli
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 5Gi
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: hck-cli-version-openshift
+  labels:
+    app: hck-cli
+  annotations:
+    openshift.io/scc: restricted-v2
+spec:
+  backoffLimit: 1
+  template:
+    metadata:
+      labels:
+        app: hck-cli
+      annotations:
+        openshift.io/scc: restricted-v2
+    spec:
+      restartPolicy: Never
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        # runAsUser omitted — restricted-v2 assigns an arbitrary UID
+        runAsGroup: 0
+        fsGroup: 0
+        seccompProfile:
+          type: RuntimeDefault
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: hck-cli-data
+        - name: tmp
+          emptyDir:
+            medium: Memory
+            sizeLimit: 1Gi
+      containers:
+        - name: hck-cli
+          image: hackolade/hck-cli:8.9.2
+          args: ["version"]
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: ["ALL"]
+          volumeMounts:
+            - name: data
+              mountPath: /data
+            - name: tmp
+              mountPath: /tmp

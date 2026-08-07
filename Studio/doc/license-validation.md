@@ -30,6 +30,8 @@ docker run --rm \
   --identifier=YOUR-UUID-FROM-STEP-1
 ```
 
+For the pre-built `hackolade/hck-cli` image, mount a single `/data` volume (license state lives under `/data/app`) and a `/tmp` tmpfs for hardened deployments. See [`getting-started-hck-cli.md`](./getting-started-hck-cli.md), [`compose.yml`](../compose.yml), and [`compose.hardened.yml`](../compose.hardened.yml).
+
 Replace:
 - `YOUR-LICENSE-KEY` with your actual floating license key
 - `YOUR-UUID-FROM-STEP-1` with the UUID you copied from step 1
@@ -113,6 +115,8 @@ docker run --rm \
   --key=YOUR-LICENSE-KEY \
   --file=/LicenseFile.xml
 ```
+
+With `hackolade/hck-cli`, prefer `-v hackolade-studio-data:/data` and mount the license file under `/data/...` (see [`getting-started-hck-cli.md`](./getting-started-hck-cli.md)).
 
 Replace `YOUR-LICENSE-KEY` with your actual license key.
 

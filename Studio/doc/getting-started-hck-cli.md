@@ -95,50 +95,71 @@ The image uses `hck-cli` as its default entrypoint - a simple binary that execut
 
 ### Data Volume Structure
 
-The image uses a simplified data structure with volumes mounted directly under `/data`:
+The image is designed for a **read-only root filesystem**. Runtime writes go to exactly two places:
 
+| Mount | Purpose |
+| --- | --- |
+| `/data` | Persistent volume: license/userData (`/data/app`), logs, models, output, settings, options |
+| `/tmp` | tmpfs: sockets, caches, and scratch files (discarded when the container exits) |
+
+Layout under `/data`:
+
+- `/data/app` - Application data (license state, Electron userData). Lives on the `/data` volume via `XDG_CONFIG_HOME`.
 - `/data/models` - Your input model files
 - `/data/output` - Generated artifacts (documentation, schemas, etc.)
 - `/data/logs` - Application logs organized in `<date>-command` folders (e.g., `2024-01-15-genDoc`) for per-command isolation and troubleshooting
 - `/data/options` - (Optional) User-defined configurations
+- `/data/settings` - Optional settings
 
-**⚠️ MANDATORY:** The application data folder (`/home/hackolade/.config`) **MUST** be mounted as a volume. This volume is absolutely required for licensing and configuration to work properly. Without this volume mounted, the CLI will not function correctly.
+**⚠️ MANDATORY:** Mount a volume at `/data` **and** a writable `/tmp` (tmpfs recommended). Without `/data`, licensing and configuration will not persist. Without `/tmp`, Electron and scratch I/O will fail under `read_only: true`.
 
-This structure reduces path length and simplifies volume management compared to the previous `/home/hackolade/Documents/...` structure.
+**Breaking change:** Earlier releases required a separate volume at `/home/hackolade/.config`. That path is no longer written; migrate the named volume to `/data` (license state is under `/data/app`).
 
-**Volume validation:** The CLI automatically validates that required volumes are properly mounted. If a required volume is missing, the CLI will display a warning message to help you identify and fix the issue before command execution fails.
+**Volume validation:** The CLI automatically validates that required mounts are writable. If a required mount is missing, the CLI will display a warning (or fail in the official image) before command execution.
 
-**Log isolation:** Logs are automatically organized per command in `/data/logs` using folders named `<date>-command` (e.g., `2024-01-15-genDoc`, `2024-01-15-forweng`). This folder structure provides proper command isolation, making it easier to analyze logs for specific commands when troubleshooting issues. Each command execution creates its own log folder, allowing you to trace problems to specific operations by date and command type.
+**Log isolation:** Logs are automatically organized per command in `/data/logs` using folders named `<date>-command` (e.g., `2024-01-15-genDoc`, `2024-01-15-forweng`). This folder structure provides proper command isolation, making it easier to analyze logs for specific commands when troubleshooting issues.
 
 ## Quick start with Docker Compose
 
-The easiest way to use this image is with Docker Compose. We provide a `compose.yml` file that handles all the configuration.
+The easiest way to use this image is with Docker Compose. We provide two example files:
 
-**Important:** The [`compose.yml`](../compose.yml) file in this repository is specifically designed for the **pre-built `hackolade/hck-cli` image** and is tied to this documentation. It uses simplified data paths (`/data/*`) and the `hck-cli` binary entrypoint, which differ from compose files used with custom-built images.
+| File | Use when |
+| --- | --- |
+| [`compose.yml`](../compose.yml) | Getting started locally — minimal configuration, single `/data` volume |
+| [`compose.hardened.yml`](../compose.hardened.yml) | Production or CI — read-only root filesystem, dropped capabilities, `/data` + `/tmp` tmpfs (matches Kubernetes Restricted) |
+
+**Important:** Both files are designed for the **pre-built `hackolade/hck-cli` image**. They use `/data/*` paths and the `hck-cli` binary entrypoint, which differ from compose files used with custom-built images.
 
 ### Step 1: Set Up Your Compose File
 
-We provide a ready-to-use `compose.yml` file specifically for the pre-built image. You can either:
+**Option A: Copy the provided compose file** (recommended for first use)
 
-**Option A: Copy the provided compose file** (recommended)
-
-Copy the [`compose.yml`](../compose.yml) file from this repository to your working directory. This compose file is specifically designed for the pre-built `hackolade/hck-cli` image and is documented in this guide:
+Copy [`compose.yml`](../compose.yml) to your working directory:
 
 ```bash
 cp compose.yml /path/to/your/working/directory/
 ```
 
-**Option B: Create your own compose file**
+**Option B: Use the hardened compose file** (recommended for production / Kubernetes parity)
 
-Create a `compose.yml` file in your working directory. See the [`compose.yml`](../compose.yml) file in this repository for a complete example. Make sure to follow the structure documented in this guide.
+Copy [`compose.hardened.yml`](../compose.hardened.yml) instead, or alongside `compose.yml`:
 
-The compose file (designed for the pre-built image) includes:
-- `hck-cli` service - Main service for running CLI commands
-- `showComputerIdForOfflineValidation` service - Gets computer ID for offline license validation
-- `validateKeyOnline` service - Validates license online using Docker secrets
-- `validateKeyOffline` service - Validates license offline using Docker secrets
-- Volume definitions for app data, logs, models, and output
+```bash
+cp compose.hardened.yml /path/to/your/working/directory/
+docker compose -f compose.hardened.yml run --rm hck-cli version
+```
+
+**Option C: Create your own compose file**
+
+See [`compose.yml`](../compose.yml) for a simple example and [`compose.hardened.yml`](../compose.hardened.yml) for the restricted profile.
+
+The compose files include:
+- `hck-cli` service — main service for running CLI commands
+- `showComputerIdForOfflineValidation` — computer ID for offline license validation
+- `validateKeyOnline` / `validateKeyOffline` — license validation via Docker secrets
+- A single named volume at `/data` (license state, logs, models, output, settings)
 - Secret definitions for license key and license file
+- (`compose.hardened.yml` only) read-only root filesystem, `cap_drop: ALL`, and `/tmp` tmpfs
 
 ### Step 2: Create Your Models Directory
 
@@ -286,6 +307,27 @@ docker compose run --rm hck-cli forweng \
   --outputtype jsonschema
 ```
 
+## Hardened Docker Compose (Kubernetes parity)
+
+For production clusters or CI pipelines that enforce the Kubernetes **Restricted** Pod Security Standard (or OpenShift **restricted-v2** SCC), use [`compose.hardened.yml`](../compose.hardened.yml). It adds:
+
+- `read_only: true` — read-only root filesystem
+- `cap_drop: [ALL]` and `no-new-privileges` — no extra capabilities or privilege escalation
+- `user: "1000:1001"` — non-root (OpenShift arbitrary UID variant included as `hck-cli-arbitrary-uid`)
+- `/data` named volume — persistent state (same as `compose.yml`)
+- `/tmp` tmpfs — scratch, sockets, and caches (discarded when the container exits)
+
+```bash
+# Smoke test
+docker compose -f compose.hardened.yml run --rm hck-cli version
+
+# OpenShift-style arbitrary UID
+docker compose -f compose.hardened.yml run --rm hck-cli-arbitrary-uid version
+
+# Command that writes output (requires a model at ./models/smoke.hck.json)
+docker compose -f compose.hardened.yml run --rm genDoc
+```
+
 ## Using Docker CLI directly
 
 If you prefer using Docker CLI directly instead of Docker Compose, here's how:
@@ -293,45 +335,52 @@ If you prefer using Docker CLI directly instead of Docker Compose, here's how:
 ### Basic Command Structure
 
 ```bash
-docker run --rm \
-  -v hackolade-studio-app-data:/home/hackolade/.config \
-  -v hackolade-studio-logs:/data/logs \
+docker run --rm --read-only \
+  --cap-drop=ALL --security-opt=no-new-privileges \
+  --user 1000:1001 \
+  -v hackolade-studio-data:/data \
   -v ${PWD}/models:/data/models \
-  -v hackolade-studio-output:/data/output \
+  --tmpfs /tmp:rw,size=1g,mode=1777 \
   hackolade/hck-cli:8.9.2 COMMAND [OPTIONS]
 ```
 
 ### Create Required Volumes
 
-First, create the named volumes:
+First, create the named volume for persistent state:
 
 ```bash
-docker volume create hackolade-studio-app-data
-docker volume create hackolade-studio-logs
-docker volume create hackolade-studio-output
+docker volume create hackolade-studio-data
 ```
+
+`/tmp` should be a tmpfs (shown above), not a named volume.
 
 ### Example Commands
 
 **Check version:**
 ```bash
-docker run --rm \
-  -v hackolade-studio-app-data:/home/hackolade/.config \
+docker run --rm --read-only \
+  --user 1000:1001 \
+  -v hackolade-studio-data:/data \
+  --tmpfs /tmp:rw,size=1g,mode=1777 \
   hackolade/hck-cli:8.9.2 version
 ```
 
 **Get computer ID:**
 ```bash
-docker run --rm hackolade/hck-cli:8.9.2 getComputerId
+docker run --rm --read-only \
+  --user 1000:1001 \
+  -v hackolade-studio-data:/data \
+  --tmpfs /tmp:rw,size=1g,mode=1777 \
+  hackolade/hck-cli:8.9.2 getComputerId
 ```
 
 **Generate documentation:**
 ```bash
-docker run --rm \
-  -v hackolade-studio-app-data:/home/hackolade/.config \
-  -v hackolade-studio-logs:/data/logs \
+docker run --rm --read-only \
+  --user 1000:1001 \
+  -v hackolade-studio-data:/data \
   -v ${PWD}/models:/data/models \
-  -v hackolade-studio-output:/data/output \
+  --tmpfs /tmp:rw,size=1g,mode=1777 \
   hackolade/hck-cli:8.9.2 genDoc \
   --format=HTML \
   --model /data/models/model.json \
@@ -339,12 +388,12 @@ docker run --rm \
 ```
 In case of offline validation:
 ```bash
-docker run --rm \
-  -v hackolade-studio-app-data:/home/hackolade/.config \
-  -v hackolade-studio-logs:/data/logs \
+docker run --rm --read-only \
+  --user 1000:1001 \
+  -v hackolade-studio-data:/data \
   -v ${PWD}/models:/data/models \
-  -v hackolade-studio-output:/data/output \
-  -v ${PWD}/LicenseFile.xml:<Path used during validateKey>/LicenseFile.xml \
+  -v ${PWD}/LicenseFile.xml:/data/LicenseFile.xml:ro \
+  --tmpfs /tmp:rw,size=1g,mode=1777 \
   hackolade/hck-cli:8.9.2 genDoc \
   --format=HTML \
   --model /data/models/model.json \
@@ -509,30 +558,28 @@ chown -R 1000:1001 ./models
 chown -R 1000:1001 ./output
 ```
 
-**Note:** The container runs as user `hackolade` with UID 1000 and GID 1001 (data-modelers group).
+**Note:** The container runs as numeric user `1000:1001` by default (compatible with Kubernetes `runAsNonRoot`). OpenShift-style arbitrary UIDs in group 0 are also supported when `/data` is group-writable.
 
-**Note:** Docker named volumes (like `hackolade-studio-app-data`) don't require permission changes on the host.
+**Note:** Docker named volumes (like `hackolade-studio-data`) don't require permission changes on the host. Bind mounts for models should be owned by UID 1000 (or writable by group 0).
 
 ### Volume Not Found
 
 If Docker says a volume doesn't exist, create it:
 
 ```bash
-docker volume create hackolade-studio-app-data
-docker volume create hackolade-studio-logs
-docker volume create hackolade-studio-output
+docker volume create hackolade-studio-data
 ```
 
-Or let Docker Compose create them automatically on first run.
+Or let Docker Compose create it automatically on first run. Ensure every run also mounts a writable `/tmp` (compose uses `tmpfs`).
 
 ### Volume Validation Warnings
 
-The CLI automatically checks for required volumes and will warn you if they're not properly mounted. If you see warnings about missing volumes:
+The CLI automatically checks for required writable mounts and will warn you if they're not properly mounted. If you see warnings about missing mounts:
 
-1. **Check your compose.yml or docker run command** - Ensure all required volumes are defined:
-   - `hackolade-studio-app-data` → `/home/hackolade/.config` ⚠️ **MANDATORY** - Required for licensing and configuration
-   - `hackolade-studio-logs` → `/data/logs` (recommended for log isolation)
-   - `hackolade-studio-output` → `/data/output` (required for output operations)
+1. **Check your compose.yml or docker run command** - Ensure:
+   - `hackolade-studio-data` → `/data` ⚠️ **MANDATORY** - license state, logs, output, settings
+   - tmpfs (or equivalent) → `/tmp` ⚠️ **MANDATORY** under `read_only: true`
+   - Optional bind: host `models` → `/data/models`
 
 2. **Verify volumes exist:**
    ```bash
@@ -544,9 +591,9 @@ The CLI automatically checks for required volumes and will warn you if they're n
    docker inspect <container-name> | grep -A 10 Mounts
    ```
 
-4. **Review the warning message** - The CLI will indicate which specific volume is missing and what it's used for.
+4. **Review the warning message** - The CLI will indicate which specific mount is missing and what it's used for.
 
-**Important:** The `/home/hackolade/.config` volume is **MANDATORY** and must be mounted for the CLI to function. While the CLI will warn about missing volumes, operations will fail without the application data volume. For proper functionality and log isolation, mount all volumes as shown in the compose examples.
+**Important:** A single `/data` volume plus `/tmp` tmpfs replaces the older multi-volume layout (`/home/hackolade/.config`, separate logs/output volumes). Migrate by mounting your persistent state at `/data`.
 
 ### License Validation Failed
 
@@ -672,18 +719,83 @@ docker compose run --rm hck-cli COMMAND [OPTIONS]
 docker pull hackolade/hck-cli:8.9.2
 
 # Create volumes
-docker volume create hackolade-studio-app-data
-docker volume create hackolade-studio-logs
-docker volume create hackolade-studio-output
+docker volume create hackolade-studio-data
 
 # Run command
-docker run --rm \
-  -v hackolade-studio-app-data:/home/hackolade/.config \
-  -v hackolade-studio-logs:/data/logs \
+docker run --rm --read-only \
+  --user 1000:1001 \
+  -v hackolade-studio-data:/data \
   -v ${PWD}/models:/data/models \
-  -v hackolade-studio-output:/data/output \
+  --tmpfs /tmp:rw,size=1g,mode=1777 \
   hackolade/hck-cli:8.9.2 COMMAND
 ```
+
+## Kubernetes (restricted / read-only rootfs)
+
+Example manifests live in [`k8s/`](../k8s/). They mirror `compose.hardened.yml`: `readOnlyRootFilesystem`, non-root, dropped capabilities, a **PVC at `/data`**, and a **memory `emptyDir` at `/tmp`**.
+
+| Manifest | Purpose |
+| --- | --- |
+| [`k8s/hck-cli-job.yaml`](../k8s/hck-cli-job.yaml) | Smoke test (`version`) with PVC + `/tmp` emptyDir |
+| [`k8s/hck-cli-job-openshift.yaml`](../k8s/hck-cli-job-openshift.yaml) | Same, for OpenShift `restricted-v2` (arbitrary UID, `fsGroup: 0`) |
+| [`k8s/hck-cli-gendoc-job.yaml`](../k8s/hck-cli-gendoc-job.yaml) | Generate documentation from a model on the PVC |
+
+Apply the standard restricted example:
+
+```bash
+kubectl apply -f k8s/hck-cli-job.yaml
+kubectl logs job/hck-cli-version
+```
+
+Minimal Job excerpt (full file includes the PVC):
+
+```yaml
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: hck-cli-version
+  labels:
+    pod-security.kubernetes.io/enforce: restricted
+spec:
+  template:
+    metadata:
+      labels:
+        pod-security.kubernetes.io/enforce: restricted
+    spec:
+      restartPolicy: Never
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        runAsGroup: 1001
+        fsGroup: 0
+        seccompProfile:
+          type: RuntimeDefault
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: hck-cli-data
+        - name: tmp
+          emptyDir:
+            medium: Memory
+            sizeLimit: 1Gi
+      containers:
+        - name: hck-cli
+          image: hackolade/hck-cli:8.9.2
+          args: ["version"]
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop: ["ALL"]
+          volumeMounts:
+            - name: data
+              mountPath: /data
+            - name: tmp
+              mountPath: /tmp
+```
+
+See [`k8s/README.md`](../k8s/README.md) for OpenShift and genDoc variants.
 
 ## Backward compatibility with other images
 
