@@ -8,6 +8,14 @@ Run the **Hackolade Studio CLI** in Docker — typically in CI/CD pipelines.
 
 Requires [Docker](https://www.docker.com/get-started).
 
+## Writable paths — `/data` and `/tmp` only
+
+**The image writes runtime data only to `/data` and `/tmp`.** License state, logs, models, output, and settings go under **`/data`**. Sockets, caches, and scratch go to **`/tmp`**. No other path is used for runtime writes — not `/home/hackolade/.config`, not `/home/hackolade/Documents/*`, not anywhere else on the root filesystem.
+
+Mount **both** on every run. With `read_only: true`, writes outside `/data` or `/tmp` fail immediately.
+
+Full breakdown: [getting-started-hck-cli.md](./doc/getting-started-hck-cli.md#writable-paths-data-and-tmp-only).
+
 ## Documentation
 
 | Guide | Description |

@@ -1,13 +1,15 @@
 # Kubernetes examples for `hackolade/hck-cli`
 
-Same **consolidated write layout** as [`compose.yml`](../compose.yml) and [`compose.hardened.yml`](../compose.hardened.yml):
+## Writable paths — `/data` and `/tmp` only
+
+The image writes runtime data **only** to **`/data`** (PVC) and **`/tmp`** (memory `emptyDir`). **No other path** receives writes — not `/home/hackolade/...`, not anywhere on the read-only root filesystem.
 
 | Mount | Backing | Holds |
 | --- | --- | --- |
-| `/data` | PVC | License state, models, output, logs |
-| `/tmp` | memory `emptyDir` | Scratch (required with `readOnlyRootFilesystem`) |
+| `/data` | PVC | License state (`/data/app`), models, output, logs |
+| `/tmp` | memory `emptyDir` | Scratch, sockets, caches (required with `readOnlyRootFilesystem`) |
 
-These manifests add the **hardened profile**: read-only root filesystem, non-root, dropped capabilities (Kubernetes **Restricted** Pod Security Standard).
+Same rule as [`compose.yml`](../compose.yml) and [`compose.hardened.yml`](../compose.hardened.yml). These manifests add the **hardened profile**: read-only root filesystem, non-root, dropped capabilities (Kubernetes **Restricted** Pod Security Standard).
 
 Pin the image tag in each manifest (default: `hackolade/hck-cli:8.12.7`).
 

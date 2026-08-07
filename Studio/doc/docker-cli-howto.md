@@ -1,6 +1,10 @@
 # Docker CLI how-to (`docker run`)
 
-Use this guide when you prefer **`docker run`** over Compose. The same **`/data` + `/tmp`** write layout applies — see [getting-started-hck-cli.md](./getting-started-hck-cli.md).
+Use this guide when you prefer **`docker run`** over Compose.
+
+> **Writable paths:** mount **`/data`** (volume) and **`/tmp`** (tmpfs) only. The image writes runtime data **nowhere else** — see [getting-started-hck-cli.md](./getting-started-hck-cli.md#writable-paths-data-and-tmp-only).
+
+Every example below includes both mounts.
 
 For a full end-to-end pipeline (offline license, revEng, compMod, forweng, genDoc), see **[example-offline-metadata-pipeline.md](./example-offline-metadata-pipeline.md)**.
 

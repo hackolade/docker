@@ -9,16 +9,16 @@
 
 # Hardened Docker Compose example for hackolade/hck-cli.
 #
-# Same consolidated write layout as compose.yml (/data + /tmp). This file adds the
-# security profile expected in CI, production, and Kubernetes Restricted:
+# WRITABLE PATHS: /data and /tmp ONLY — the image writes runtime data nowhere else.
+#   /data  persistent volume — license (/data/app), logs, models, output, settings
+#   /tmp   tmpfs — sockets, caches, scratch
+# read_only: true enforces this: any write outside /data or /tmp fails.
+# Do not mount legacy /home/hackolade/.config or /home/hackolade/Documents/* paths.
 #
+# Security profile (CI, production, Kubernetes Restricted parity):
 #   - read-only root filesystem
 #   - all capabilities dropped, no privilege escalation
 #   - non-root user (1000:1001 by default)
-#
-# Writable mounts (always the same two paths):
-#   /data  persistent volume — license state, logs, models, output, settings
-#   /tmp   tmpfs — sockets, caches, scratch
 #
 # Usage:
 #   docker compose -f compose.hardened.yml run --rm hck-cli

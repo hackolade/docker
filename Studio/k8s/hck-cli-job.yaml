@@ -1,7 +1,7 @@
 # Hardened Kubernetes Job for hackolade/hck-cli (Restricted Pod Security Standard).
 #
-# Writable mounts:
-#   /data  — PersistentVolumeClaim (license state, logs, models, output)
+# WRITABLE PATHS: /data and /tmp ONLY — runtime writes go nowhere else.
+#   /data  — PersistentVolumeClaim (license /data/app, logs, models, output)
 #   /tmp   — emptyDir backed by memory (tmpfs equivalent, 1 GiB limit)
 #
 # Apply:

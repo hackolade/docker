@@ -1,5 +1,7 @@
 # Generate documentation under a hardened Job — same security posture as hck-cli-job.yaml.
 #
+# WRITABLE PATHS: /data and /tmp ONLY — runtime writes go nowhere else.
+#
 # Place a model at /data/models/smoke.hck.json on the hck-cli-data PVC before running
 # (kubectl cp, an init container, or a CI step that seeds the volume).
 #

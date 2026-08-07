@@ -6,6 +6,19 @@ This repository provides **ready-to-use examples** for the pre-built [`hackolade
 
 All examples and compose files live under **[`Studio/`](./Studio)**.
 
+## Writable paths — `/data` and `/tmp` only
+
+The **`hackolade/hck-cli`** image writes runtime data to **exactly two locations** and **nowhere else**:
+
+| Path | Mount | Purpose |
+| --- | --- | --- |
+| **`/data`** | Volume or PVC | License, logs, models, output, settings — everything that must persist |
+| **`/tmp`** | tmpfs / memory `emptyDir` | Sockets, caches, scratch — everything ephemeral |
+
+Do **not** mount legacy paths (`/home/hackolade/.config`, `/home/hackolade/Documents/*`, …). The image redirects all writes through `/data` and `/tmp` via XDG environment variables. With a read-only root filesystem, any write outside these two paths **fails**.
+
+Details: [Getting started — runtime model](./Studio/doc/getting-started-hck-cli.md#writable-paths-data-and-tmp-only).
+
 ## Documentation
 
 | Guide | When to use it |

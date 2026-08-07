@@ -1,5 +1,7 @@
 # OpenShift restricted-v2 variant: arbitrary UID in the root supplementary group.
 #
+# WRITABLE PATHS: /data and /tmp ONLY — same as hck-cli-job.yaml.
+#
 # OpenShift assigns a random UID with no /etc/passwd entry. The image handles this
 # via nss_wrapper when /data is group-writable (fsGroup: 0 matches image ownership).
 #
