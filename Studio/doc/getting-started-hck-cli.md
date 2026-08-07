@@ -78,6 +78,38 @@ docker compose -f compose.local.yml run --rm hck-cli genDoc \
 
 Offline validation: [license-validation.md](./license-validation.md).
 
+**Full pipeline story** (new image, offline license, revEng → compMod → DDL → docs with `version`, `showLicense`, `listLogs`, `showLogs`): [example-offline-metadata-pipeline.md](./example-offline-metadata-pipeline.md).
+
+## Inspecting the image, license, and logs
+
+Wrapper commands handled by `hck-cli` itself (no full Studio session). Use them in CI and air-gapped pipelines — see the [worked example](./example-offline-metadata-pipeline.md).
+
+| Command | Purpose |
+| --- | --- |
+| `version` | Studio/CLI build in the image |
+| `showLicense` | License installed and valid for **this** image tag? (`--json` for scripts; exit 0 = OK) |
+| `listLogs` | List command runs under `/data/logs` (newest first) |
+| `showLogs [runId] [--tail N] [--logfile main\|re\|fe\|license]` | Tail logs for one run |
+
+```bash
+export COMPOSE="docker compose -f compose.hardened.yml"
+
+$COMPOSE run --rm hck-cli version
+$COMPOSE run --rm hck-cli showLicense
+$COMPOSE run --rm hck-cli showLicense --json
+$COMPOSE run --rm hck-cli listLogs
+$COMPOSE run --rm hck-cli showLogs 20260807-143022-revEng --tail 50
+$COMPOSE run --rm hck-cli showLogs --logfile license
+```
+
+Each CLI job creates **`/data/logs/<YYYYMMDD-HHMMSS>-<command>/`**. Logfile targets: `main` (Hackolade.log), `re` (reverse engineering), `fe` (forward engineering), `license` (HackoladeLicense.log — defaults to last 100 lines when `--tail` is omitted).
+
+Gate a pipeline after validation:
+
+```bash
+$COMPOSE run --rm hck-cli showLicense || exit 1
+```
+
 ## Image tags
 
 | Tag | Meaning |
@@ -89,7 +121,7 @@ Update the `image:` line in your compose file, then `docker compose pull`.
 
 ## Docker CLI (without Compose)
 
-Same two-mount layout:
+Minimal `docker run` example (same `/data` + `/tmp` layout). For a full **`docker run`** reference, mirror the commands in [example-offline-metadata-pipeline.md](./example-offline-metadata-pipeline.md) and [getting-started-hck-cli.md](./getting-started-hck-cli.md).
 
 ```bash
 docker volume create hackolade-studio-data
@@ -101,8 +133,6 @@ docker run --rm \
   hackolade/hck-cli:8.12.7 version
 ```
 
-Hardened flags (`--read-only`, `--user 1000:1001`, `--cap-drop=ALL`): see [`compose.hardened.yml`](../compose.hardened.yml).
-
 ## Troubleshooting
 
 | Problem | Check |
@@ -111,9 +141,12 @@ Hardened flags (`--read-only`, `--user 1000:1001`, `--cap-drop=ALL`): see [`comp
 | Fails with read-only rootfs | Writable `/tmp` tmpfs is mounted |
 | License validation fails | Same image tag for UUID + validation; floating seat available |
 | Secret not found | Paths in compose `secrets:` match files on disk |
+| Unsure if license is valid | `hck-cli showLicense` or `showLicense --json` |
+| Command failed in CI | `hck-cli listLogs` then `showLogs <runId> --logfile re` |
 
 ## See also
 
+- [Example: offline metadata pipeline](./example-offline-metadata-pipeline.md) — hardened Compose walkthrough
 - [License validation](./license-validation.md)
 - [Custom TLS certificates](./custom-certificates.md) (read-only PEM mounts — works with hardened / K8s)
 - [Kubernetes examples](../k8s/README.md)
