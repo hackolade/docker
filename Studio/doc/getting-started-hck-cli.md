@@ -51,7 +51,7 @@ OpenShift arbitrary UID: [`compose.hardened.yml`](../compose.hardened.yml) (`hck
 - **Floating license only** — workstation licenses do not work in Docker.
 - **Pin a version tag** — `latest` is not published. Example: `hackolade/hck-cli:8.12.7`. Weekly plugin refreshes may appear as `8.12.7-YYYY-MM-DD` on the [current release only](https://hub.docker.com/r/hackolade/hck-cli/tags).
 - **Re-validate when the image tag changes** — license state is tied to the image UUID.
-- **Mount `/data` and `/tmp` on every run** — the image writes **only** to these two paths; nothing else receives runtime data (see [Writable paths](#writable-paths-data-and-tmp-recommended)).
+- **Mount `/data` and `/tmp` on every run** — recommended consolidated layout; legacy `/home/hackolade/…` bind mounts may still work on a writable rootfs (see [Writable paths](#writable-paths-data-and-tmp-recommended)).
 - **Always use `docker compose run --rm`** — removes the one-off container when the command exits. Without `--rm`, stopped `…-run-…` containers accumulate and Compose warns about **orphan containers** on the next run.
 
 Need a custom plugin set or your own Dockerfile? See [getting-started.md](./getting-started.md) (legacy `hackolade/studio` build path).
