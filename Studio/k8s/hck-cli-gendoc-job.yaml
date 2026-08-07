@@ -41,7 +41,7 @@ spec:
             sizeLimit: 1Gi
       containers:
         - name: hck-cli
-          image: hackolade/hck-cli:8.9.2
+          image: hackolade/hck-cli:8.12.7
           args:
             - genDoc
             - --model=/data/models/smoke.hck.json

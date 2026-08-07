@@ -32,7 +32,7 @@ Use PEM format — the file starts with `-----BEGIN CERTIFICATE-----`. A single 
 ```yaml
 services:
   hck-cli:
-    image: hackolade/hck-cli:8.9.2
+    image: hackolade/hck-cli:8.12.7
     command: ["version"]
     read_only: true
     user: "1000:1001"
@@ -60,7 +60,7 @@ Reverse-engineering connectors and Git integration that use OpenSSL rather than 
 
 ```bash
 mkdir -p certificates
-docker run --rm --entrypoint cat hackolade/hck-cli:8.9.2 \
+docker run --rm --entrypoint cat hackolade/hck-cli:8.12.7 \
   /etc/ssl/certs/ca-certificates.crt > certificates/ca-bundle.crt
 cat certificates/internal-ca.crt >> certificates/ca-bundle.crt
 ```
@@ -85,7 +85,7 @@ Mount the CA from a `ConfigMap` or `Secret` and set the variable. No init contai
 spec:
   containers:
     - name: hck-cli
-      image: hackolade/hck-cli:8.9.2
+      image: hackolade/hck-cli:8.12.7
       env:
         - name: NODE_EXTRA_CA_CERTS
           value: /certs/internal-ca.crt

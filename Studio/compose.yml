@@ -10,13 +10,16 @@
 # Example Docker Compose file for the pre-built hackolade/hck-cli image from Docker Hub.
 # The image includes Hackolade Studio and all plugins — ready to use without a build step.
 #
-# For complete documentation and usage instructions, see: doc/getting-started-hck-cli.md
+# Runtime writes are consolidated to exactly two mounts (same layout as compose.hardened.yml
+# and the k8s/ manifests — only the security profile differs here):
+#   /data  persistent volume — license state, logs, models, output, settings
+#   /tmp   tmpfs — sockets, caches, scratch
 #
-# If you are building your own image using hackolade/studio, use docker-compose.yml instead.
-# See doc/getting-started.md for building instructions.
+# For read-only root filesystem, dropped capabilities, and Kubernetes Restricted parity,
+# use compose.hardened.yml instead.
 #
-# For Kubernetes Restricted / OpenShift restricted-v2 parity (read-only root filesystem,
-# dropped capabilities, /data volume + /tmp tmpfs), use compose.hardened.yml instead.
+# Documentation: doc/getting-started-hck-cli.md
+# Custom builds on hackolade/studio: docker-compose.yml + doc/getting-started.md
 
 services:
   # Run a CLI command (defaults to version).
@@ -28,15 +31,17 @@ services:
   #     --model '/data/models/MongoDB/Yelp Challenge dataset.hck.json' \
   #     --doc /data/output/doc-test --jsonSchema
   hck-cli: &hck-cli
-    image: hackolade/hck-cli:8.9.2
+    image: hackolade/hck-cli:8.12.7
     command: ["version"]
     restart: 'no'
     # network_mode: 'none'
     volumes:
-      # Mandatory: license state, logs, output, settings, and options live under /data.
+      # Persistent state — license, logs, models, output (see doc/getting-started-hck-cli.md).
       - hackolade-studio-data:/data
-      # Models from the host; remove this line to keep models on the named volume instead.
       - ${PWD}/models:/data/models
+    tmpfs:
+      # Ephemeral scratch — same consolidated layout as compose.hardened.yml and k8s/.
+      - /tmp:rw,size=1g,mode=1777
 
   showComputerIdForOfflineValidation:
     extends: hck-cli
