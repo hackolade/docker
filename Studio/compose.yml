@@ -28,7 +28,7 @@ services:
   #     --model '/data/models/MongoDB/Yelp Challenge dataset.hck.json' \
   #     --doc /data/output/doc-test --jsonSchema
   hck-cli: &hck-cli
-    image: hackolade/hck-cli:8.9.2
+    image: hackolade/hck-cli:8.12.7
     command: ["version"]
     restart: 'no'
     # network_mode: 'none'

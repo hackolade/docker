@@ -8,11 +8,11 @@ Before you begin, please note these critical requirements:
 
 - **Floating licenses only**: for Docker, you must have a Hackolade Studio **floating** license type (a.k.a. concurrent license key), as dedicated licenses won't work with Docker
 - **License is tied to the Docker image**: Each image version has a unique UUID, so you must validate the license for each version you use. If you change image versions, you'll need to validate the license again for the new image.
-- **Always specify version tags**: the `latest` tag is not published. Use `hackolade/hck-cli:8.9.2` or intermediate tags like `8.9.2-YYYY-MM-DD` for plugin updates
+- **Always specify version tags**: the `latest` tag is not published. Use `hackolade/hck-cli:8.12.7` or intermediate tags like `8.12.7-YYYY-MM-DD` for plugin updates
 - **Use Docker secrets** for license keys in production environments
 - **Data paths are simplified**: use `/data/*` instead of `/home/hackolade/Documents/*`
 
-> **🚨 CRITICAL - Plugin Updates Policy:** Plugin updates between releases are **ONLY** available via intermediate tags from the **latest release** (e.g., `hackolade/hck-cli:8.9.2-YYYY-MM-DD`). **Plugin updates will NOT be backported to previous released images.** To get the latest plugin updates, you must use intermediate tags from the most recent release or wait for the next full release.
+> **🚨 CRITICAL - Plugin Updates Policy:** Plugin updates between releases are **ONLY** available via intermediate tags from the **latest release** (e.g., `hackolade/hck-cli:8.12.7-YYYY-MM-DD`). **Plugin updates will NOT be backported to previous released images.** To get the latest plugin updates, you must use intermediate tags from the most recent release or wait for the next full release.
 
 ## What is this image?
 
@@ -24,7 +24,7 @@ The `hackolade/hck-cli` Docker image is a pre-built, production-ready image that
 
 **Key advantages:**
 - No need to build your own image
-- Versioned releases starting from 8.9.2 with optional intermediate tags for plugin updates
+- Versioned releases aligned with Hackolade Studio, with optional intermediate tags for plugin updates
 - Simplified data paths (`/data` instead of `/home/hackolade/Documents/...`)
 - Secure secret management using Docker secrets
 - Backward compatible with existing scripts
@@ -63,12 +63,12 @@ The image is published on Docker Hub under the `hackolade/hck-cli` repository an
 
 
 **Image naming convention:**
-- `hackolade/hck-cli:8.9.2` : Initial release version (starting from 8.9.2)
-- `hackolade/hck-cli:8.9.2-YYYY-MM-DD` -:Intermediate tags for plugin updates during the week (e.g., `8.9.2-2025-01-10`)
+- `hackolade/hck-cli:8.12.7` : Current Hackolade Studio release
+- `hackolade/hck-cli:8.12.7-YYYY-MM-DD` : Intermediate tags for plugin updates during the week (e.g., `8.12.7-2026-08-07`)
 
 **Note:** The `latest` tag is not currently published. Always specify a version tag when pulling or referencing the image. If plugins are updated during the week, intermediate tags with the format `X.Y.Z-<date>` may be published to provide access to updated plugins before the next full release.
 
-> **🚨  Plugin Updates Policy:** Plugin updates between releases are **ONLY** available via intermediate tags from the **latest release** (e.g., `hackolade/hck-cli:8.9.2-YYYY-MM-DD`). **Plugin updates will NOT be backported to previous released images.** To get the latest plugin updates, you must use intermediate tags from the most recent release or wait for the next full release.
+> **🚨  Plugin Updates Policy:** Plugin updates between releases are **ONLY** available via intermediate tags from the **latest release** (e.g., `hackolade/hck-cli:8.12.7-YYYY-MM-DD`). **Plugin updates will NOT be backported to previous released images.** To get the latest plugin updates, you must use intermediate tags from the most recent release or wait for the next full release.
 
 **Platform support:**
 - **AMD64/x86_64** : Linux and Windows (Intel/AMD processors)
@@ -180,7 +180,7 @@ Pull the image from Docker Hub using Docker Compose. Always specify a version ta
 docker compose pull
 ```
 
-This will pull the image version specified in your `compose.yml` file (`hackolade/hck-cli:8.9.2`). For intermediate releases with plugin updates, update the image tag in your `compose.yml` to the date-based tag (e.g., `hackolade/hck-cli:8.9.2-2025-01-10`) and run `docker compose pull` again.
+This will pull the image version specified in your `compose.yml` file (`hackolade/hck-cli:8.12.7`). For intermediate releases with plugin updates, update the image tag in your `compose.yml` to the date-based tag (e.g., `hackolade/hck-cli:8.12.7-2026-08-07`) and run `docker compose pull` again.
 
 ### Step 4: Validate Your License
 
@@ -341,7 +341,7 @@ docker run --rm --read-only \
   -v hackolade-studio-data:/data \
   -v ${PWD}/models:/data/models \
   --tmpfs /tmp:rw,size=1g,mode=1777 \
-  hackolade/hck-cli:8.9.2 COMMAND [OPTIONS]
+  hackolade/hck-cli:8.12.7 COMMAND [OPTIONS]
 ```
 
 ### Create Required Volumes
@@ -362,7 +362,7 @@ docker run --rm --read-only \
   --user 1000:1001 \
   -v hackolade-studio-data:/data \
   --tmpfs /tmp:rw,size=1g,mode=1777 \
-  hackolade/hck-cli:8.9.2 version
+  hackolade/hck-cli:8.12.7 version
 ```
 
 **Get computer ID:**
@@ -371,7 +371,7 @@ docker run --rm --read-only \
   --user 1000:1001 \
   -v hackolade-studio-data:/data \
   --tmpfs /tmp:rw,size=1g,mode=1777 \
-  hackolade/hck-cli:8.9.2 getComputerId
+  hackolade/hck-cli:8.12.7 getComputerId
 ```
 
 **Generate documentation:**
@@ -381,7 +381,7 @@ docker run --rm --read-only \
   -v hackolade-studio-data:/data \
   -v ${PWD}/models:/data/models \
   --tmpfs /tmp:rw,size=1g,mode=1777 \
-  hackolade/hck-cli:8.9.2 genDoc \
+  hackolade/hck-cli:8.12.7 genDoc \
   --format=HTML \
   --model /data/models/model.json \
   --doc /data/output/doc.html
@@ -394,7 +394,7 @@ docker run --rm --read-only \
   -v ${PWD}/models:/data/models \
   -v ${PWD}/LicenseFile.xml:/data/LicenseFile.xml:ro \
   --tmpfs /tmp:rw,size=1g,mode=1777 \
-  hackolade/hck-cli:8.9.2 genDoc \
+  hackolade/hck-cli:8.12.7 genDoc \
   --format=HTML \
   --model /data/models/model.json \
   --doc /data/output/doc.html
@@ -454,7 +454,7 @@ While you can pass license keys via environment variables, this is **not recomme
 # NOT RECOMMENDED for production
 docker run --rm \
   -e LICENSE_KEY="your-key-here" \
-  hackolade/hck-cli:8.9.2 validateKey --key ${LICENSE_KEY}
+  hackolade/hck-cli:8.12.7 validateKey --key ${LICENSE_KEY}
 ```
 
 **Why secrets are better:**
@@ -531,7 +531,7 @@ docker run --rm --init \
   -v hackolade-studio-output:/output \
   -v ${PWD}/output:/output-on-host \
   --entrypoint cp \
-  hackolade/hck-cli:8.9.2 -r /output /output-on-host/.
+  hackolade/hck-cli:8.12.7 -r /output /output-on-host/.
 ```
 
 **Retrieve log files:**
@@ -542,7 +542,7 @@ docker run --rm --init \
   -v hackolade-studio-logs:/logs \
   -v ${PWD}/logs:/logs-on-host \
   --entrypoint cp \
-  hackolade/hck-cli:8.9.2 -r /logs /logs-on-host/.
+  hackolade/hck-cli:8.12.7 -r /logs /logs-on-host/.
 ```
 
 **Log organization:** Logs in `/data/logs` are automatically organized in folders using the format `<date>-command` (e.g., `2024-01-15-genDoc`, `2024-01-15-forweng`). This structure makes it easy to isolate and analyze logs for specific operations by date and command type. When troubleshooting issues, you can focus on logs from the specific command and date that encountered a problem.
@@ -630,7 +630,7 @@ If you get "image not found" errors:
 
 2. **If using Docker CLI directly**, pull the image explicitly with a version tag (the `latest` tag is not available):
    ```bash
-   docker pull hackolade/hck-cli:8.9.2
+   docker pull hackolade/hck-cli:8.12.7
    ```
 
 3. Check available tags on [Docker Hub](https://hub.docker.com/r/hackolade/hck-cli/tags)
@@ -639,7 +639,7 @@ If you get "image not found" errors:
 
 5. If you need an intermediate release with plugin updates, update the image tag in your `compose.yml` (or use `docker pull` with the date-based tag):
    ```bash
-   docker pull hackolade/hck-cli:8.9.2-2025-01-10
+   docker pull hackolade/hck-cli:8.12.7-2026-08-07
    ```
 
 ### Platform/Architecture Verification
@@ -658,19 +658,19 @@ uname -m
 
 **Verify the pulled image architecture:**
 ```bash
-docker image inspect hackolade/hck-cli:8.9.2 | grep Architecture
+docker image inspect hackolade/hck-cli:8.12.7 | grep Architecture
 ```
 
 **macOS Silicon users:** If you see `amd64` instead of `arm64`, Docker may be using emulation. To force ARM64 architecture:
 ```bash
-docker pull --platform linux/arm64 hackolade/hck-cli:8.9.2
+docker pull --platform linux/arm64 hackolade/hck-cli:8.12.7
 ```
 
 Or in your `compose.yml`, specify the platform:
 ```yaml
 services:
   hck-cli:
-    image: hackolade/hck-cli:8.9.2
+    image: hackolade/hck-cli:8.12.7
     platform: linux/arm64  # For Apple Silicon
     # platform: linux/amd64  # For Intel/AMD
 ```
@@ -716,7 +716,7 @@ docker compose run --rm hck-cli COMMAND [OPTIONS]
 
 ```bash
 # Pull the image (always specify a version tag)
-docker pull hackolade/hck-cli:8.9.2
+docker pull hackolade/hck-cli:8.12.7
 
 # Create volumes
 docker volume create hackolade-studio-data
@@ -727,7 +727,7 @@ docker run --rm --read-only \
   -v hackolade-studio-data:/data \
   -v ${PWD}/models:/data/models \
   --tmpfs /tmp:rw,size=1g,mode=1777 \
-  hackolade/hck-cli:8.9.2 COMMAND
+  hackolade/hck-cli:8.12.7 COMMAND
 ```
 
 ## Kubernetes (restricted / read-only rootfs)
@@ -781,7 +781,7 @@ spec:
             sizeLimit: 1Gi
       containers:
         - name: hck-cli
-          image: hackolade/hck-cli:8.9.2
+          image: hackolade/hck-cli:8.12.7
           args: ["version"]
           securityContext:
             allowPrivilegeEscalation: false
@@ -805,10 +805,10 @@ You can override the entrypoint to use these scripts if needed:
 
 ```bash
 # Use show-computer-id.sh script (alternative to getComputerId command)
-docker run --rm --entrypoint show-computer-id.sh hackolade/hck-cli:8.9.2
+docker run --rm --entrypoint show-computer-id.sh hackolade/hck-cli:8.12.7
 
 # Use startup.sh script (alternative to direct hck-cli entrypoint)
-docker run --rm --entrypoint startup.sh hackolade/hck-cli:8.9.2 COMMAND [OPTIONS]
+docker run --rm --entrypoint startup.sh hackolade/hck-cli:8.12.7 COMMAND [OPTIONS]
 ```
 
 **Note:** While these scripts are available for compatibility, the recommended approach is to use the `hck-cli` binary directly as the entrypoint, which provides better performance and simpler usage.
