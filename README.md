@@ -6,18 +6,18 @@ This repository provides **ready-to-use examples** for the pre-built [`hackolade
 
 All examples and compose files live under **[`Studio/`](./Studio)**.
 
-## Writable paths — `/data` and `/tmp` only
+## Writable paths — `/data` and `/tmp` (recommended)
 
-The **`hackolade/hck-cli`** image writes runtime data to **exactly two locations** and **nowhere else**:
+The **`hackolade/hck-cli`** image steers **runtime writes** to **`/data`** and **`/tmp`** via XDG environment variables:
 
 | Path | Mount | Purpose |
 | --- | --- | --- |
 | **`/data`** | Volume or PVC | License, logs, models, output, settings — everything that must persist |
 | **`/tmp`** | tmpfs / memory `emptyDir` | Sockets, caches, scratch — everything ephemeral |
 
-Do **not** mount legacy paths (`/home/hackolade/.config`, `/home/hackolade/Documents/*`, …). The image redirects all writes through `/data` and `/tmp` via XDG environment variables. With a read-only root filesystem, any write outside these two paths **fails**.
+**Use these consolidated mounts** in new deployments (all examples in this repo do). Older layouts under `/home/hackolade/.config` and `/home/hackolade/Documents/*` may still work on a writable root filesystem, but `/data` + `/tmp` is simpler and required for read-only rootfs / Kubernetes.
 
-Details: [Getting started — runtime model](./Studio/doc/getting-started-hck-cli.md#writable-paths-data-and-tmp-only).
+Details: [Getting started — writable paths](./Studio/doc/getting-started-hck-cli.md#writable-paths-data-and-tmp-recommended).
 
 ## Documentation
 

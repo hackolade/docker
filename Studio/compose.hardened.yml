@@ -9,11 +9,11 @@
 
 # Hardened Docker Compose example for hackolade/hck-cli.
 #
-# WRITABLE PATHS: /data and /tmp ONLY — the image writes runtime data nowhere else.
+# WRITABLE PATHS: /data and /tmp (consolidated mounts — recommended).
 #   /data  persistent volume — license (/data/app), logs, models, output, settings
 #   /tmp   tmpfs — sockets, caches, scratch
-# read_only: true enforces this: any write outside /data or /tmp fails.
-# Do not mount legacy /home/hackolade/.config or /home/hackolade/Documents/* paths.
+# read_only: true allows writes only on /data and /tmp.
+# Legacy /home/hackolade/… bind mounts are not needed; prefer /data subpaths.
 #
 # Security profile (CI, production, Kubernetes Restricted parity):
 #   - read-only root filesystem

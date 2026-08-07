@@ -8,13 +8,15 @@ Run the **Hackolade Studio CLI** in Docker — typically in CI/CD pipelines.
 
 Requires [Docker](https://www.docker.com/get-started).
 
-## Writable paths — `/data` and `/tmp` only
+## Writable paths — `/data` and `/tmp` (recommended)
 
-**The image writes runtime data only to `/data` and `/tmp`.** License state, logs, models, output, and settings go under **`/data`**. Sockets, caches, and scratch go to **`/tmp`**. No other path is used for runtime writes — not `/home/hackolade/.config`, not `/home/hackolade/Documents/*`, not anywhere else on the root filesystem.
+**Prefer `/data` + `/tmp`.** License state, logs, models, output, and settings go under **`/data`**; sockets, caches, and scratch go to **`/tmp`**. The image redirects runtime writes there via XDG environment variables.
 
-Mount **both** on every run. With `read_only: true`, writes outside `/data` or `/tmp` fail immediately.
+Legacy bind mounts (`/home/hackolade/.config`, `/home/hackolade/Documents/*`, …) from older examples **can still work** on a writable root filesystem, but the consolidated layout is **recommended** — especially for hardened Compose, read-only rootfs, and Kubernetes.
 
-Full breakdown: [getting-started-hck-cli.md](./doc/getting-started-hck-cli.md#writable-paths-data-and-tmp-only).
+Mount **both** `/data` and `/tmp` on every run. With `read_only: true`, only those two paths are writable.
+
+Full breakdown: [getting-started-hck-cli.md](./doc/getting-started-hck-cli.md#writable-paths-data-and-tmp-recommended).
 
 ## Documentation
 

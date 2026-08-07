@@ -15,24 +15,18 @@ Ready-to-use Docker image: Hackolade Studio CLI, all target plugins, no build st
 | **[Kubernetes](../k8s/README.md)** | Running on K8s / OpenShift |
 | **[Custom TLS certificates](./custom-certificates.md)** | Private CAs with read-only PEM mounts |
 
-## Writable paths — `/data` and `/tmp` only
+## Writable paths — `/data` and `/tmp` (recommended)
 
-> **Rule:** `hackolade/hck-cli` performs **all runtime writes** to **`/data`** and **`/tmp`** — **nowhere else**.
-
-The image no longer scatters state under `/home/hackolade/...`. Environment variables (XDG base dirs, `DATA_DIR`, `TMPDIR`, …) steer every write to these two mounts. This applies in **every** deployment profile — local Compose, hardened Compose, Kubernetes, and plain `docker run`.
+> **Recommended:** mount **`/data`** and **`/tmp`** — the image steers **all runtime writes** there via XDG environment variables (`DATA_DIR`, `TMPDIR`, …).
 
 | Path | What gets written there | Persists? |
 | --- | --- | --- |
 | **`/data`** | License/userData (`/data/app`), command logs (`/data/logs`), models, forward/reverse-engineering output, settings | Yes — use a named volume or PVC |
 | **`/tmp`** | Unix sockets, plugin caches, Electron/Chromium scratch, XDG runtime dir | No — tmpfs or memory `emptyDir` |
 
-**Do not mount or expect writes to:**
+**Legacy paths** (older examples and custom-built images) used mounts such as `/home/hackolade/.config/Hackolade`, `/home/hackolade/Documents/HackoladeLogs`, and `/home/hackolade/Documents/data`. Those bind mounts **can still work** on a writable root filesystem if you keep using them, but **prefer the consolidated `/data` + `/tmp` layout** — fewer volumes, same paths in Compose and Kubernetes, and required for read-only rootfs.
 
-- `/home/hackolade/.config/Hackolade` (legacy license path — **removed**)
-- `/home/hackolade/Documents/HackoladeLogs`, `/home/hackolade/Documents/data`, … (legacy layout)
-- Any other bind mount you add outside `/data` or `/tmp`
-
-Put host folders **under `/data`** (e.g. `${PWD}/models:/data/models`). With **`read_only: true`**, the root filesystem is read-only — writes outside `/data` or `/tmp` **fail**.
+Put host folders **under `/data`** (e.g. `${PWD}/models:/data/models`). With **`read_only: true`**, only **`/data`** and **`/tmp`** are writable; legacy paths on the root filesystem will not receive new writes.
 
 This is the same rule in [`compose.yml`](../compose.yml), [`compose.hardened.yml`](../compose.hardened.yml), and [`k8s/`](../k8s/) — only the **security profile** (read-only rootfs, caps, user) changes.
 
@@ -57,7 +51,7 @@ OpenShift arbitrary UID: [`compose.hardened.yml`](../compose.hardened.yml) (`hck
 - **Floating license only** — workstation licenses do not work in Docker.
 - **Pin a version tag** — `latest` is not published. Example: `hackolade/hck-cli:8.12.7`. Weekly plugin refreshes may appear as `8.12.7-YYYY-MM-DD` on the [current release only](https://hub.docker.com/r/hackolade/hck-cli/tags).
 - **Re-validate when the image tag changes** — license state is tied to the image UUID.
-- **Mount `/data` and `/tmp` on every run** — the image writes **only** to these two paths; nothing else receives runtime data (see [Writable paths](#writable-paths-data-and-tmp-only)).
+- **Mount `/data` and `/tmp` on every run** — the image writes **only** to these two paths; nothing else receives runtime data (see [Writable paths](#writable-paths-data-and-tmp-recommended)).
 - **Always use `docker compose run --rm`** — removes the one-off container when the command exits. Without `--rm`, stopped `…-run-…` containers accumulate and Compose warns about **orphan containers** on the next run.
 
 Need a custom plugin set or your own Dockerfile? See [getting-started.md](./getting-started.md) (legacy `hackolade/studio` build path).
@@ -160,8 +154,8 @@ See **[docker-cli-howto.md](./docker-cli-howto.md)** for local and hardened `doc
 | Problem | Check |
 | --- | --- |
 | Permission denied on `./models` | `chown -R 1000:1001 ./models` |
-| Fails with read-only rootfs | Both **`/data`** (volume) and **`/tmp`** (tmpfs) must be mounted — the image writes nowhere else |
-| `Read-only file system` / permission denied outside `/data` | Expected — mount the path under **`/data/…`** instead of `/home/hackolade/…` |
+| Fails with read-only rootfs | Mount **`/data`** (volume) and **`/tmp`** (tmpfs) — with `read_only: true`, only these paths are writable |
+| `Read-only file system` / writes not landing on a legacy mount | Prefer **`/data/…`** — the image redirects runtime writes to `/data` and `/tmp`; legacy `/home/hackolade/…` bind mounts may still work on a writable rootfs but are not recommended |
 | License validation fails | Same image tag for UUID + validation; floating seat available |
 | Secret not found | Paths in compose `secrets:` match files on disk |
 | Unsure if license is valid | `hck-cli showLicense` or `showLicense --json` |

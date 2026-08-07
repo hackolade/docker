@@ -10,10 +10,11 @@
 # Example Docker Compose file for the pre-built hackolade/hck-cli image from Docker Hub.
 # The image includes Hackolade Studio and all plugins — ready to use without a build step.
 #
-# WRITABLE PATHS: /data and /tmp ONLY — the image writes runtime data nowhere else.
+# WRITABLE PATHS: prefer /data and /tmp (consolidated mounts).
 #   /data  persistent volume — license (/data/app), logs, models, output, settings
 #   /tmp   tmpfs — sockets, caches, scratch (ephemeral)
-# Do not mount legacy /home/hackolade/.config or /home/hackolade/Documents/* paths.
+# Legacy /home/hackolade/.config and /home/hackolade/Documents/* may still work
+# on a writable rootfs, but use /data + /tmp for new setups (see getting-started-hck-cli.md).
 #
 # Same two paths in compose.hardened.yml and k8s/ — hardened adds read-only rootfs + caps.
 #

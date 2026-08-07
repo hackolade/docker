@@ -4,7 +4,7 @@
 
 End-to-end story using [`compose.hardened.yml`](../compose.hardened.yml): a new `hackolade/hck-cli` image is available, your runner has **no Internet**, and you want to refresh a production model, diff it against a baseline, then publish **DDL** and **documentation**.
 
-Every step uses the hardened profile (read-only rootfs). **All runtime writes go only to `/data` (volume) and `/tmp` (tmpfs)** — nowhere else on the filesystem.
+Every step uses the hardened profile (read-only rootfs) with **consolidated `/data` + `/tmp` mounts** (recommended over legacy `/home/hackolade/…` paths).
 
 ```bash
 cd /path/to/docker/Studio

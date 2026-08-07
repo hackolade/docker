@@ -2,7 +2,7 @@
 
 Use this guide when you prefer **`docker run`** over Compose.
 
-> **Writable paths:** mount **`/data`** (volume) and **`/tmp`** (tmpfs) only. The image writes runtime data **nowhere else** — see [getting-started-hck-cli.md](./getting-started-hck-cli.md#writable-paths-data-and-tmp-only).
+> **Recommended mounts:** **`/data`** (volume) and **`/tmp`** (tmpfs). The image steers runtime writes there. Legacy `/home/hackolade/…` paths may still work on a writable rootfs, but prefer the consolidated layout — see [getting-started-hck-cli.md](./getting-started-hck-cli.md#writable-paths-data-and-tmp-recommended).
 
 Every example below includes both mounts.
 
