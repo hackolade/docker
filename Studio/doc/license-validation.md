@@ -2,9 +2,70 @@
 
 Before you can use Hackolade Studio CLI in Docker, you must validate your floating license key, a.k.a. concurrent license key. This process links your license to the specific Docker image you built.
 
-**Important:** You need a **floating license key** (not a workstation license) to use Hackolade in Docker. The license validation must be repeated for each new Docker image you build, as each image has a unique identifier.
+**Important:** You need a **floating license key** (not a workstation license) to use Hackolade in Docker. The license validation must be repeated for each new Docker image you use, as each image has a unique identifier.
 
+## Pre-built `hackolade/hck-cli` (recommended)
 
+Use [`compose.yml`](../compose.yml) or [`compose.hardened.yml`](../compose.hardened.yml). Configure secrets in the compose file (`license_key`, `license_file`).
+
+**Always pass `--rm`** on `docker compose run` so one-off containers are removed when the command exits (avoids orphan-container warnings).
+
+| Service | Command | When |
+| --- | --- | --- |
+| `validateKeyOnline` | `validateKey` | Server has Internet |
+| `showComputerIdForOfflineValidation` | `getComputerId` | Air-gapped server — prints Computer ID + QLM URL |
+| `validateKeyOffline` | `validateKey` | After `LicenseFile.xml` is on the server |
+
+Full walkthrough: [example-offline-metadata-pipeline.md](./example-offline-metadata-pipeline.md).
+
+### Online (Compose)
+
+```bash
+echo "YOUR-FLOATING-LICENSE-KEY" > ~/license-key.txt
+chmod 600 ~/license-key.txt
+docker compose -f compose.hardened.yml run --rm validateKeyOnline
+```
+
+Confirm with `docker compose -f compose.hardened.yml run --rm hck-cli showLicense`.
+
+### Offline (Compose)
+
+**Step 1 — on the air-gapped server:** get Computer ID and QLM URL:
+
+```bash
+docker compose -f compose.hardened.yml run --rm showComputerIdForOfflineValidation
+```
+
+Example output:
+
+```text
+📋 Copy the Computer ID below and use it for offline license activation:
+
+afa10d9e-17cd-48d7-97f5-b277951773ec-b572e4e5-6796-4cf7-820e-62a30530a318-8.12.7-docker
+
+🌐 Open the following URL in your browser to proceed with offline validation:
+   https://quicklicensemanager.com/hackolade/qlmcustomersite/qlmwebactivation.aspx?is_file=1&is_pcid=afa10d9e-17cd-48d7-97f5-b277951773ec-b572e4e5-6796-4cf7-820e-62a30530a318-8.12.7-docker&is_avkey=YOUR-FLOATING-LICENSE-KEY
+   (activation key prefilled from license key / secrets)
+```
+
+The Computer ID is `<image-uuid>-<container-uuid>-<studio-version>-docker`. The URL prefills **`is_file=1`** (download `LicenseFile.xml`), **`is_pcid`**, and **`is_avkey`** when the `license_key` secret is set — copy the URL to a machine with Internet access.
+
+**Step 2 — on an Internet-connected machine:** open that URL in a browser. QLM downloads **`LicenseFile.xml`** automatically. **Do not edit** the file.
+
+**Step 3 — copy** `LicenseFile.xml` to the path in compose (`secrets.license_file`, default `${HOME}/Downloads/LicenseFile.xml`).
+
+**Step 4 — validate on the server:**
+
+```bash
+docker compose -f compose.hardened.yml run --rm validateKeyOffline
+docker compose -f compose.hardened.yml run --rm hck-cli showLicense
+```
+
+---
+
+## Legacy custom-built images
+
+The sections below describe the older `hackolade/studio` build path (`show-computer-id.sh`, `/home/hackolade/.config/Hackolade` volumes).
 
 ## Online License Validation (With Internet Connection)
 

@@ -10,16 +10,18 @@
 # Example Docker Compose file for the pre-built hackolade/hck-cli image from Docker Hub.
 # The image includes Hackolade Studio and all plugins — ready to use without a build step.
 #
-# Runtime writes are consolidated to exactly two mounts (same layout as compose.hardened.yml
-# and the k8s/ manifests — only the security profile differs here):
-#   /data  persistent volume — license state, logs, models, output, settings
-#   /tmp   tmpfs — sockets, caches, scratch
+# WRITABLE PATHS: prefer /data and /tmp (consolidated mounts).
+#   /data  persistent volume — license (/data/app), logs, models, output, settings
+#   /tmp   tmpfs — sockets, caches, scratch (ephemeral)
+# Legacy /home/hackolade/.config and /home/hackolade/Documents/* may still work
+# on a writable rootfs, but use /data + /tmp for new setups (see getting-started-hck-cli.md).
 #
-# For read-only root filesystem, dropped capabilities, and Kubernetes Restricted parity,
-# use compose.hardened.yml instead.
+# Same two paths in compose.hardened.yml and k8s/ — hardened adds read-only rootfs + caps.
 #
 # Documentation: doc/getting-started-hck-cli.md
 # Custom builds on hackolade/studio: docker-compose.yml + doc/getting-started.md
+#
+# Usage: docker compose run --rm …  (always --rm for one-off CLI jobs)
 
 services:
   # Run a CLI command (defaults to version).
@@ -45,6 +47,7 @@ services:
 
   showComputerIdForOfflineValidation:
     extends: hck-cli
+    # Prints Computer ID + ready-to-open QLM URL for LicenseFile.xml download
     command: ["getComputerId"]
 
   # validateKeyOfflineFromFile:
