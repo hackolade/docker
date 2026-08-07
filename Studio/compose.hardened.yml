@@ -1,0 +1,93 @@
+#
+# Copyright © 2016-2026 by IntegrIT S.A. dba Hackolade.  All rights reserved.
+#
+# The copyright to the computer software herein is the property of IntegrIT S.A.
+# The software may be used and/or copied only with the written permission of
+# IntegrIT S.A. or in accordance with the terms and conditions stipulated in
+# the agreement/contract under which the software has been supplied.
+#
+
+# Hardened Docker Compose example for hackolade/hck-cli.
+#
+# Matches how the image runs under the Kubernetes Restricted Pod Security Standard
+# and OpenShift restricted-v2 SCC:
+#
+#   - read-only root filesystem
+#   - all capabilities dropped, no privilege escalation
+#   - non-root user (1000:1001 by default)
+#   - exactly two writable mounts:
+#       /data  persistent volume — license state, logs, models, output, settings
+#       /tmp   tmpfs — sockets, caches, scratch (discarded when the container exits)
+#
+# Usage:
+#   docker compose -f compose.hardened.yml run --rm hck-cli version
+#
+# For local development without these constraints, use compose.yml instead.
+# For Kubernetes manifests with a PVC, see k8s/hck-cli-job.yaml.
+# Documentation: doc/getting-started-hck-cli.md
+
+services:
+  hck-cli: &hck-cli
+    init: true
+    image: hackolade/hck-cli:8.9.2
+    command: ["version"]
+    restart: 'no'
+    read_only: true
+    user: "1000:1001"
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    volumes:
+      - hackolade-studio-data:/data
+      - ${PWD}/models:/data/models
+    tmpfs:
+      - /tmp:rw,size=1g,mode=1777
+
+  showComputerIdForOfflineValidation:
+    extends: hck-cli
+    command: ["getComputerId"]
+
+  validateKeyOffline:
+    extends: hck-cli
+    network_mode: 'none'
+    command: ["validateKey"]
+    secrets:
+      - license_file
+
+  validateKeyOnline:
+    extends: hck-cli
+    command: ["validateKey"]
+    network_mode: host
+    secrets:
+      - license_key
+
+  # Smoke test: run a command that starts Electron and writes output, not just the CLI wrapper.
+  genDoc:
+    extends: hck-cli
+    command: ["genDoc", "--model=/data/models/smoke.hck.json", "--doc=/data/output/smoke.pdf"]
+
+  # OpenShift restricted-v2 assigns an arbitrary UID in the root supplementary group.
+  # Proves nss_wrapper and group-0 ownership of /data work without a passwd entry.
+  hck-cli-arbitrary-uid:
+    <<: *hck-cli
+    user: "31337:0"
+
+  # Trust a private CA with a read-only PEM mount — no root step required.
+  # See doc/custom-certificates.md.
+  # runWithCustomCertificates:
+  #   extends: hck-cli
+  #   environment:
+  #     NODE_EXTRA_CA_CERTS: /certs/internal-ca.crt
+  #     SSL_CERT_FILE: /certs/internal-ca.crt
+  #   volumes:
+  #     - ./certificates/internal-ca.crt:/certs/internal-ca.crt:ro
+
+volumes:
+  hackolade-studio-data:
+
+secrets:
+  license_key:
+    file: ${HOME}/Downloads/license-key.txt
+  license_file:
+    file: ${HOME}/Downloads/LicenseFile.xml

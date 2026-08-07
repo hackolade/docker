@@ -7,41 +7,36 @@
 # the agreement/contract under which the software has been supplied.
 #
 
-# This file is an example of how to orchestrate the Hackolade CLI from a docker compose file
-# leveraging our hck-cli docker image from Docker Hub
-# This image contains the Hackolade Studio Release and all of the plugins already installed
-# It's ready to be used.
+# Example Docker Compose file for the pre-built hackolade/hck-cli image from Docker Hub.
+# The image includes Hackolade Studio and all plugins — ready to use without a build step.
 #
-# This compose.yml file is specifically designed for the pre-built hackolade/hck-cli image.
 # For complete documentation and usage instructions, see: doc/getting-started-hck-cli.md
 #
-# If you are building your own image using hackolade/studio, use docker-compose.yml instead,
-# which is designed for custom-built images. See doc/getting-started.md for building instructions.
+# If you are building your own image using hackolade/studio, use docker-compose.yml instead.
+# See doc/getting-started.md for building instructions.
+#
+# For Kubernetes Restricted / OpenShift restricted-v2 parity (read-only root filesystem,
+# dropped capabilities, /data volume + /tmp tmpfs), use compose.hardened.yml instead.
 
 services:
-  # Run a cli command (default to version)
-  # Pay attention to file paths as they must be paths inside the containers
-  # If a file needs to be made available from the host or another container, use the volumes section to mount the file or folders
-  # This compose exposes different manners to provide the License key or LicenseFile.xml for offline validation
-
-  # Example using online License key validation and the key stored in a secret file (file path from host) defined in the secrets section:
+  # Run a CLI command (defaults to version).
+  # Paths below are inside the container. Mount host files or folders through volumes.
   #
-  # docker compose run -t --rm validateKeyOnline
-  # docker compose run -t --rm hck-cli gendoc --format=HTML --model '/data/models/MongoDB/Yelp Challenge dataset.hck.json' --doc /data/output/doc-test --jsonSchema
+  # Examples:
+  #   docker compose run -t --rm validateKeyOnline
+  #   docker compose run -t --rm hck-cli genDoc --format=HTML \
+  #     --model '/data/models/MongoDB/Yelp Challenge dataset.hck.json' \
+  #     --doc /data/output/doc-test --jsonSchema
   hck-cli: &hck-cli
     image: hackolade/hck-cli:8.9.2
     command: ["version"]
     restart: 'no'
     # network_mode: 'none'
     volumes:
-      - hackolade-studio-app-data:/home/hackolade/.config
-      - hackolade-studio-logs:/data/logs
+      # Mandatory: license state, logs, output, settings, and options live under /data.
+      - hackolade-studio-data:/data
+      # Models from the host; remove this line to keep models on the named volume instead.
       - ${PWD}/models:/data/models
-      # - hackolade-studio-options:/data/options
-      - hackolade-studio-output:/data/output
-    secrets:
-      - license_file
-      - license_key
 
   showComputerIdForOfflineValidation:
     extends: hck-cli
@@ -66,7 +61,6 @@ services:
   #   volumes:
   #     - $HOME/Downloads/license-key.txt:/data/license-key.txt
 
-
   validateKeyOffline:
     extends: hck-cli
     network_mode: 'none'
@@ -81,34 +75,12 @@ services:
     secrets:
       - license_key
 
-  installCustomCertificates:
-    image:  hackolade/hck-cli:8.9.2
-    entrypoint: [ "bash", "-c" ]
-    command: ['update-ca-certificates']
-    restart: 'no'
-    # calling update-ca-certificates can only be done by root and will generate
-    # a new ca-certificates.crt file that will bundle all installed certificates
-    # in /etc/ssl/certs
-    user: root
-    volumes:
-      - installed-tls-certificates:/etc/ssl/certs
-      # - ./custom-certificate.crt:/etc/ssl/certs/custom-certificate.crt
-      # Bind or inject any other custom certificate into /etc/ssl/certs but without overriding everything!
-
 volumes:
-  # This docker volume is mandatory if you want the licensing to work and be able to use the cli
-  hackolade-studio-app-data:
-  hackolade-studio-logs:
-  # This compose mounts the models folder from the host
-  # hackolade-studio-models:
-  # hackolade-studio-options:
-  hackolade-studio-output:
-  installed-tls-certificates:
+  # Required for licensing and persistent CLI state.
+  hackolade-studio-data:
 
-secrets: # Don't change the name of the secrets as the cli is looking for them by name with these values by default
+secrets: # Don't change the secret names — the CLI looks them up by these values.
   license_key:
-    # Expects the license key to be put as content of the file path defined in the file variable
     file: ${HOME}/Downloads/license-key.txt
   license_file:
-  # Expects the license file to be put as content of the file path defined in the file variable
     file: ${HOME}/Downloads/LicenseFile.xml
