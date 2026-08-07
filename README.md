@@ -12,7 +12,7 @@ The [`Studio/`](./Studio) folder includes:
 - [`compose.hardened.yml`](./Studio/compose.hardened.yml) — read-only rootfs, dropped capabilities (Kubernetes Restricted parity)
 - [`k8s/`](./Studio/k8s/) — Job manifests with PVC at `/data` and memory `emptyDir` at `/tmp`
 
-## Custom-built images (legacy. runtime)
+## Custom-built images (legacy runtime)
 
 If you need a custom plugin set or a bespoke image, you can still build on the [`hackolade/studio`](https://hub.docker.com/r/hackolade/studio/tags) runtime base image. That path requires a build step and uses the legacy `/home/hackolade/Documents/*` layout.
 
