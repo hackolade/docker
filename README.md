@@ -24,6 +24,7 @@ Details: [Getting started — writable paths](./Studio/doc/getting-started-hck-c
 | Guide | When to use it |
 | --- | --- |
 | **[Getting started](./Studio/doc/getting-started-hck-cli.md)** | First run — `/data` + `/tmp` mounts, deployment profiles, quick commands |
+| **[Image variants, preflight, arbitrary UID](./Studio/doc/image-variants.md)** | Ubuntu vs `-hardened` (DHI) tags, startup checks, OpenShift/K8s UID |
 | **[Offline pipeline example](./Studio/doc/example-offline-metadata-pipeline.md)** | **Full CI walkthrough** — image upgrade, offline license, revEng → compMod → DDL → docs |
 | **[Docker CLI how-to](./Studio/doc/docker-cli-howto.md)** | `docker run` without Compose (local and hardened) |
 | **[License validation](./Studio/doc/license-validation.md)** | Online / offline floating license |

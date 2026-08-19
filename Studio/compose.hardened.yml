@@ -19,6 +19,11 @@
 #   - read-only root filesystem
 #   - all capabilities dropped, no privilege escalation
 #   - non-root user (1000:1001 by default)
+#   - group_add: ["0"] so an overridden user: still matches OpenShift (arbitrary UID, group 0)
+#
+# Image tag: hackolade/hck-cli:<version> (Ubuntu 26.04 LTS as of 8.12.8) or
+# <version>-hardened (Docker Hardened Debian). The file name is the runtime
+# profile, not the -hardened tag.
 #
 # Usage:
 #   docker compose -f compose.hardened.yml run --rm hck-cli
@@ -28,15 +33,20 @@
 # For the same /data + /tmp layout without read-only rootfs, use compose.yml.
 # For Kubernetes manifests with a PVC, see k8s/hck-cli-job.yaml.
 # Documentation: doc/getting-started-hck-cli.md
+# Image tags, preflight, arbitrary UID: doc/image-variants.md
 
 services:
   hck-cli: &hck-cli
     init: true
-    image: hackolade/hck-cli:8.12.7
+    image: hackolade/hck-cli:8.12.8
     command: ["version"]
     restart: 'no'
     read_only: true
     user: "1000:1001"
+    # OpenShift restricted-v2: arbitrary UID in group 0. Keep GID 0 as a supplemental group
+    # so overriding user: to "<uid>:<gid>" still matches the cluster (same as fsGroup: 0).
+    group_add:
+      - "0"
     cap_drop:
       - ALL
     security_opt:
@@ -73,6 +83,8 @@ services:
 
   # OpenShift restricted-v2 assigns an arbitrary UID in the root supplementary group.
   # Proves nss_wrapper and group-0 ownership of /data work without a passwd entry.
+  # Primary GID may also be the assigned UID (user: "<uid>:<uid>"); group_add: ["0"] on
+  # the base service still grants write to /data.
   hck-cli-arbitrary-uid:
     <<: *hck-cli
     user: "31337:0"

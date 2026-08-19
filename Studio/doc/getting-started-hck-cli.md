@@ -9,6 +9,7 @@ Ready-to-use Docker image: Hackolade Studio CLI, all target plugins, no build st
 | Guide | Use when |
 | --- | --- |
 | **This page** | First run, deployment profiles, troubleshooting |
+| **[Image variants, preflight, arbitrary UID](./image-variants.md)** | Ubuntu vs `-hardened` (DHI) tags, startup checks, OpenShift/K8s UID |
 | **[Offline pipeline example](./example-offline-metadata-pipeline.md)** | **Complete CI story** — new image tag, offline license, revEng → compMod → DDL → docs, plus `version`, `showLicense`, `listLogs`, `showLogs` |
 | **[Docker CLI how-to](./docker-cli-howto.md)** | You prefer **`docker run`** instead of Compose |
 | **[License validation](./license-validation.md)** | Online or offline floating license setup |
@@ -35,7 +36,7 @@ This is the same rule in [`compose.yml`](../compose.yml), [`compose.hardened.yml
 | Profile | Compose / manifest | Read-only rootfs | Extra hardening |
 | --- | --- | --- | --- |
 | **Local** | [`compose.yml`](../compose.yml) | No | Same `/data` + `/tmp` mounts |
-| **Hardened** (recommended for CI / production) | [`compose.hardened.yml`](../compose.hardened.yml) | Yes | `cap_drop: ALL`, non-root, no privilege escalation |
+| **Hardened** (recommended for CI / production) | [`compose.hardened.yml`](../compose.hardened.yml) | Yes | `cap_drop: ALL`, non-root, no privilege escalation. Runtime profile — not the `-hardened` image tag |
 | **Kubernetes** | [`k8s/hck-cli-job.yaml`](../k8s/hck-cli-job.yaml) | Yes | Same as hardened Compose (Restricted Pod Security Standard) |
 
 ```bash
@@ -44,12 +45,14 @@ This is the same rule in [`compose.yml`](../compose.yml), [`compose.hardened.yml
 docker compose -f compose.hardened.yml run --rm hck-cli
 ```
 
-OpenShift arbitrary UID: [`compose.hardened.yml`](../compose.hardened.yml) (`hck-cli-arbitrary-uid`) or [`k8s/hck-cli-job-openshift.yaml`](../k8s/hck-cli-job-openshift.yaml).
+OpenShift arbitrary UID: [`compose.hardened.yml`](../compose.hardened.yml) (`hck-cli-arbitrary-uid`) or [`k8s/hck-cli-job-openshift.yaml`](../k8s/hck-cli-job-openshift.yaml). Details: [image-variants.md](./image-variants.md#arbitrary-uid).
+
+`compose.hardened.yml` is the **runtime profile** (read-only rootfs). The **`-hardened` image tag** is a different OS base (Docker Hardened Debian). Either tag works with either compose file — [image-variants.md](./image-variants.md).
 
 ## Before you start
 
 - **Floating license only** — workstation licenses do not work in Docker.
-- **Pin a version tag** — `latest` is not published. Example: `hackolade/hck-cli:8.12.7`. Weekly plugin refreshes may appear as `8.12.7-YYYY-MM-DD` on the [current release only](https://hub.docker.com/r/hackolade/hck-cli/tags).
+- **Pin a version tag** — `latest` is not published. Example: `hackolade/hck-cli:8.12.8` (**Ubuntu 26.04 LTS**) or `hackolade/hck-cli:8.12.8-hardened` (Docker Hardened Image). Weekly plugin refreshes may appear as `8.12.8-YYYY-MM-DD` on the [current release only](https://hub.docker.com/r/hackolade/hck-cli/tags). See [image tags](./image-variants.md#image-tags).
 - **Re-validate when the image tag changes** — license state is tied to the image UUID.
 - **Mount `/data` and `/tmp` on every run** — recommended consolidated layout; legacy `/home/hackolade/…` bind mounts may still work on a writable rootfs (see [Writable paths](#writable-paths-data-and-tmp-recommended)).
 - **Always use `docker compose run --rm`** — removes the one-off container when the command exits. Without `--rm`, stopped `…-run-…` containers accumulate and Compose warns about **orphan containers** on the next run.
@@ -140,10 +143,11 @@ $COMPOSE run --rm hck-cli showLicense || exit 1
 
 | Tag | Meaning |
 | --- | --- |
-| `hackolade/hck-cli:8.12.7` | Current Hackolade Studio release |
-| `hackolade/hck-cli:8.12.7-2026-08-07` | Example intermediate tag (plugin updates on the current release) |
+| `hackolade/hck-cli:8.12.8` | Current Studio release (**Ubuntu 26.04 LTS** / Resolute Raccoon) |
+| `hackolade/hck-cli:8.12.8-hardened` | Same release, [Docker Hardened Image](https://docs.docker.com/dhi/) (Debian) base |
+| `hackolade/hck-cli:8.12.8-2026-08-07` | Example intermediate tag (plugin updates on the current release) |
 
-Update the `image:` line in your compose file, then `docker compose pull`.
+Update the `image:` line in your compose file, then `docker compose pull`. Ubuntu vs `-hardened`, startup preflight, and arbitrary UID: **[image-variants.md](./image-variants.md)**.
 
 ## Docker CLI (without Compose)
 
@@ -153,7 +157,8 @@ See **[docker-cli-howto.md](./docker-cli-howto.md)** for local and hardened `doc
 
 | Problem | Check |
 | --- | --- |
-| Permission denied on `./models` | `chown -R 1000:1001 ./models` |
+| Permission denied on `./models` | `chown -R 1000:1001 ./models` (default user). For an OpenShift-style UID see [arbitrary UID](./image-variants.md#bind-mounted-host-folders) |
+| `The container has no writable location` | Preflight: `/data` and `/tmp` must be writable by this UID. Mount both; keep **group 0** for an arbitrary UID (`group_add: ["0"]`, `user: "<uid>:0"`, or `fsGroup: 0`). Recreate a named volume stuck at `root:root` `755`. Details: [preflight](./image-variants.md#startup-preflight) |
 | Fails with read-only rootfs | Mount **`/data`** (volume) and **`/tmp`** (tmpfs) — with `read_only: true`, only these paths are writable |
 | `Read-only file system` / writes not landing on a legacy mount | Prefer **`/data/…`** — the image redirects runtime writes to `/data` and `/tmp`; legacy `/home/hackolade/…` bind mounts may still work on a writable rootfs but are not recommended |
 | License validation fails | Same image tag for UUID + validation; floating seat available |
@@ -164,6 +169,7 @@ See **[docker-cli-howto.md](./docker-cli-howto.md)** for local and hardened `doc
 
 ## See also
 
+- [Image variants, preflight, arbitrary UID](./image-variants.md)
 - [Offline metadata pipeline example](./example-offline-metadata-pipeline.md) — **full CI walkthrough**
 - [Docker CLI how-to](./docker-cli-howto.md)
 - [License validation](./license-validation.md)
