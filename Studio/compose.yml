@@ -17,6 +17,7 @@
 # on a writable rootfs, but use /data + /tmp for new setups (see getting-started-hck-cli.md).
 #
 # Same two paths in compose.hardened.yml and k8s/ — hardened adds read-only rootfs + caps.
+# Image: hackolade/hck-cli:<version> or <version>-hardened (see doc/image-variants.md).
 #
 # Documentation: doc/getting-started-hck-cli.md
 # Custom builds on hackolade/studio: docker-compose.yml + doc/getting-started.md
@@ -33,7 +34,7 @@ services:
   #     --model '/data/models/MongoDB/Yelp Challenge dataset.hck.json' \
   #     --doc /data/output/doc-test --jsonSchema
   hck-cli: &hck-cli
-    image: hackolade/hck-cli:8.12.7
+    image: hackolade/hck-cli:8.12.8
     command: ["version"]
     restart: 'no'
     # network_mode: 'none'

@@ -23,6 +23,7 @@ Full breakdown: [getting-started-hck-cli.md](./doc/getting-started-hck-cli.md#wr
 | Guide | Description |
 | --- | --- |
 | **[getting-started-hck-cli.md](./doc/getting-started-hck-cli.md)** | Start here — `/data` + `/tmp` layout, profiles, quick start |
+| **[image-variants.md](./doc/image-variants.md)** | Ubuntu vs `-hardened` (DHI) tags, startup preflight, arbitrary UID |
 | **[example-offline-metadata-pipeline.md](./doc/example-offline-metadata-pipeline.md)** | **Full worked example** — image upgrade, offline license, `version` / `showLicense` / `listLogs` / `showLogs`, revEng → compMod → forweng → genDoc |
 | **[docker-cli-howto.md](./doc/docker-cli-howto.md)** | `docker run` templates (local and hardened) |
 | **[license-validation.md](./doc/license-validation.md)** | Floating license — online and offline |
@@ -41,7 +42,7 @@ Always use **`run --rm`** for one-off CLI jobs — without it, stopped `…-run-
 | File | Profile |
 | --- | --- |
 | [compose.yml](./compose.yml) | Local — `/data` + `/tmp`, writable rootfs |
-| [compose.hardened.yml](./compose.hardened.yml) | **Hardened** (CI / production) — read-only rootfs, `cap_drop: ALL` |
+| [compose.hardened.yml](./compose.hardened.yml) | **Runtime profile** (CI / production) — read-only rootfs, `cap_drop: ALL`. Works with the Ubuntu tag or `*-hardened` |
 | [k8s/](./k8s/) | Kubernetes — same mounts + Restricted Pod Security Standard |
 
 ## Custom builds (legacy)
